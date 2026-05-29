@@ -17,7 +17,7 @@ export function injectLayout() {
         sidebar.innerHTML = `
             <div style="padding: 40px 20px; display: flex; flex-direction: column; height: 100%; gap: 10px;">
                 <div class="logo-container" style="display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:40px;">
-                    <img src="../public/logo.svg" alt="Logo" style="width:45px; height:45px; filter: drop-shadow(0 0 10px var(--neon-green));">
+                    <img src="../public/logo.png" alt="Logo" style="width:45px; height:45px; filter: drop-shadow(0 0 10px var(--neon-green));">
                     <div class="logo syne gradient-text" style="font-size: 22px; font-weight:800; letter-spacing:-1px;">ATHAR — أثر</div>
                 </div>
                 
