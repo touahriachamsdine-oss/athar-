@@ -1,8 +1,7 @@
-/* components.css - Modern PWA Components */
+/* components.css - Athar Premium Flat Components */
 .btn {
     padding: 14px 32px;
-    /* User Req: Add more spacing */
-    border-radius: 16px;
+    border-radius: 12px;
     font-weight: 700;
     transition: var(--transition);
     display: inline-flex;
@@ -10,50 +9,62 @@
     gap: 12px;
     cursor: pointer;
     text-decoration: none;
-    border: 1px solid transparent;
+    border: none !important;
+    outline: none !important;
 }
 
 .btn-primary {
-    background: var(--neon-green);
-    color: var(--bg-dark);
+    background: var(--accent-pink);
+    color: #FFFFFF !important;
+    box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.3);
 }
 
 .btn-primary:hover {
-    transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 10px 30px rgba(0, 255, 178, 0.3);
+    transform: translateY(-5px) translateX(-3px);
+    box-shadow: 8px 8px 0px var(--accent-cyan);
 }
 
 .btn-outline {
-    background: transparent;
-    border-color: var(--glass-border);
+    background: rgba(255, 255, 255, 0.05);
     color: var(--text-primary);
+    box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.2);
+}
+
+.btn-outline:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-5px) translateX(-3px);
+    box-shadow: 8px 8px 0px rgba(255, 255, 255, 0.1);
 }
 
 .input-field {
     width: 100%;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
+    background: rgba(16, 14, 37, 0.85);
+    border: none !important;
+    outline: none !important;
     padding: 18px 24px;
-    border-radius: 18px;
+    border-radius: 14px;
     color: var(--text-primary);
-    outline: none;
     transition: var(--transition);
     margin-bottom: 10px;
-    /* User Req: Vertical spacing */
+    box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.25);
 }
 
 .input-field:focus {
-    border-color: var(--neon-teal);
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(16, 14, 37, 0.95);
+    box-shadow: 6px 6px 0px var(--accent-pink);
+    transform: translateY(-3px) translateX(-2px);
 }
 
 .badge {
     padding: 8px 16px;
-    border-radius: 50px;
+    border-radius: 8px;
     font-size: 11px;
     font-family: var(--mono);
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
+    border: none !important;
+    display: inline-block;
+    box-shadow: 2px 2px 0px rgba(0,0,0,0.2);
 }
 
 /* Sidebar Navigation */
@@ -62,25 +73,34 @@
     align-items: center;
     gap: 15px;
     padding: 16px 24px;
-    border-radius: 20px;
+    border-radius: 14px;
     color: var(--text-dim);
     text-decoration: none;
     font-weight: 600;
     font-size: 15px;
     margin-bottom: 8px;
-    /* User Req: Vertical spacing */
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none !important;
+    outline: none !important;
+    transition: var(--transition);
 }
 
-.nav-item:hover,
-.nav-item.active {
+.nav-item:hover {
     color: var(--text-primary);
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
+    background: rgba(255, 255, 255, 0.04);
     transform: translateX(8px);
 }
 
-[dir="rtl"] .nav-item:hover,
+.nav-item.active {
+    color: #FFFFFF !important;
+    background: var(--accent-pink) !important;
+    box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.3);
+    transform: translateX(8px);
+}
+
+[dir="rtl"] .nav-item:hover {
+    transform: translateX(-8px);
+}
+
 [dir="rtl"] .nav-item.active {
     transform: translateX(-8px);
 }
@@ -88,17 +108,52 @@
 .icon-btn {
     width: 44px;
     height: 44px;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
+    background: rgba(255, 255, 255, 0.04);
+    border: none !important;
+    outline: none !important;
     border-radius: 12px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.3s ease;
+    transition: var(--transition);
 }
 
 .icon-btn:hover {
-    background: var(--glass-border);
-    transform: scale(1.1);
+    background: rgba(255, 255, 255, 0.08);
+    transform: scale(1.15) rotate(6deg) translateY(-3px);
+    box-shadow: 3px 3px 0px rgba(0,0,0,0.25);
+}
+
+[data-theme="light"] .input-field {
+    background: #FFFFFF;
+    box-shadow: 4px 4px 0px rgba(18, 20, 36, 0.06);
+    color: var(--text-primary);
+}
+
+[data-theme="light"] .input-field:focus {
+    background: #FFFFFF;
+    box-shadow: 6px 6px 0px var(--accent-pink);
+}
+
+[data-theme="light"] .btn-primary {
+    box-shadow: 4px 4px 0px rgba(18, 20, 36, 0.1);
+}
+
+[data-theme="light"] .btn-primary:hover {
+    box-shadow: 8px 8px 0px var(--accent-cyan);
+}
+
+[data-theme="light"] .btn-outline {
+    background: #FFFFFF;
+    box-shadow: 4px 4px 0px rgba(18, 20, 36, 0.05);
+}
+
+[data-theme="light"] .btn-outline:hover {
+    background: #FFFFFF;
+    box-shadow: 8px 8px 0px rgba(18, 20, 36, 0.1);
+}
+
+[data-theme="light"] .nav-item.active {
+    box-shadow: 4px 4px 0px rgba(18, 20, 36, 0.1);
 }

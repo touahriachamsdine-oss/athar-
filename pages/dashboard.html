@@ -3,66 +3,386 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>لوحة التحكم — Moubadara</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أثر — لوحة التحكم</title>
     <link rel="stylesheet" href="../src/css/reset.css">
     <link rel="stylesheet" href="../src/css/variables.css">
     <link rel="stylesheet" href="../src/css/typography.css">
     <link rel="stylesheet" href="../src/css/glass.css">
     <link rel="stylesheet" href="../src/css/components.css">
+    <link rel="stylesheet" href="../src/css/animations.css">
     <link rel="stylesheet" href="../src/css/layout.css">
     <link rel="stylesheet" href="../src/css/utilities.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', 'Outfit', sans-serif;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: var(--sidebar-w) 1fr;
+            min-height: 100vh;
+        }
+
+        @media (max-width: 992px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                display: none;
+            }
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 24px;
+            padding: 25px;
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .progress-bar-inner {
+            height: 100%;
+            border-radius: 4px;
+            background: linear-gradient(90deg, var(--neon-green), var(--neon-teal));
+            transition: width 1s ease-in-out;
+        }
+    </style>
 </head>
 
 <body class="dashboard-grid">
+    <!-- SIDEBAR -->
     <aside class="sidebar glass" style="margin:20px; border-radius:30px;"></aside>
-    <main class="container mt-40">
-        <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom:40px;">
-            <h1 class="gradient-text">مرحبا بك</h1>
-            <div id="user-impact" class="glass badge">POINTS: 0</div>
+
+    <!-- MAIN CONTENT -->
+    <main class="container" style="padding: 40px; max-width: 1300px; width: 100%; box-sizing: border-box;">
+        <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom:40px; flex-wrap:wrap; gap:20px;">
+            <div>
+                <h1 class="gradient-text syne" style="font-size:36px; font-weight:800;" id="welcome-title">لوحة التحكم</h1>
+                <p style="opacity:0.65; margin-top:5px;" id="welcome-subtitle">تتبع أثرك ومشاركتك الفعالة ببيت الشباب</p>
+            </div>
+            
+            <div class="glass flex-center pulse-glow" style="padding:12px 28px; border-radius:20px; gap:12px; background:rgba(0, 255, 178, 0.03);">
+                <span style="font-size:24px;">🌱</span>
+                <div>
+                    <div style="font-size:10px; opacity:0.5; font-weight:700;" class="mono">IMPACT POINTS</div>
+                    <div style="font-size:20px; font-weight:800; color:var(--neon-green);" class="syne" id="user-points">0</div>
+                </div>
+            </div>
         </header>
-        <div id="initiatives-grid"
-            style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px,1fr)); gap:20px;"></div>
+
+        <!-- STATS COUNTERS -->
+        <section class="spring-in" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:20px; margin-bottom:40px;">
+            <div class="stat-card flex-center" style="gap:20px; justify-content:flex-start;">
+                <div style="font-size:38px; background:rgba(0, 255, 178, 0.08); width:70px; height:70px; border-radius:18px;" class="flex-center">🤖</div>
+                <div>
+                    <div style="font-size:13px; opacity:0.6;" id="lbl-my-clubs">النوادي المشترك بها</div>
+                    <div style="font-size:28px; font-weight:800;" class="syne" id="cnt-clubs">0</div>
+                </div>
+            </div>
+            
+            <div class="stat-card flex-center" style="gap:20px; justify-content:flex-start;">
+                <div style="font-size:38px; background:rgba(0, 212, 255, 0.08); width:70px; height:70px; border-radius:18px;" class="flex-center">🎓</div>
+                <div>
+                    <div style="font-size:13px; opacity:0.6;" id="lbl-my-training">الدورات التكوينية</div>
+                    <div style="font-size:28px; font-weight:800;" class="syne" id="cnt-courses">0</div>
+                </div>
+            </div>
+
+            <div class="stat-card flex-center" style="gap:20px; justify-content:flex-start;">
+                <div style="font-size:38px; background:rgba(255, 75, 75, 0.08); width:70px; height:70px; border-radius:18px;" class="flex-center">🩺</div>
+                <div>
+                    <div style="font-size:13px; opacity:0.6;" id="lbl-my-counseling">الاستشارات النفسية</div>
+                    <div style="font-size:28px; font-weight:800;" class="syne" id="cnt-support">0</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- DASHBOARD DETAILS -->
+        <div style="display:grid; grid-template-columns: 2fr 1.2fr; gap:30px; align-items:start; flex-wrap:wrap;" class="spring-in">
+            <!-- RIGHT PANEL: ACTIVE MODULES -->
+            <div style="display:flex; flex-direction:column; gap:30px;">
+                <!-- CLUBS LIST -->
+                <div class="glass" style="border-radius:28px; padding:30px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                        <h3 class="syne" style="font-size:20px; font-weight:700;" id="title-joined-clubs">نواديّ العلمية والرياضية</h3>
+                        <a href="clubs.html" class="btn btn-outline" style="padding:8px 16px; font-size:12px; border-radius:10px;" id="btn-explore-clubs">استكشف النوادي</a>
+                    </div>
+                    <div id="joined-clubs-list" style="display:flex; flex-direction:column; gap:15px;">
+                        <p style="opacity:0.5; font-size:14px;" id="no-clubs">لم تشترك في أي نادٍ علمي بعد.</p>
+                    </div>
+                </div>
+
+                <!-- TRAINING LIST -->
+                <div class="glass" style="border-radius:28px; padding:30px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                        <h3 class="syne" style="font-size:20px; font-weight:700;" id="title-joined-courses">دورات التكوين وتطوير المهارات</h3>
+                        <a href="training.html" class="btn btn-outline" style="padding:8px 16px; font-size:12px; border-radius:10px;" id="btn-explore-courses">سجل في دورة</a>
+                    </div>
+                    <div id="joined-courses-list" style="display:flex; flex-direction:column; gap:15px;">
+                        <p style="opacity:0.5; font-size:14px;" id="no-courses">لا يوجد دورات مسجلة حالياً.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LEFT PANEL: PILLAR STATUS & SUPPORT QUESTIONS -->
+            <div style="display:flex; flex-direction:column; gap:30px;">
+                <!-- PILLAR METER -->
+                <div class="glass" style="border-radius:28px; padding:30px;">
+                    <h3 class="syne mb-20" style="font-size:18px; font-weight:700;" id="title-pillar-progress">مقياس التمكين الشبابي</h3>
+                    
+                    <div style="display:flex; flex-direction:column; gap:20px;">
+                        <div>
+                            <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;">
+                                <span id="lbl-p1">النوادي العلمية والتطبيقية</span>
+                                <span class="mono" id="val-p1">0%</span>
+                            </div>
+                            <div style="height:6px; background:rgba(255,255,255,0.05); border-radius:4px;">
+                                <div class="progress-bar-inner" id="bar-p1" style="width: 0%;"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;">
+                                <span id="lbl-p2">التوعية والوقاية</span>
+                                <span class="mono" id="val-p2">0%</span>
+                            </div>
+                            <div style="height:6px; background:rgba(255,255,255,0.05); border-radius:4px;">
+                                <div class="progress-bar-inner" id="bar-p2" style="width: 0%;" style="background:var(--neon-teal);"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;">
+                                <span id="lbl-p3">التدريب والشهادات</span>
+                                <span class="mono" id="val-p3">0%</span>
+                            </div>
+                            <div style="height:6px; background:rgba(255,255,255,0.05); border-radius:4px;">
+                                <div class="progress-bar-inner" id="bar-p3" style="width: 0%;" style="background:var(--neon-gold);"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUPPORT INQUIRIES -->
+                <div class="glass" style="border-radius:28px; padding:30px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                        <h3 class="syne" style="font-size:18px; font-weight:700;" id="title-consultations">الاستشارات والردود الآمنة</h3>
+                        <a href="support.html" class="btn btn-outline" style="padding:6px 12px; font-size:11px; border-radius:8px;" id="btn-ask-counselor">طرح استشارة</a>
+                    </div>
+                    <div id="counseling-list" style="display:flex; flex-direction:column; gap:15px;">
+                        <p style="opacity:0.5; font-size:14px;" id="no-consultations">لم تقم بطرح أي استشارة سرية بعد.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
 
     <script type="module">
         import { requireAuth } from '../src/js/auth.js';
-        import { getMyInitiatives } from '../src/js/db.js';
+        import { neon } from '../src/js/neon.js';
         import { setLanguage, getCurrentLang } from '../src/js/i18n.js';
         import { injectLayout } from '../src/js/layout.js';
+
+        const DICT = {
+            ar: {
+                welcome: 'مرحباً بك، ',
+                subtitle: 'تتبع أثرك ومشاركتك الفعالة ببيت الشباب',
+                my_clubs: 'النوادي المشترك بها',
+                my_training: 'الدورات التكوينية',
+                my_counseling: 'الاستشارات النفسية',
+                clubs_title: 'نواديّ العلمية والثقافية',
+                explore_clubs: 'استكشف النوادي',
+                no_clubs: 'لم تشترك في أي نادٍ علمي بعد.',
+                courses_title: 'دورات التكوين وصقل المهارات',
+                register_course: 'سجل في دورة',
+                no_courses: 'لا يوجد دورات مسجلة حالياً.',
+                pillar_meter: 'مقياس التمكين الشبابي',
+                counseling_title: 'الاستشارات والردود الآمنة',
+                ask_counselor: 'طرح استشارة',
+                no_consultations: 'لم تقم بطرح أي استشارة سرية بعد.',
+                pending: 'قيد المراجعة والتحليل',
+                answered: 'تم الرد والإرشاد',
+                active: 'نشط',
+                completed: 'مكتمل'
+            },
+            fr: {
+                welcome: 'Bienvenue, ',
+                subtitle: 'Suivez votre impact et vos activités au foyer de jeunes',
+                my_clubs: 'Clubs Rejoints',
+                my_training: 'Formations Suivies',
+                my_counseling: 'Consultations Privées',
+                clubs_title: 'Mes Clubs Scientifiques',
+                explore_clubs: 'Explorer les Clubs',
+                no_clubs: 'Vous n\'avez encore rejoint aucun club.',
+                courses_title: 'Formations & Compétences',
+                register_course: 'S\'inscrire',
+                no_courses: 'Aucune formation enregistrée.',
+                pillar_meter: 'Indicateurs d\'autonomisation',
+                counseling_title: 'Consultations & Réponses',
+                ask_counselor: 'Poser une question',
+                no_consultations: 'Aucune consultation privée soumise.',
+                pending: 'En cours d\'analyse',
+                answered: 'Réponse disponible',
+                active: 'Actif',
+                completed: 'Complété'
+            },
+            en: {
+                welcome: 'Welcome, ',
+                subtitle: 'Track your impact and active engagements in youth hostels',
+                my_clubs: 'Joined Clubs',
+                my_training: 'Training Courses',
+                my_counseling: 'Private Support',
+                clubs_title: 'My Scientific & Cultural Clubs',
+                explore_clubs: 'Explore Clubs',
+                no_clubs: 'You have not joined any youth clubs yet.',
+                courses_title: 'Skills & Certified Training',
+                register_course: 'Register',
+                no_courses: 'No courses registered currently.',
+                pillar_meter: 'Youth Empowerment Scale',
+                counseling_title: 'Consultations & Anonymous Support',
+                ask_counselor: 'Ask Support',
+                no_consultations: 'No support requests submitted yet.',
+                pending: 'Pending Analysis',
+                answered: 'Response Issued',
+                active: 'Active',
+                completed: 'Completed'
+            }
+        };
 
         async function init() {
             const auth = await requireAuth();
             if (!auth) return;
 
-            setLanguage(getCurrentLang());
+            const lang = getCurrentLang();
+            const d = DICT[lang] || DICT.ar;
+
+            setLanguage(lang);
             injectLayout();
 
-            document.getElementById('user-impact').innerText = `POINTS: ${auth.profile.impact_points}`;
+            // Localize Dashboard Strings
+            document.getElementById('welcome-title').innerText = `${d.welcome}${auth.profile.full_name || 'مستخدم جديد'}`;
+            document.getElementById('welcome-subtitle').innerText = d.subtitle;
+            document.getElementById('lbl-my-clubs').innerText = d.my_clubs;
+            document.getElementById('lbl-my-training').innerText = d.my_training;
+            document.getElementById('lbl-my-counseling').innerText = d.my_counseling;
+            document.getElementById('title-joined-clubs').innerText = d.clubs_title;
+            document.getElementById('btn-explore-clubs').innerText = d.explore_clubs;
+            document.getElementById('title-joined-courses').innerText = d.courses_title;
+            document.getElementById('btn-explore-courses').innerText = d.register_course;
+            document.getElementById('title-pillar-progress').innerText = d.pillar_meter;
+            document.getElementById('title-consultations').innerText = d.counseling_title;
+            document.getElementById('btn-ask-counselor').innerText = d.ask_counselor;
 
-            const { data } = await getMyInitiatives(auth.user.id);
-            renderInitiatives(data || []);
-        }
+            // Load user profile points
+            document.getElementById('user-points').innerText = auth.profile.impact_points || 0;
 
-        function renderInitiatives(list) {
-            const container = document.getElementById('initiatives-grid');
-            container.innerHTML = list.map(item => `
-                <div class="glass glass-interactive reveal active" style="padding:30px; border-radius:30px;" onclick="location.href='initiative.html?id=${item.initiatives.id}'">
-                    <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:20px;">
-                        <span class="badge" style="background:rgba(0,255,178,0.1); color:var(--neon-green); border:1px solid var(--neon-green); text-transform:uppercase;">${item.initiatives.category}</span>
-                        <div class="mono" style="font-size:12px; opacity:0.5;">${item.role.toUpperCase()}</div>
-                    </div>
-                    <h3 class="syne" style="font-size:20px; line-height:1.2; margin-bottom:15px;">${item.initiatives.title_ar}</h3>
-                    <div class="mono" style="font-size:12px; color:var(--text-dim); margin-bottom:20px;">${item.initiatives.wilaya} — ${item.initiatives.neighborhood}</div>
-                    
-                    <div style="height:4px; background:rgba(255,255,255,0.05); border-radius:2px; margin-bottom:10px;">
-                        <div style="height:100%; width:${item.initiatives.health_score}%; background:var(--neon-green); border-radius:2px; box-shadow:0 0 10px var(--neon-green);"></div>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; font-size:10px;" class="mono">
-                        <span>HEALTH: ${item.initiatives.health_score}%</span>
-                        <span style="color:var(--neon-teal);">${item.initiatives.status.toUpperCase()}</span>
-                    </div>
-                </div>
-            `).join('');
+            // Fetch joined clubs
+            const clubsRes = await neon.from('club_members').select().eq('user_id', auth.user.id);
+            const joinedClubs = clubsRes.data || [];
+            document.getElementById('cnt-clubs').innerText = joinedClubs.length;
+
+            if (joinedClubs.length > 0) {
+                const clubsListContainer = document.getElementById('joined-clubs-list');
+                clubsListContainer.innerHTML = '';
+                
+                // Fetch clubs metadata individually
+                for (const member of joinedClubs) {
+                    const cRes = await neon.from('clubs').select().id(member.club_id);
+                    const club = cRes.data ? cRes.data[0] : null;
+                    if (club) {
+                        const name = lang === 'ar' ? club.name_ar : (lang === 'fr' ? club.name_fr : club.name_en);
+                        const catIcon = club.category === 'robotics' ? '🤖' : (club.category === 'programming' ? '💻' : '✨');
+                        clubsListContainer.innerHTML += `
+                            <div class="stat-card flex-center" style="justify-content:space-between; padding:15px 20px; background:rgba(255,255,255,0.01); border-radius:18px;">
+                                <div style="display:flex; align-items:center; gap:12px;">
+                                    <span style="font-size:22px;">${catIcon}</span>
+                                    <div>
+                                        <div style="font-size:14px; font-weight:700;">${name}</div>
+                                        <div style="font-size:11px; opacity:0.5;">${club.wilaya}</div>
+                                    </div>
+                                </div>
+                                <span class="badge" style="background:rgba(0,255,178,0.08); color:var(--neon-green); font-size:10px;">${d.active}</span>
+                            </div>
+                        `;
+                    }
+                }
+            }
+
+            // Fetch training enrollments
+            const trainRes = await neon.from('training_enrollments').select().eq('user_id', auth.user.id);
+            const enrolledCourses = trainRes.data || [];
+            document.getElementById('cnt-courses').innerText = enrolledCourses.length;
+
+            if (enrolledCourses.length > 0) {
+                const coursesContainer = document.getElementById('joined-courses-list');
+                coursesContainer.innerHTML = '';
+
+                for (const enroll of enrolledCourses) {
+                    const coRes = await neon.from('training_courses').select().id(enroll.course_id);
+                    const course = coRes.data ? coRes.data[0] : null;
+                    if (course) {
+                        const title = lang === 'ar' ? course.title_ar : (lang === 'fr' ? course.title_fr : course.title_en);
+                        coursesContainer.innerHTML += `
+                            <div class="stat-card" style="padding:18px 20px; background:rgba(255,255,255,0.01); border-radius:18px;">
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                                    <div style="font-size:14px; font-weight:700;">${title}</div>
+                                    <span class="badge" style="${enroll.completed ? 'background:rgba(0,255,178,0.08); color:var(--neon-green);' : 'background:rgba(0,212,255,0.08); color:var(--neon-teal);'} font-size:10px;">
+                                        ${enroll.completed ? d.completed : d.active}
+                                    </span>
+                                </div>
+                                <div style="height:4px; background:rgba(255,255,255,0.05); border-radius:2px;">
+                                    <div style="height:100%; width:${enroll.completed ? '100%' : '50%'}; background:var(--neon-teal); border-radius:2px;"></div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+            }
+
+            // Fetch consultations
+            const supportRes = await neon.from('consultations').select().eq('user_id', auth.user.id);
+            const consultations = supportRes.data || [];
+            document.getElementById('cnt-support').innerText = consultations.length;
+
+            if (consultations.length > 0) {
+                const cList = document.getElementById('counseling-list');
+                cList.innerHTML = '';
+
+                consultations.forEach(q => {
+                    const isAnswered = q.answer_ar && q.answer_ar.trim().length > 0;
+                    cList.innerHTML += `
+                        <div class="stat-card" style="padding:15px; background:rgba(255,255,255,0.01); border-radius:18px; display:flex; flex-direction:column; gap:8px;">
+                            <div style="font-size:13px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${q.question_ar}</div>
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span class="badge" style="${isAnswered ? 'background:rgba(0,255,178,0.08); color:var(--neon-green);' : 'background:rgba(255,75,75,0.08); color:var(--neon-red);'} font-size:10px;">
+                                    ${isAnswered ? d.answered : d.pending}
+                                </span>
+                                <span class="mono" style="font-size:10px; opacity:0.4;">${new Date(q.created_at).toLocaleDateString()}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            // Update Pillar Meter dynamically
+            const p1 = joinedClubs.length > 0 ? 100 : 0;
+            const p2 = (auth.profile.impact_points || 0) >= 50 ? 100 : 0; // Did at least one awareness quiz
+            const p3 = enrolledCourses.some(e => e.completed) ? 100 : (enrolledCourses.length > 0 ? 50 : 0);
+
+            document.getElementById('bar-p1').style.width = `${p1}%`;
+            document.getElementById('val-p1').innerText = `${p1}%`;
+
+            document.getElementById('bar-p2').style.width = `${p2}%`;
+            document.getElementById('val-p2').innerText = `${p2}%`;
+
+            document.getElementById('bar-p3').style.width = `${p3}%`;
+            document.getElementById('val-p3').innerText = `${p3}%`;
         }
 
         init();

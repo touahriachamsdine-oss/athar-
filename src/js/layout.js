@@ -1,12 +1,15 @@
 // Shared Layout Injection Logic (Fully Localized + High Fidelity)
 import { signOut } from './auth.js';
 import { getCurrentLang, setLanguage, TRANSLATIONS } from './i18n.js';
-import { toggleTheme } from './theme.js';
+import { toggleTheme, initTheme } from './theme.js';
 import { ParticleField } from './particles.js';
 
 export function injectLayout() {
+    initTheme();
     const lang = getCurrentLang();
     const t = TRANSLATIONS[lang] || TRANSLATIONS.ar;
+    const userRole = localStorage.getItem('athar_user_role');
+    const isAdmin = userRole === 'admin' || userRole === 'superadmin';
 
     // 1. Inject Sidebar
     const sidebar = document.querySelector('.sidebar');
@@ -15,17 +18,18 @@ export function injectLayout() {
             <div style="padding: 40px 20px; display: flex; flex-direction: column; height: 100%; gap: 10px;">
                 <div class="logo-container" style="display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:40px;">
                     <img src="../public/logo.svg" alt="Logo" style="width:45px; height:45px; filter: drop-shadow(0 0 10px var(--neon-green));">
-                    <div class="logo syne gradient-text" style="font-size: 22px; font-weight:800; letter-spacing:-1px;">MOUBADARA</div>
+                    <div class="logo syne gradient-text" style="font-size: 22px; font-weight:800; letter-spacing:-1px;">ATHAR — أثر</div>
                 </div>
                 
-                <nav style="display: flex; flex-direction: column; gap: 10px;">
+                <nav style="display: flex; flex-direction: column; gap: 8px;">
                     <a href="dashboard.html" class="nav-item ${isActive('dashboard')}"><span>🏠</span> ${t.nav_dashboard}</a>
-                    <a href="tasks.html" class="nav-item ${isActive('tasks')}"><span>📋</span> ${t.nav_tasks}</a>
-                    <a href="notifications.html" class="nav-item ${isActive('notifications')}"><span>🔔</span> ${t.nav_notifications}</a>
-                    <a href="invites.html" class="nav-item ${isActive('invites')}"><span>✉️</span> ${t.nav_invites}</a>
-                    <hr style="border:none; border-top:1px solid var(--glass-border); margin:10px 0;">
-                    <a href="explore.html" class="nav-item ${isActive('explore')}"><span>🌍</span> ${t.nav_explore}</a>
-                    <a href="create.html" class="nav-item ${isActive('create')}"><span>➕</span> ${t.nav_create}</a>
+                    <a href="clubs.html" class="nav-item ${isActive('clubs')}"><span>🤖</span> ${t.nav_clubs}</a>
+                    <a href="awareness.html" class="nav-item ${isActive('awareness')}"><span>🛡️</span> ${t.nav_awareness}</a>
+                    <a href="schools.html" class="nav-item ${isActive('schools')}"><span>🏫</span> ${t.nav_schools}</a>
+                    <a href="training.html" class="nav-item ${isActive('training')}"><span>🎓</span> ${t.nav_training}</a>
+                    <a href="support.html" class="nav-item ${isActive('support')}"><span>🩺</span> ${t.nav_support}</a>
+                    <hr style="border:none; border-top:1px solid var(--glass-border); margin:5px 0;">
+                    ${isAdmin ? `<a href="admin.html" class="nav-item ${isActive('admin')}"><span>🔑</span> ${t.nav_admin}</a>` : ''}
                     <a href="profile.html" class="nav-item ${isActive('profile')}"><span>👤</span> ${t.nav_profile}</a>
                 </nav>
 

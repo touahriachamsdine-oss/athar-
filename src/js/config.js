@@ -1,13 +1,12 @@
-// Moubadara App Configuration (Neon Native)
+// Athar App Configuration (Neon Native)
 export const NEON_AUTH_URL = 'YOUR_NEON_AUTH_URL';
 export const NEON_API_URL = 'YOUR_NEON_API_URL';
 
 export const APP_CONFIG = {
-    name: { ar: 'مبادرة', fr: 'Moubadara', en: 'Moubadara' },
+    name: { ar: 'أثر', fr: 'Athar', en: 'Athar' },
     version: '1.0.0',
     defaultLang: 'ar',
     defaultTheme: 'dark',
-    // ... rest of config
     wilayas: [
         'Adrar', 'Chlef', 'Laghouat', 'Oum El Bouaghi', 'Batna', 'Béjaïa', 'Biskra',
         'Béchar', 'Blida', 'Bouira', 'Tamanrasset', 'Tébessa', 'Tlemcen', 'Tiaret',
@@ -21,18 +20,18 @@ export const APP_CONFIG = {
         'El M\'Ghair', 'El Meniaa'
     ],
     categories: [
-        { id: 'cleaning', icon: '🧹', ar: 'نظافة', fr: 'Propreté', en: 'Cleaning' },
-        { id: 'planting', icon: '🌳', ar: 'تشجير', fr: 'Plantation', en: 'Planting' },
-        { id: 'lighting', icon: '💡', ar: 'إنارة', fr: 'Éclairage', en: 'Lighting' },
-        { id: 'roads', icon: '🛣️', ar: 'طرق', fr: 'Routes', en: 'Roads' },
-        { id: 'security', icon: '🔒', ar: 'أمن', fr: 'Sécurité', en: 'Security' },
+        { id: 'robotics', icon: '🤖', ar: 'الروبوتيك الذكي', fr: 'Robotique', en: 'Robotics' },
+        { id: 'programming', icon: '💻', ar: 'البرمجة والتطوير', fr: 'Programmation', en: 'Programming' },
+        { id: 'theater', icon: '🎭', ar: 'المسرح والفنون', fr: 'Théâtre', en: 'Theater' },
+        { id: 'music', icon: '🎵', ar: 'الموسيقى والأنشطة', fr: 'Musique', en: 'Music' },
+        { id: 'reading', icon: '📚', ar: 'المطالعة والنقاش', fr: 'Lecture', en: 'Reading' },
         { id: 'other', icon: '✨', ar: 'أخرى', fr: 'Autre', en: 'Other' }
     ],
     steps: [
-        { n: 1, ar: 'تحديد المشكلة', fr: 'Définir le problème', en: 'Define Problem' },
-        { n: 2, ar: 'التخطيط', fr: 'Planification', en: 'Planning' },
-        { n: 3, ar: 'التنفيذ', fr: 'Exécution', en: 'Execution' },
-        { n: 4, ar: 'التقييم', fr: 'Évaluation', en: 'Evaluation' },
-        { n: 5, ar: 'الاستمرارية', fr: 'Durabilité', en: 'Sustainability' }
+        { n: 1, ar: 'التسجيل في النادي', fr: 'Inscription au Club', en: 'Club Registration' },
+        { n: 2, ar: 'حضور الورشات والتكوين', fr: 'Formation & Ateliers', en: 'Training & Workshops' },
+        { n: 3, ar: 'المشاركة المجتمعية', fr: 'Participation Communautaire', en: 'Community Action' },
+        { n: 4, ar: 'التقييم والتأهيل', fr: 'Évaluation & Certification', en: 'Evaluation & Certification' },
+        { n: 5, ar: 'الأثر المستدام', fr: 'Impact Durable', en: 'Sustainable Impact' }
     ]
 };

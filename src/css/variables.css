@@ -1,49 +1,59 @@
-/* variables.css - Smart City 2.0 Design System */
+/* variables.css - Athar Neo-Flat Premium Design System */
 :root {
-    /* Base Colors (Dark Mode Default) */
-    --bg-dark: #04060F;
-    --neon-green: #00FFB2;
-    --neon-teal: #00D4FF;
-    --neon-gold: #FFD700;
-    --neon-red: #FF4B4B;
+    /* Brand Accent Colors */
+    --accent-pink: #FF2A6D;     /* Athar Crimson Pink (Prevention/Youth Energy) */
+    --accent-cyan: #05D9E8;     /* Athar Cyber Cyan (Scientific/Cultural Clubs) */
+    --accent-purple: #A300FF;   /* Athar Amethyst Purple (Counseling/Wellness) */
+    --accent-amber: #FFBE0B;    /* Athar Solar Amber (School Partnerships/Community) */
 
-    --glass-bg: rgba(255, 255, 255, 0.03);
-    --glass-border: rgba(255, 255, 255, 0.1);
+    /* Base Colors (Dark Mode Default) */
+    --bg-dark: #070614;         /* Obsidian Space */
+    
+    /* Mapping Legacy Names to Keep Dynamic Sync across all pages */
+    --neon-green: var(--accent-pink);
+    --neon-teal: var(--accent-cyan);
+    --neon-gold: var(--accent-amber);
+    --neon-red: var(--accent-purple);
+
+    --glass-bg: rgba(16, 14, 37, 0.75); /* Solid obsidian purple blend */
+    --glass-border: transparent;        /* Absolutely borderless */
 
     --text-primary: #FFFFFF;
-    --text-dim: rgba(255, 255, 255, 0.6);
+    --text-dim: #8E95B3;
     --text-static: #FFFFFF;
 
-    --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    --shadow-neon: 0 0 30px rgba(0, 255, 178, 0.3);
-    --particle-color: rgba(0, 255, 178, 0.2);
+    /* Physics-based Spring Transition Curve */
+    --transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    --shadow-neon: 0 12px 30px -10px rgba(255, 42, 109, 0.3);
+    --particle-color: rgba(5, 217, 232, 0.15);
 
     --sidebar-w: 280px;
 }
 
-/* Light Mode Override (Premium White Aesthetic) */
+/* Light Mode Override (Premium Clean Slate) */
 [data-theme="light"] {
-    --bg-dark: #FFFFFF;
+    --bg-dark: #F5F6FC;         /* Crisp Pearl Mist */
 
-    /* Elegant, Higher-Contrast Colors for White background */
-    --neon-green: #07C18B;
-    /* Vibrant Emerald */
-    --neon-teal: #0062FF;
-    /* Sharp Royal Blue */
-    --neon-gold: #C69400;
-    /* Rich Gold */
-    --neon-red: #E53935;
-    /* Active Red */
+    /* Highly visible vibrant accents for white backgrounds */
+    --accent-pink: #E91E63;     /* Rich vivid rose */
+    --accent-cyan: #00ACC1;     /* Rich turquoise cyan */
+    --accent-purple: #673AB7;   /* Rich royal violet */
+    --accent-amber: #F57C00;    /* Rich amber orange */
 
-    --glass-bg: rgba(0, 0, 0, 0.03);
-    --glass-border: rgba(0, 0, 0, 0.08);
+    --neon-green: var(--accent-pink);
+    --neon-teal: var(--accent-cyan);
+    --neon-gold: var(--accent-amber);
+    --neon-red: var(--accent-purple);
 
-    --text-primary: #12141D;
-    --text-dim: rgba(18, 20, 29, 0.6);
+    --glass-bg: #FFFFFF;
+    --glass-border: transparent;
+
+    --text-primary: #121424;
+    --text-dim: #6E7391;
     --text-static: #FFFFFF;
 
-    --shadow-neon: 0 10px 40px rgba(0, 98, 255, 0.1);
-    --particle-color: rgba(0, 98, 255, 0.08);
+    --shadow-neon: 0 12px 30px -10px rgba(0, 172, 193, 0.15);
+    --particle-color: rgba(0, 172, 193, 0.08);
 }
 
 /* Global Reset & Basic Utils */

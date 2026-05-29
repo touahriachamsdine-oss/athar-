@@ -3,7 +3,7 @@ import { neon } from './neon.js';
 import { getSession } from './auth.js';
 
 export function initTheme() {
-    const currentTheme = localStorage.getItem('moubadara_theme') || 'dark';
+    const currentTheme = localStorage.getItem('athar_theme') || 'dark';
     document.documentElement.setAttribute('data-theme', currentTheme);
 }
 
@@ -12,7 +12,7 @@ export async function toggleTheme() {
     const newTheme = current === 'dark' ? 'light' : 'dark';
 
     document.documentElement.setAttribute('data-theme', newTheme);
-    localStorage.setItem('moubadara_theme', newTheme);
+    localStorage.setItem('athar_theme', newTheme);
 
     const session = await getSession();
     if (session) {

@@ -1,14 +1,12 @@
 // Client-side Health Analytics
-import { supabase } from './supabase.js';
+import { neon } from './neon.js';
 
 export async function getHealthReport(initiativeId) {
-    // This is often handled by the Postgres function, but we provide client-side access
-    const { data } = await supabase
+    const { data } = await neon
         .from('initiatives')
-        .select('health_score, status, current_step')
-        .eq('id', initiativeId)
-        .single();
-    return data;
+        .select()
+        .id(initiativeId);
+    return data ? data[0] : null;
 }
 
 export function getHealthColor(score) {

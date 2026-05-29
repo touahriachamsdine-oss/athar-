@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>المهام — Moubadara</title>
+    <title>المهام — أثر</title>
     <link rel="stylesheet" href="../src/css/reset.css">
     <link rel="stylesheet" href="../src/css/variables.css">
     <link rel="stylesheet" href="../src/css/typography.css">
@@ -22,13 +22,14 @@
     <script type="module">
         import { requireAuth } from '../src/js/auth.js';
         import { neon } from '../src/js/neon.js';
+        import { injectLayout } from '../src/js/layout.js';
 
         async function init() {
             const auth = await requireAuth();
             if (!auth) return;
             injectLayout();
 
-            const { data } = await supabase.from('tasks')
+            const { data } = await neon.from('tasks')
                 .select('*, initiatives(title_ar)')
                 .eq('assigned_to', auth.user.id);
 
@@ -36,7 +37,7 @@
             list.innerHTML = (data || []).map(t => `
                 <div class="glass flex-center" style="padding:25px; border-radius:25px; justify-content:space-between;">
                     <div>
-                        <div class="mono" style="font-size:10px; color:var(--neon-green);">${t.initiatives.title_ar}</div>
+                        <div class="mono" style="font-size:10px; color:var(--neon-green);">${t.initiatives ? t.initiatives.title_ar : ''}</div>
                         <div style="font-size:18px; margin-top:5px;">${t.title_ar}</div>
                     </div>
                     <div class="badge" style="background:${t.status === 'completed' ? 'var(--neon-blue)' : 'rgba(255,255,255,0.05)'};">${t.status.toUpperCase()}</div>

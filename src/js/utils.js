@@ -1,4 +1,4 @@
-// Shared Helpers for Moubadara
+// Shared Helpers for Athar
 export function sanitizeHTML(str) {
     const p = new DOMParser().parseFromString(str, 'text/html');
     return p.body.textContent || '';

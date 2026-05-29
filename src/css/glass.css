@@ -1,15 +1,15 @@
-/* glass.css - Smart City Translucency */
+/* glass.css - Athar Borderless Flat Design */
 .glass {
     background: var(--glass-bg);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid var(--glass-border);
-    border-radius: 30px;
-    /* More rounded */
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    border: none !important;
+    border-radius: 24px;
     position: relative;
     overflow: hidden;
     padding: 30px;
-    /* User Req: Prevent sticking */
+    /* Solid Flat Offset Shadow instead of blurred glows */
+    box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.25);
     transition: var(--transition);
 }
 
@@ -17,18 +17,27 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), transparent);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.02), transparent);
     pointer-events: none;
 }
 
+.glass-interactive {
+    cursor: pointer;
+}
+
 .glass-interactive:hover {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: var(--neon-green);
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-neon);
+    background: rgba(16, 14, 37, 0.9);
+    transform: translateY(-8px) translateX(-4px);
+    box-shadow: 14px 14px 0px var(--accent-pink);
 }
 
 [data-theme="light"] .glass {
-    background: rgba(255, 255, 255, 0.7);
-    border-color: rgba(0, 0, 0, 0.05);
+    background: var(--glass-bg);
+    box-shadow: 8px 8px 0px rgba(18, 20, 36, 0.08);
+}
+
+[data-theme="light"] .glass-interactive:hover {
+    background: #FFFFFF;
+    transform: translateY(-8px) translateX(-4px);
+    box-shadow: 14px 14px 0px var(--accent-cyan);
 }

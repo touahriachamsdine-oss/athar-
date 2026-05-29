@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أثر — النوادي الشبابية</title>
+    <link rel="stylesheet" href="../src/css/reset.css">
+    <link rel="stylesheet" href="../src/css/variables.css">
+    <link rel="stylesheet" href="../src/css/typography.css">
+    <link rel="stylesheet" href="../src/css/glass.css">
+    <link rel="stylesheet" href="../src/css/components.css">
+    <link rel="stylesheet" href="../src/css/animations.css">
+    <link rel="stylesheet" href="../src/css/layout.css">
+    <link rel="stylesheet" href="../src/css/utilities.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', 'Outfit', sans-serif;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: var(--sidebar-w) 1fr;
+            min-height: 100vh;
+        }
+
+        @media (max-width: 992px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                display: none;
+            }
+        }
+
+        .club-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border: none !important;
+            border-radius: 24px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.25);
+            transition: var(--transition);
+        }
+
+        .club-card:hover {
+            transform: translateY(-8px) translateX(-4px);
+            background: rgba(16, 14, 37, 0.9);
+            box-shadow: 14px 14px 0px var(--accent-pink);
+        }
+
+        select.filter-select {
+            background: rgba(16, 14, 37, 0.85);
+            border: none !important;
+            outline: none !important;
+            color: var(--text-primary);
+            padding: 12px 20px;
+            border-radius: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.2);
+            transition: var(--transition);
+        }
+        
+        select.filter-select:focus {
+            box-shadow: 6px 6px 0px var(--accent-pink);
+            transform: translateY(-2px) translateX(-1px);
+        }
+    </style>
+</head>
+
+<body class="dashboard-grid">
+    <!-- SIDEBAR -->
+    <aside class="sidebar glass" style="margin:20px; border-radius:30px;"></aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="container" style="padding: 40px; max-width: 1300px; width: 100%; box-sizing: border-box;">
+        <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom:40px; flex-wrap:wrap; gap:20px;">
+            <div>
+                <h1 class="gradient-text syne" style="font-size:36px; font-weight:800;" id="page-title">النوادي العلمية والثقافية</h1>
+                <p style="opacity:0.65; margin-top:5px;" id="page-subtitle">انخرط في نوادي بيت الشباب وشارك في المسابقات الوطنية والمحلية</p>
+            </div>
+        </header>
+
+        <!-- FILTERS -->
+        <section class="glass flex-center spring-in" style="justify-content:space-between; padding:20px 30px; border-radius:22px; margin-bottom:40px; flex-wrap:wrap; gap:20px;">
+            <div style="display:flex; gap:15px; flex-wrap:wrap; align-items:center;">
+                <span id="lbl-filter-by">تصنيف حسب:</span>
+                <select id="filter-category" class="filter-select">
+                    <option value="all">كل التخصصات / Tous</option>
+                    <option value="robotics">🤖 الروبوتيك / Robotique</option>
+                    <option value="programming">💻 البرمجة / Programmation</option>
+                    <option value="theater">🎭 المسرح / Théâtre</option>
+                    <option value="music">🎵 الموسيقى / Musique</option>
+                    <option value="reading">📚 المطالعة / Lecture</option>
+                </select>
+                
+                <select id="filter-wilaya" class="filter-select">
+                    <option value="all">كل الولايات / Wilayas</option>
+                </select>
+            </div>
+            
+            <div class="mono" style="font-size:12px; opacity:0.65;" id="lbl-total-clubs">CLUBS FOUND: 0</div>
+        </section>
+
+        <!-- CLUBS GRID -->
+        <section id="clubs-grid" class="spring-in" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(340px, 1fr)); gap:30px;"></section>
+    </main>
+
+    <script type="module">
+        import { requireAuth } from '../src/js/auth.js';
+        import { neon } from '../src/js/neon.js';
+        import { setLanguage, getCurrentLang } from '../src/js/i18n.js';
+        import { injectLayout } from '../src/js/layout.js';
+        import { APP_CONFIG } from '../src/js/config.js';
+
+        const DICT = {
+            ar: {
+                title: 'النوادي العلمية والثقافية',
+                subtitle: 'انخرط في نوادي بيت الشباب وشارك في المسابقات الوطنية والمحلية',
+                filter_by: 'تصفية حسب:',
+                found: 'عدد النوادي المتاحة: ',
+                btn_join: 'انضمام الآن',
+                btn_joined: 'عضو بالفعل ✓',
+                success: 'تهانينا! لقد تم انضمامك إلى النادي بنجاح وزادت نقاط الأثر لديك!',
+                already: 'أنت مسجل بالفعل في هذا النادي'
+            },
+            fr: {
+                title: 'Clubs Scientifiques & Culturels',
+                subtitle: 'Rejoignez un club du foyer de jeunes et participez aux compétitions',
+                filter_by: 'Filtrer par :',
+                found: 'Clubs trouvés : ',
+                btn_join: 'Rejoindre le Club',
+                btn_joined: 'Déjà Membre ✓',
+                success: 'Félicitations ! Vous avez rejoint le club avec succès et gagné des points !',
+                already: 'Vous êtes déjà inscrit dans ce club'
+            },
+            en: {
+                title: 'Scientific & Cultural Clubs',
+                subtitle: 'Join a youth hostel club and participate in local and national contests',
+                filter_by: 'Filter by:',
+                found: 'Clubs found: ',
+                btn_join: 'Join Club',
+                btn_joined: 'Already Member ✓',
+                success: 'Congratulations! You successfully joined the club and gained impact points!',
+                already: 'You are already registered in this club'
+            }
+        };
+
+        let currentClubs = [];
+        let memberClubIds = [];
+        let authSession = null;
+        let lang = 'ar';
+
+        async function init() {
+            authSession = await requireAuth();
+            if (!authSession) return;
+
+            lang = getCurrentLang();
+            const d = DICT[lang] || DICT.ar;
+
+            setLanguage(lang);
+            injectLayout();
+
+            // Populate Wilaya select
+            const wSelect = document.getElementById('filter-wilaya');
+            APP_CONFIG.wilayas.forEach(w => {
+                const opt = document.createElement('option');
+                opt.value = w;
+                opt.textContent = w;
+                wSelect.appendChild(opt);
+            });
+
+            // Localize text
+            document.getElementById('page-title').innerText = d.title;
+            document.getElementById('page-subtitle').innerText = d.subtitle;
+            document.getElementById('lbl-filter-by').innerText = d.filter_by;
+
+            // Fetch user memberships to highlight joined clubs
+            const memRes = await neon.from('club_members').select().eq('user_id', authSession.user.id);
+            memberClubIds = (memRes.data || []).map(m => m.club_id);
+
+            // Fetch all clubs
+            const clubsRes = await neon.from('clubs').select();
+            currentClubs = clubsRes.data || [];
+
+            renderClubs();
+
+            // Set up events
+            document.getElementById('filter-category').onchange = renderClubs;
+            document.getElementById('filter-wilaya').onchange = renderClubs;
+        }
+
+        function renderClubs() {
+            const cat = document.getElementById('filter-category').value;
+            const wilaya = document.getElementById('filter-wilaya').value;
+            const grid = document.getElementById('clubs-grid');
+            const d = DICT[lang] || DICT.ar;
+
+            let filtered = currentClubs;
+            if (cat !== 'all') {
+                filtered = filtered.filter(c => c.category === cat);
+            }
+            if (wilaya !== 'all') {
+                filtered = filtered.filter(c => c.wilaya === wilaya);
+            }
+
+            document.getElementById('lbl-total-clubs').innerText = `${d.found}${filtered.length}`;
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; opacity:0.5; padding:60px;">لا يوجد نوادي مطابقة لخيارات البحث حالياً.</div>`;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(c => {
+                const isJoined = memberClubIds.includes(c.id);
+                const name = lang === 'ar' ? c.name_ar : (lang === 'fr' ? c.name_fr : c.name_en);
+                const desc = lang === 'ar' ? c.description_ar : (lang === 'fr' ? c.description_fr : c.description_en);
+                const catIcon = c.category === 'robotics' ? '🤖' : (c.category === 'programming' ? '💻' : (c.category === 'theater' ? '🎭' : (c.category === 'music' ? '🎵' : '📚')));
+
+                return `
+                    <div class="club-card">
+                        <div>
+                            <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:20px;">
+                                <div style="font-size:38px;">${catIcon}</div>
+                                <span class="badge" style="background:rgba(0, 255, 178, 0.08); color:var(--neon-green); font-size:10px;">${c.wilaya}</span>
+                            </div>
+                            <h3 class="syne mb-10" style="font-size:22px; font-weight:700;">${name}</h3>
+                            <p style="font-size:14px; opacity:0.65; line-height:1.6; margin-bottom:25px;">${desc || ''}</p>
+                        </div>
+                        
+                        <button class="btn ${isJoined ? 'btn-outline' : 'btn-primary'} join-btn" data-id="${c.id}" style="width:100%; justify-content:center;" ${isJoined ? 'disabled' : ''}>
+                            ${isJoined ? d.btn_joined : d.btn_join}
+                        </button>
+                    </div>
+                `;
+            }).join('');
+
+            // Hook click handlers
+            document.querySelectorAll('.join-btn').forEach(btn => {
+                btn.onclick = async (e) => {
+                    const clubId = e.currentTarget.getAttribute('data-id');
+                    await joinClub(clubId, e.currentTarget);
+                };
+            });
+        }
+
+        async function joinClub(clubId, element) {
+            const d = DICT[lang] || DICT.ar;
+            element.disabled = true;
+            element.innerText = '...';
+
+            const { data, error } = await neon.from('club_members').insert({
+                club_id: clubId,
+                user_id: authSession.user.id,
+                status: 'active'
+            });
+
+            if (error) {
+                alert(d.already);
+                element.disabled = false;
+                element.innerText = d.btn_join;
+                return;
+            }
+
+            // Award 100 impact points
+            const currentPoints = authSession.profile.impact_points || 0;
+            await neon.from('profiles').update({ impact_points: currentPoints + 100 }, authSession.user.id);
+            
+            memberClubIds.push(clubId);
+            element.className = 'btn btn-outline';
+            element.innerText = d.btn_joined;
+
+            alert(d.success);
+        }
+
+        init();
+    </script>
+</body>
+
+</html>

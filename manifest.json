@@ -1,7 +1,7 @@
 {
-  "name": "Moubadara — مبادرة",
-  "short_name": "مبادرة",
-  "description": "منصة المبادرات المجتمعية الجزائرية",
+  "name": "Athar — أثر",
+  "short_name": "أثر",
+  "description": "منصة التنمية والتوعية لبيوت الشباب والنوادي العلمية والثقافية",
   "start_url": "/pages/dashboard.html",
   "scope": "/",
   "display": "standalone",

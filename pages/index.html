@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مبادرة — Moubadara</title>
+    <title>أثر — منصة بيوت الشباب للتنمية والوقاية</title>
     <link rel="stylesheet" href="../src/css/reset.css">
     <link rel="stylesheet" href="../src/css/variables.css">
     <link rel="stylesheet" href="../src/css/typography.css">
@@ -14,25 +14,74 @@
     <link rel="stylesheet" href="../src/css/layout.css">
     <link rel="stylesheet" href="../src/css/utilities.css">
     <link rel="manifest" href="../manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <style>
+        body {
+            font-family: 'Cairo', 'Outfit', sans-serif;
+        }
+
         .hero-glow {
             position: absolute;
-            top: 50%;
+            top: 40%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 60vw;
+            width: 70vw;
             height: 60vh;
-            background: radial-gradient(circle, rgba(0, 255, 178, 0.1) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(255, 42, 109, 0.15) 0%, rgba(5, 217, 232, 0.05) 50%, transparent 80%);
             z-index: -1;
             pointer-events: none;
         }
 
         .floating-card {
-            transition: transform 0.3s ease;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            border: none !important;
+            box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.25);
+        }
+
+        .floating-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.03), transparent);
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+
+        .floating-card:hover::before {
+            opacity: 1;
         }
 
         .floating-card:hover {
-            transform: translateY(-10px) scale(1.02);
+            transform: translateY(-8px) translateX(-4px);
+            box-shadow: 14px 14px 0px var(--accent-pink) !important;
+        }
+
+        .pillar-icon {
+            font-size: 42px;
+            margin-bottom: 25px;
+            display: inline-block;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .floating-card:hover .pillar-icon {
+            transform: scale(1.25) rotate(8deg);
+        }
+
+        .navbar {
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            margin: 20px auto;
+            max-width: 1200px;
+            position: sticky;
+            top: 20px;
+            z-index: 1000;
+            border: none !important;
+            box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.25);
         }
     </style>
 </head>
@@ -41,88 +90,112 @@
     <div id="living-canvas" style="position:fixed; inset:0; z-index:-1;"></div>
     <div class="hero-glow"></div>
 
-    <nav class="glass navbar flex-center" style="justify-content: space-between; border-radius: 20px;">
-        <div style="display:flex; align-items:center; gap:10px;">
-            <img src="../public/logo.svg" alt="Moubadara Logo"
-                style="width:35px; height:35px; filter: drop-shadow(0 0 10px var(--neon-green));">
-            <div class="logo syne gradient-text" style="font-weight:800; letter-spacing:-1px;">MOUBADARA</div>
+    <!-- NAVBAR -->
+    <nav class="glass navbar flex-center" style="justify-content: space-between; border-radius: 24px; padding: 15px 30px;">
+        <div style="display:flex; align-items:center; gap:12px;">
+            <img src="../public/logo.svg" alt="Athar Logo"
+                style="width:38px; height:38px; filter: drop-shadow(0 0 10px rgba(255, 42, 109, 0.4));">
+            <div class="logo syne gradient-text" style="font-weight:900; font-size:24px; letter-spacing:-1px;">ATHAR — أثر</div>
         </div>
-        <div class="nav-links flex-center" style="gap:20px;">
-            <a href="explore.html" data-i18n="nav_explore">استكشف</a>
-            <a href="auth.html" class="btn btn-primary" data-i18n="nav_login"
-                style="padding:10px 25px; border-radius:12px;">دخول</a>
+        <div class="nav-links flex-center" style="gap:25px;">
+            <a href="auth.html" class="btn btn-primary" data-i18n="login_title"
+                style="padding:10px 28px; border-radius:14px; font-weight:700; font-size:15px;">دخول</a>
         </div>
     </nav>
 
-    <main class="container">
+    <main class="container" style="max-width:1200px; margin:0 auto; padding:0 20px;">
         <!-- HERO SECTION -->
-        <section class="hero text-center mt-80" style="padding: 120px 20px; position:relative;">
+        <section class="hero text-center" style="padding: 100px 10px 60px; position:relative;">
             <div class="badge mb-20 reveal active"
-                style="background:var(--glass-border); color:var(--neon-green); padding:10px 20px; border-radius:100px; font-weight:600; font-family:var(--mono);">
-                🇩🇿 المنصة الوطنية للمبادرات المحلية
+                style="background:rgba(255, 42, 109, 0.08); color:var(--accent-pink); padding:8px 24px; border-radius:100px; font-weight:700; font-size:14px; display:inline-block; box-shadow: 2px 2px 0px rgba(0,0,0,0.15);"
+                data-i18n="badge_title">
+                🇩🇿 بوابة بيوت الشباب للتنمية والوقاية المبتكرة
             </div>
             <h1 class="reveal active gradient-text syne"
-                style="font-size: clamp(48px, 12vw, 110px); line-height:0.85; margin-bottom:20px;"
-                data-i18n="hero_title">حوّل حيّك إلى مجتمع</h1>
+                style="font-size: clamp(38px, 8vw, 85px); line-height:1.1; margin-bottom:25px; font-weight:800;"
+                data-i18n="hero_title">أثر — المنصة الرقمية لبيوت الشباب</h1>
             <p class="reveal active mb-40"
-                style="font-size: 22px; opacity:0.7; max-width: 700px; margin-inline:auto; line-height:1.5;"
-                data-i18n="hero_subtitle">تمكين الجزائريين من قيادة التغيير الإيجابي في أحيائهم عبر التكنولوجيا والتعاون
-                الجماعي.</p>
+                style="font-size: 19px; opacity:0.75; max-width: 750px; margin-inline:auto; line-height:1.7;"
+                data-i18n="hero_subtitle">تمكين، توعية، ابتكار، ووقاية من أجل غد أفضل للشباب الجزائري.</p>
 
-            <div class="flex-center reveal active" style="gap:20px;">
-                <a href="auth.html" class="glass glass-interactive btn btn-primary"
-                    style="padding:22px 50px; font-size:18px; border-radius:18px; font-weight:700;"
+            <div class="flex-center reveal active" style="gap:20px; justify-content:center; flex-wrap:wrap;">
+                <a href="auth.html" class="btn btn-primary"
+                    style="padding:18px 45px; font-size:16px; border-radius:16px; font-weight:800;"
                     data-i18n="btn_start">ابدأ الآن</a>
-                <a href="explore.html" class="glass glass-interactive btn-outline"
-                    style="padding:22px 50px; font-size:18px; border:1px solid var(--glass-border); border-radius:18px; font-weight:700;"
-                    data-i18n="nav_explore">استكشف المبادرات</a>
+                <a href="auth.html" class="btn btn-outline"
+                    style="padding:18px 45px; font-size:16px; border-radius:16px; font-weight:800;"
+                    data-i18n="btn_enter">الولوج للمنصة</a>
             </div>
 
             <!-- MOCK STATS BAR -->
-            <div class="flex-center mt-80 reveal active" style="gap:80px; flex-wrap:wrap; opacity:0.8;">
-                <div class="text-center">
-                    <div class="syne gradient-text" style="font-size:54px; font-weight:800;">450+</div>
-                    <p class="mono" style="font-size:12px; text-transform:uppercase; letter-spacing:2px;">مبادرة مكتملة
-                    </p>
+            <div class="flex-center reveal active glass" style="gap:60px; flex-wrap:wrap; margin-top:80px; justify-content:center; padding: 30px; border-radius: 30px;">
+                <div class="text-center" style="min-width: 150px;">
+                    <div class="syne gradient-text" style="font-size:46px; font-weight:800; line-height:1;">48+</div>
+                    <p style="font-size:13px; font-weight:700; margin-top:10px; opacity:0.8;" data-i18n="stat_clubs">نادي علمي وتطبيقي</p>
                 </div>
-                <div class="text-center">
-                    <div class="syne gradient-text" style="font-size:54px; font-weight:800;">12K</div>
-                    <p class="mono" style="font-size:12px; text-transform:uppercase; letter-spacing:2px;">متطوع نشط</p>
+                <div style="width: 1px; height: 50px; background: rgba(255,255,255,0.05);" class="hide-mobile"></div>
+                <div class="text-center" style="min-width: 150px;">
+                    <div class="syne gradient-text" style="font-size:46px; font-weight:800; line-height:1;">15K+</div>
+                    <p style="font-size:13px; font-weight:700; margin-top:10px; opacity:0.8;" data-i18n="stat_youth">شاب مستفيد</p>
                 </div>
-                <div class="text-center">
-                    <div class="syne gradient-text" style="font-size:54px; font-weight:800;">58</div>
-                    <p class="mono" style="font-size:12px; text-transform:uppercase; letter-spacing:2px;">ولاية مغطاة
-                    </p>
+                <div style="width: 1px; height: 50px; background: rgba(255,255,255,0.05);" class="hide-mobile"></div>
+                <div class="text-center" style="min-width: 150px;">
+                    <div class="syne gradient-text" style="font-size:46px; font-weight:800; line-height:1;">180+</div>
+                    <p style="font-size:13px; font-weight:700; margin-top:10px; opacity:0.8;" data-i18n="stat_schools">زيارة وشراكة مدرسية</p>
+                </div>
+                <div style="width: 1px; height: 50px; background: rgba(255,255,255,0.05);" class="hide-mobile"></div>
+                <div class="text-center" style="min-width: 150px;">
+                    <div class="syne gradient-text" style="font-size:46px; font-weight:800; line-height:1;">100%</div>
+                    <p style="font-size:13px; font-weight:700; margin-top:10px; opacity:0.8;" data-i18n="stat_privacy">خصوصية واستشارة آمنة</p>
                 </div>
             </div>
         </section>
 
-        <!-- HOW IT WORKS -->
-        <section class="mt-80 mb-80">
-            <h2 class="syne text-center mb-60 reveal active" style="font-size:42px; letter-spacing:-2px;">كيف نصنع
-                الفرق؟</h2>
-            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:30px;">
-                <div class="glass floating-card reveal active" style="padding:50px; border-radius:40px;">
-                    <div style="font-size:50px; margin-bottom:30px; filter: drop-shadow(0 0 10px var(--neon-green));">💡
-                    </div>
-                    <h3 class="syne mb-20" style="font-size:24px;">ارفع فكرة</h3>
-                    <p style="opacity:0.6; line-height:1.7; font-size:16px;">حوّل ملاحظاتك في الحي إلى خطة عمل ملموسة.
-                        حدد الأهداف والاحتياجات في دقائق.</p>
+        <!-- THE FIVE PILLARS -->
+        <section style="margin-top: 60px; margin-bottom: 100px;">
+            <h2 class="syne text-center mb-60 reveal active" style="font-size:38px; font-weight:800; text-align:center; letter-spacing:-1px;" data-i18n="pillars_title">أركان منصة أثر الريادية</h2>
+            
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:30px;">
+                <!-- PILLAR 1: CLUBS -->
+                <div class="glass floating-card reveal active" style="padding:40px; border-radius:32px;">
+                    <div class="pillar-icon" style="filter: drop-shadow(0 0 10px rgba(5, 217, 232, 0.4));">🤖</div>
+                    <h3 class="syne mb-15" style="font-size:22px; font-weight:700; color:var(--text-primary);" data-i18n="pillar_1_title">النوادي العلمية والثقافية</h3>
+                    <p style="opacity:0.65; line-height:1.7; font-size:15px;" data-i18n="pillar_1_desc">استكشف نوادي الروبوتيك، البرمجة، المسرح، والمطالعة ببيوت الشباب وسجل رقمياً لتطوير موهبتك والمشاركة في المسابقات.</p>
                 </div>
-                <div class="glass floating-card reveal active"
-                    style="padding:50px; border-radius:40px; border-color: var(--neon-teal);">
-                    <div style="font-size:50px; margin-bottom:30px; filter: drop-shadow(0 0 10px var(--neon-teal));">🤝
-                    </div>
-                    <h3 class="syne mb-20" style="font-size:24px;">قُد الفريق</h3>
-                    <p style="opacity:0.6; line-height:1.7; font-size:16px;">اجمع المتطوعين، وزّع المهام، وتواصل مع
-                        جيرانك لتحويل الفكرة إلى واقع ميداني.</p>
+
+                <!-- PILLAR 2: AWARENESS -->
+                <div class="glass floating-card reveal active" style="padding:40px; border-radius:32px;">
+                    <div class="pillar-icon" style="filter: drop-shadow(0 0 10px rgba(255, 42, 109, 0.4));">🛡️</div>
+                    <h3 class="syne mb-15" style="font-size:22px; font-weight:700; color:var(--text-primary);" data-i18n="pillar_2_title">التوعية والوقاية من الإدمان</h3>
+                    <p style="opacity:0.65; line-height:1.7; font-size:15px;" data-i18n="pillar_2_desc">مواد تعليمية وقصص نجاح ملهمة وفيديوهات هادفة تحمي العقول والأنفس وتوجه طاقات الشباب نحو المعرفة والتميز.</p>
                 </div>
-                <div class="glass floating-card reveal active" style="padding:50px; border-radius:40px;">
-                    <div style="font-size:50px; margin-bottom:30px; filter: drop-shadow(0 0 10px var(--neon-gold));">📈
-                    </div>
-                    <h3 class="syne mb-20" style="font-size:24px;">وثّق الأثر</h3>
-                    <p style="opacity:0.6; line-height:1.7; font-size:16px;">شارك صور الإنجازات، اجمع نقاط التأثير،
-                        وساهم في بناء قاعدة بيانات للنهوض بالمجتمع.</p>
+
+                <!-- PILLAR 3: TRAINING -->
+                <div class="glass floating-card reveal active" style="padding:40px; border-radius:32px;">
+                    <div class="pillar-icon" style="filter: drop-shadow(0 0 10px rgba(255, 190, 11, 0.4));">🎓</div>
+                    <h3 class="syne mb-15" style="font-size:22px; font-weight:700; color:var(--text-primary);" data-i18n="pillar_3_title">التدريب وصقل المهارات</h3>
+                    <p style="opacity:0.65; line-height:1.7; font-size:15px;" data-i18n="pillar_3_desc">دورات تدريبية متخصصة في ريادة الأعمال، القيادة الشبابية، ومواجهة ضغوط الأقران مع الحصول على شهادات تأهيل رقمية.</p>
+                </div>
+
+                <!-- PILLAR 4: SCHOOLS -->
+                <div class="glass floating-card reveal active" style="padding:40px; border-radius:32px;">
+                    <div class="pillar-icon" style="filter: drop-shadow(0 0 10px rgba(5, 217, 232, 0.4));">🏫</div>
+                    <h3 class="syne mb-15" style="font-size:22px; font-weight:700; color:var(--text-primary);" data-i18n="pillar_4_title">الربط والشراكة المدرسية</h3>
+                    <p style="opacity:0.65; line-height:1.7; font-size:15px;" data-i18n="pillar_4_desc">فتح أبواب بيوت الشباب أمام المدارس العمومية والخاصة للقيام بزيارات ميدانية، وأيام دراسية، وأنشطة فكرية موجهة لربط التعليم بالتطبيق.</p>
+                </div>
+
+                <!-- PILLAR 5: SUPPORT -->
+                <div class="glass floating-card reveal active" style="padding:40px; border-radius:32px;">
+                    <div class="pillar-icon" style="filter: drop-shadow(0 0 10px rgba(163, 0, 255, 0.4));">🩺</div>
+                    <h3 class="syne mb-15" style="font-size:22px; font-weight:700; color:var(--text-primary);" data-i18n="pillar_5_title">الاستشارات والتوجيه الآمن</h3>
+                    <p style="opacity:0.65; line-height:1.7; font-size:15px;" data-i18n="pillar_5_desc">تواصل بسرية وخصوصية مطلقة مع مستشارين وأخصائيين نفسيين واجتماعيين لحل مشاكلك والحصول على الدعم والإرشاد الفردي.</p>
+                </div>
+
+                <!-- CALL TO ACTION CARD -->
+                <div class="glass floating-card reveal active flex-center" style="padding:40px; border-radius:32px; background: rgba(255, 42, 109, 0.03); flex-direction: column; justify-content: center; text-align: center;">
+                    <h3 class="syne mb-15" style="font-size:22px; font-weight:800; color:var(--accent-pink);" data-i18n="cta_title">جاهز للمشاركة؟</h3>
+                    <p style="opacity:0.8; line-height:1.6; font-size:14px; margin-bottom: 25px;" data-i18n="cta_desc">أنشئ حسابك الرقمي المجاني اليوم وانخرط في نوادي ومحاضرات بيت الشباب المحلي القريب منك.</p>
+                    <a href="auth.html" class="btn btn-primary" style="padding: 12px 35px; border-radius: 12px; font-weight: 800; width: 100%; justify-content: center;" data-i18n="cta_btn">سجل الآن</a>
                 </div>
             </div>
         </section>

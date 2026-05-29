@@ -2,7 +2,7 @@
 @keyframes fadeIn {
     from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(30px);
     }
 
     to {
@@ -13,13 +13,13 @@
 
 .reveal {
     opacity: 0;
-    transform: translateY(30px);
-    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    transform: translateY(35px) scale(0.98);
+    transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .reveal.active {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
 }
 
 @keyframes rotateZellige {
@@ -34,4 +34,51 @@
 
 .spin-slow {
     animation: rotateZellige 120s linear infinite;
+}
+
+/* New Spring and Bouncy Motions */
+@keyframes springIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.9) translateY(40px);
+    }
+    60% {
+        transform: scale(1.02) translateY(-5px);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.spring-in {
+    animation: springIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes floatSlow {
+    0%, 100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-8px) rotate(0.5deg);
+    }
+}
+
+.float-slow {
+    animation: floatSlow 6s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+    0%, 100% {
+        opacity: 0.95;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.05);
+    }
+}
+
+.pulse-glow {
+    animation: pulseGlow 2.5s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
 }

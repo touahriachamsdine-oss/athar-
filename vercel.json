@@ -1,12 +1,18 @@
 {
+    "buildCommand": "node build.js",
+    "outputDirectory": "public",
     "rewrites": [
-        {
-            "source": "/(.*)",
-            "destination": "/pages/$1"
-        },
         {
             "source": "/",
             "destination": "/pages/index.html"
+        },
+        {
+            "source": "/((?!src|public|pages).*)\\.html",
+            "destination": "/pages/$1.html"
+        },
+        {
+            "source": "/((?!src|public|pages|manifest\\.json|vercel\\.json).*)",
+            "destination": "/pages/$1"
         }
     ],
     "headers": [

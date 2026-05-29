@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>انضم — Moubadara</title>
+    <title>انضم — أثر</title>
     <link rel="stylesheet" href="../src/css/reset.css">
     <link rel="stylesheet" href="../src/css/variables.css">
     <link rel="stylesheet" href="../src/css/typography.css">
@@ -18,11 +18,13 @@
 <body class="flex-center" style="min-height: 100vh; padding: 20px;">
     <div id="living-canvas" style="position:fixed; inset:0; z-index:-1;"></div>
 
-    <div class="glass" style="padding:40px; width:100%; max-width:450px; border-radius: 40px;">
+    <div class="glass" style="padding:40px; width:100%; max-width:450px; border-radius: 30px;">
         <div class="text-center mb-40">
-            <div class="syne gradient-text" style="font-size: 32px; font-weight:800; letter-spacing:-1px;">MOUBADARA
+            <div style="display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:15px;">
+                <img src="../public/logo.svg" alt="Athar Logo" style="width:50px; height:50px; filter: drop-shadow(0 0 10px rgba(255, 42, 109, 0.4));">
             </div>
-            <p id="mode-text" style="opacity:0.6;">دخول إلى حسابك</p>
+            <div class="logo syne gradient-text" style="font-size: 32px; font-weight:800; letter-spacing:-1px;">ATHAR — أثر</div>
+            <p id="mode-text" style="opacity:0.65; margin-top:5px;">دخول إلى حسابك</p>
         </div>
 
         <form id="auth-form" style="display:flex; flex-direction:column; gap:15px;">
@@ -30,7 +32,7 @@
             <div id="signup-fields" style="display:none; flex-direction:column; gap:15px;">
                 <input type="text" id="full_name" placeholder="الاسم الكامل" class="input-field">
                 <input type="tel" id="phone" placeholder="رقم الهاتف" class="input-field">
-                <select id="wilaya" class="input-field" style="background: var(--glass-bg);">
+                <select id="wilaya" class="input-field" style="height:60px;">
                     <option value="" disabled selected>اختر الولاية</option>
                 </select>
                 <input type="text" id="neighborhood" placeholder="الحي" class="input-field">
@@ -40,20 +42,29 @@
             <input type="email" id="email" placeholder="البريد الإلكتروني" class="input-field" required>
             <input type="password" id="password" placeholder="كلمة المرور" class="input-field" required>
 
-            <button type="submit" id="submit-btn" class="btn btn-primary mt-20"
-                style="width:100%; padding:15px;">دخول</button>
+            <button type="submit" id="submit-btn" class="btn btn-primary mt-20" style="width:100%; justify-content:center;">دخول</button>
+
+            <div style="display:flex; align-items:center; margin: 15px 0;">
+                <div style="flex:1; height:1px; background: rgba(255,255,255,0.1);"></div>
+                <div style="padding: 0 10px; font-size:12px; opacity:0.5;">أو / Ou</div>
+                <div style="flex:1; height:1px; background: rgba(255,255,255,0.1);"></div>
+            </div>
+
+            <button type="button" id="demo-btn" class="btn btn-secondary" style="width:100%; justify-content:center; background: linear-gradient(135deg, rgba(255, 42, 109, 0.15), rgba(5, 217, 244, 0.15)); border: 1px solid rgba(255, 42, 109, 0.3); box-shadow: 0 8px 32px rgba(255, 42, 109, 0.1);">
+                ✨ دخول سريع (نسخة تجريبية)
+            </button>
         </form>
 
         <div class="text-center mt-30">
             <button id="toggle-mode"
-                style="background:none; border:none; color:var(--neon-teal); cursor:pointer; font-size:14px; opacity:0.8;">
+                style="background:none; border:none; color:var(--accent-pink); cursor:pointer; font-size:14px; opacity:0.8; font-weight:600;">
                 ليس لديك حساب؟ إنشاء حساب جديد
             </button>
         </div>
     </div>
 
     <script type="module">
-        import { signIn, signUp } from '../src/js/auth.js';
+        import { signIn, signUp, signInDemo } from '../src/js/auth.js';
         import { injectLayout } from '../src/js/layout.js';
         import { APP_CONFIG } from '../src/js/config.js';
 
@@ -72,6 +83,7 @@
         const toggleBtn = document.getElementById('toggle-mode');
         const signupFields = document.getElementById('signup-fields');
         const submitBtn = document.getElementById('submit-btn');
+        const demoBtn = document.getElementById('demo-btn');
         const modeText = document.getElementById('mode-text');
 
         toggleBtn.onclick = () => {
@@ -80,6 +92,13 @@
             submitBtn.textContent = isLogin ? 'دخول' : 'إنشاء حساب جديد';
             modeText.textContent = isLogin ? 'دخول إلى حسابك' : 'أنشئ حسابك للمشاركة';
             toggleBtn.textContent = isLogin ? 'ليس لديك حساب؟ إنشاء حساب جديد' : 'لديك حساب بالفعل؟ سجل دخولك';
+            demoBtn.style.display = isLogin ? 'flex' : 'none';
+        };
+
+        demoBtn.onclick = async () => {
+            demoBtn.disabled = true;
+            demoBtn.style.opacity = 0.5;
+            await signInDemo('superadmin');
         };
 
         document.getElementById('auth-form').onsubmit = async (e) => {

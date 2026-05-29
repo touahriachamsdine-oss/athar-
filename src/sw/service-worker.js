@@ -1,15 +1,22 @@
-const CACHE_NAME = 'moubadara-v1';
+const CACHE_NAME = 'athar-v1';
 const ASSETS = [
     './',
-    './index.html',
-    './dashboard.html',
-    './styles.css',
-    './app.js',
-    './particles.js',
-    './supabase.js',
-    './auth.js',
-    './db.js',
-    'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'
+    './pages/index.html',
+    './pages/dashboard.html',
+    './pages/offline.html',
+    './src/css/reset.css',
+    './src/css/variables.css',
+    './src/css/typography.css',
+    './src/css/glass.css',
+    './src/css/components.css',
+    './src/css/layout.css',
+    './src/css/utilities.css',
+    './src/css/animations.css',
+    './src/js/neon.js',
+    './src/js/auth.js',
+    './src/js/db.js',
+    './src/js/layout.js',
+    './src/js/theme.js'
 ];
 
 self.addEventListener('install', event => {

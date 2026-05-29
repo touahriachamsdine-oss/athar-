@@ -15,7 +15,7 @@ export default function AuthScreen() {
     return (
         <View style={styles.container}>
             <GlassCard>
-                <Text style={styles.title}>Moubadara</Text>
+                <Text style={styles.title}>Athar — أثر</Text>
                 <TextInput
                     placeholder="Email" placeholderTextColor="#aaa"
                     style={styles.input} value={email} onChangeText={setEmail}
@@ -34,8 +34,8 @@ export default function AuthScreen() {
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#04060F', justifyContent: 'center', padding: 20 },
-    title: { color: '#00FFB2', fontSize: 32, fontWeight: 'bold', marginBottom: 30, textAlign: 'center' },
-    input: { borderBottomWidth: 1, borderBottomColor: '#00FFB233', color: 'white', padding: 15, marginBottom: 20 },
-    button: { backgroundColor: '#00FFB2', padding: 15, borderRadius: 10, alignItems: 'center' },
+    title: { color: '#05D9E8', fontSize: 32, fontWeight: 'bold', marginBottom: 30, textAlign: 'center' },
+    input: { borderBottomWidth: 1, borderBottomColor: '#05D9E833', color: 'white', padding: 15, marginBottom: 20 },
+    button: { backgroundColor: '#05D9E8', padding: 15, borderRadius: 10, alignItems: 'center' },
     buttonText: { color: '#04060F', fontWeight: 'bold' }
 });

@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>دعوات — Moubadara</title>
+    <title>دعوات — أثر</title>
     <link rel="stylesheet" href="../src/css/reset.css">
     <link rel="stylesheet" href="../src/css/variables.css">
     <link rel="stylesheet" href="../src/css/typography.css">
@@ -23,13 +23,14 @@
     <script type="module">
         import { requireAuth } from '../src/js/auth.js';
         import { neon } from '../src/js/neon.js';
+        import { injectLayout } from '../src/js/layout.js';
 
         async function init() {
             const auth = await requireAuth();
             if (!auth) return;
             injectLayout();
 
-            const { data } = await supabase.from('invites')
+            const { data } = await neon.from('invites')
                 .select('*, initiatives(*)')
                 .eq('invited_email', auth.user.email);
 
@@ -37,7 +38,7 @@
             list.innerHTML = (data || []).map(inv => `
                 <div class="glass" style="padding:30px; border-radius:30px;">
                     <div class="badge mb-20" style="background:var(--neon-gold); color:black;">دعوة جديدة</div>
-                    <h3 class="syne">${inv.initiatives.title_ar}</h3>
+                    <h3 class="syne">${inv.initiatives ? inv.initiatives.title_ar : ''}</h3>
                     <p style="opacity:0.6; margin-top:10px;">تمت دعوتك للانضمام كـ ${inv.role}</p>
                     <button class="btn btn-primary mt-40" onclick="accept('${inv.token}')">قبول الدعوة</button>
                 </div>

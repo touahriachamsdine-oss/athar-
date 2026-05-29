@@ -6,7 +6,8 @@ node_modules/
 # Credentials
 # src/js/config.js (Commit with placeholders)
 
-# Build/Static
+# Build/Static output (Vercel runs node build.js itself)
+public/
 dist/
 .vercel/
 

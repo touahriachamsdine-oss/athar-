@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>تنبيهات — Moubadara</title>
+    <title>تنبيهات — أثر</title>
     <link rel="stylesheet" href="../src/css/reset.css">
     <link rel="stylesheet" href="../src/css/variables.css">
     <link rel="stylesheet" href="../src/css/typography.css">
@@ -29,8 +29,8 @@
             if (!auth) return;
             injectLayout();
 
-            const { data } = await supabase.from('notifications')
-                .select('*')
+            const { data } = await neon.from('notifications')
+                .select()
                 .eq('user_id', auth.user.id)
                 .order('created_at', { ascending: false });
 

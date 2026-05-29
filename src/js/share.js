@@ -1,6 +1,6 @@
 // Social Sharing & Canvas Generation
 export function updateOGTags(title, desc) {
-    document.title = `${title} — Moubadara`;
+    document.title = `${title} — أثر`;
     document.querySelector('meta[property="og:title"]')?.setAttribute('content', title);
     document.querySelector('meta[property="og:description"]')?.setAttribute('content', desc);
 }
@@ -18,15 +18,15 @@ export async function generateShareCard(text, canvasId) {
     ctx.fillRect(0, 0, 800, 400);
 
     // Neon Ring
-    ctx.strokeStyle = '#00FFB2';
+    ctx.strokeStyle = '#05D9E8';
     ctx.lineWidth = 2;
     ctx.strokeRect(20, 20, 760, 360);
 
     // Heading
-    ctx.fillStyle = '#00FFB2';
+    ctx.fillStyle = '#05D9E8';
     ctx.font = 'bold 40px Syne';
     ctx.textAlign = 'center';
-    ctx.fillText('MOUBADARA — مبادرة', 400, 100);
+    ctx.fillText('ATHAR — أثر', 400, 100);
 
     // Content
     ctx.fillStyle = '#FFFFFF';
