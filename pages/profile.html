@@ -3,71 +3,257 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>الملف الشخصي — أثر</title>
     <link rel="stylesheet" href="../src/css/reset.css">
     <link rel="stylesheet" href="../src/css/variables.css">
     <link rel="stylesheet" href="../src/css/typography.css">
     <link rel="stylesheet" href="../src/css/glass.css">
     <link rel="stylesheet" href="../src/css/components.css">
+    <link rel="stylesheet" href="../src/css/animations.css">
     <link rel="stylesheet" href="../src/css/layout.css">
     <link rel="stylesheet" href="../src/css/utilities.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Cairo', 'Outfit', sans-serif; }
+
+        .avatar-ring {
+            width: 110px; height: 110px;
+            border-radius: 50%;
+            background: var(--glass-bg);
+            margin: 0 auto;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 52px;
+            position: relative;
+            box-shadow: 0 0 0 3px var(--accent-pink), 0 0 20px rgba(255,42,109,0.3);
+            transition: box-shadow 0.4s;
+        }
+        .avatar-ring:hover {
+            box-shadow: 0 0 0 3px var(--accent-cyan), 0 0 30px rgba(5,217,232,0.4);
+        }
+
+        .role-badge {
+            padding: 6px 18px; border-radius: 100px;
+            font-size: 11px; font-weight: 800; font-family: var(--mono);
+            text-transform: uppercase; letter-spacing: 1px;
+            display: inline-block;
+        }
+        .role-superadmin { background: rgba(255,42,109,0.12); color: var(--accent-pink); border: 1px solid rgba(255,42,109,0.3); }
+        .role-admin      { background: rgba(163,0,255,0.12); color: var(--accent-purple); border: 1px solid rgba(163,0,255,0.3); }
+        .role-member     { background: rgba(5,217,232,0.08); color: var(--accent-cyan); border: 1px solid rgba(5,217,232,0.2); }
+
+        .section-label {
+            font-size: 11px; font-weight: 700; font-family: var(--mono);
+            opacity: 0.45; letter-spacing: 1.5px; text-transform: uppercase;
+            margin-bottom: 8px; display: block;
+        }
+
+        .stat-pill {
+            background: rgba(255,255,255,0.03);
+            border-radius: 18px; padding: 20px 25px;
+            display: flex; align-items: center; gap: 15px;
+            transition: var(--transition);
+        }
+        .stat-pill:hover { background: rgba(255,255,255,0.06); transform: translateY(-3px); }
+        .stat-pill-icon {
+            width: 52px; height: 52px; border-radius: 16px;
+            display: flex; align-items: center; justify-content: center; font-size: 24px;
+        }
+
+        /* Toast */
+        #toast-container {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none;
+        }
+        .toast {
+            padding: 14px 28px; border-radius: 14px;
+            font-size: 14px; font-weight: 700;
+            animation: toastIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
+            pointer-events: auto; min-width: 240px; text-align: center;
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.3);
+        }
+        .toast-success { background: var(--accent-cyan); color: #000; }
+        .toast-error   { background: var(--accent-pink); color: #fff; }
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateY(20px) scale(0.9); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+    </style>
 </head>
 
 <body class="dashboard-grid">
     <aside class="sidebar glass" style="margin:20px; border-radius:30px;"></aside>
+    <div id="toast-container"></div>
 
-    <main class="container mt-40">
-        <h1 class="gradient-text mb-40">إعدادات الحساب</h1>
+    <main class="container" style="padding:40px; max-width:900px; width:100%; box-sizing:border-box;">
+        <h1 class="gradient-text syne mb-40" style="font-size:32px; font-weight:800;" id="page-title">الملف الشخصي</h1>
 
-        <div class="glass" style="max-width:600px; padding:40px; border-radius:30px;">
-            <div id="profile-header" class="text-center mb-40">
-                <div id="avatar"
-                    style="width:120px; height:120px; border-radius:50%; background:var(--glass-bg); margin:0 auto; border:3px solid var(--neon-green); display:flex; align-items:center; justify-content:center; font-size:48px;">
-                    👤
+        <div style="display:grid; grid-template-columns:1fr 2fr; gap:30px; align-items:start;">
+            <!-- LEFT: Avatar + Stats -->
+            <div style="display:flex; flex-direction:column; gap:20px;">
+                <div class="glass" style="border-radius:28px; padding:35px; text-align:center;">
+                    <div class="avatar-ring mb-20">👤</div>
+                    <h2 id="user-name" class="syne" style="font-size:22px; font-weight:800; margin-bottom:8px;">...</h2>
+                    <div id="role-badge" class="role-badge role-member mb-15">Member</div>
+                    <div id="user-wilaya" style="font-size:13px; opacity:0.5; margin-bottom:15px;">—</div>
+                    <div class="stat-pill" style="justify-content:center; background:rgba(0,255,178,0.04);">
+                        <span style="font-size:28px;">🌱</span>
+                        <div>
+                            <div class="mono" style="font-size:10px; opacity:0.5;">IMPACT POINTS</div>
+                            <div id="user-points" class="syne" style="font-size:26px; font-weight:800; color:var(--neon-green);">0</div>
+                        </div>
+                    </div>
                 </div>
-                <h2 id="user-name" class="syne mt-20" style="font-size:28px;">...</h2>
-                <div id="impact" class="badge mt-10"
-                    style="background:rgba(0,255,178,0.1); color:var(--neon-green); border:1px solid var(--neon-green);">
-                    0 IMPACT POINTS</div>
+
+                <div class="glass" style="border-radius:28px; padding:25px;">
+                    <div style="font-size:12px; opacity:0.4; font-family:var(--mono); margin-bottom:15px; text-transform:uppercase; letter-spacing:1px;">إحصائيات</div>
+                    <div style="display:flex; flex-direction:column; gap:12px;">
+                        <div class="stat-pill">
+                            <div class="stat-pill-icon" style="background:rgba(5,217,232,0.08);">🤖</div>
+                            <div>
+                                <div style="font-size:11px; opacity:0.5;" id="lbl-clubs">النوادي</div>
+                                <div class="syne" style="font-size:20px; font-weight:800;" id="stat-clubs">—</div>
+                            </div>
+                        </div>
+                        <div class="stat-pill">
+                            <div class="stat-pill-icon" style="background:rgba(255,190,11,0.08);">🎓</div>
+                            <div>
+                                <div style="font-size:11px; opacity:0.5;" id="lbl-courses">الدورات</div>
+                                <div class="syne" style="font-size:20px; font-weight:800;" id="stat-courses">—</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <form id="profile-form" style="display:flex; flex-direction:column; gap:20px;">
-                <label class="mono" style="font-size:12px; opacity:0.5;">FULL NAME</label>
-                <input type="text" id="full_name" placeholder="الاسم الكامل" class="input-field">
+            <!-- RIGHT: Edit Form -->
+            <div class="glass" style="border-radius:28px; padding:40px;">
+                <h3 class="syne mb-30" style="font-size:20px; font-weight:700;" id="form-title">تعديل المعلومات الشخصية</h3>
 
-                <label class="mono" style="font-size:12px; opacity:0.5;">PHONE NUMBER</label>
-                <input type="text" id="phone" placeholder="رقم الهاتف" class="input-field">
+                <form id="profile-form" style="display:flex; flex-direction:column; gap:20px;">
+                    <div>
+                        <span class="section-label" id="lbl-name">الاسم الكامل</span>
+                        <input type="text" id="full_name" class="input-field" placeholder="الاسم الكامل">
+                    </div>
+                    <div>
+                        <span class="section-label" id="lbl-phone">رقم الهاتف</span>
+                        <input type="text" id="phone" class="input-field" placeholder="05/06/07XXXXXXXX">
+                    </div>
+                    <div>
+                        <span class="section-label" id="lbl-wilaya">الولاية</span>
+                        <input type="text" id="wilaya" class="input-field" placeholder="الولاية">
+                    </div>
+                    <div>
+                        <span class="section-label" id="lbl-neighborhood">الحي</span>
+                        <input type="text" id="neighborhood" class="input-field" placeholder="الحي / المنطقة">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="padding:16px; font-size:16px; width:100%; justify-content:center;" id="btn-save">
+                        💾 حفظ التغييرات
+                    </button>
+                </form>
 
-                <button type="submit" class="btn btn-primary mt-20" style="padding:15px;">حفظ التغييرات</button>
-            </form>
+                <hr style="border:none; border-top:1px solid var(--glass-border); margin:30px 0;">
+
+                <div>
+                    <div class="section-label" id="lbl-lang">اللغة المفضلة</div>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                        <button class="btn btn-outline lang-opt" data-lang="ar" style="padding:10px 22px; font-size:14px; border-radius:12px;">🇩🇿 العربية</button>
+                        <button class="btn btn-outline lang-opt" data-lang="fr" style="padding:10px 22px; font-size:14px; border-radius:12px;">🇫🇷 Français</button>
+                        <button class="btn btn-outline lang-opt" data-lang="en" style="padding:10px 22px; font-size:14px; border-radius:12px;">🇬🇧 English</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
 
     <script type="module">
         import { requireAuth } from '../src/js/auth.js';
-        import { updateProfile } from '../src/js/db.js';
+        import { neon } from '../src/js/neon.js';
         import { injectLayout } from '../src/js/layout.js';
+        import { getCurrentLang, setLanguage } from '../src/js/i18n.js';
+
+        function toast(msg, type = 'success') {
+            const c = document.getElementById('toast-container');
+            const el = document.createElement('div');
+            el.className = `toast toast-${type}`;
+            el.textContent = msg;
+            c.appendChild(el);
+            setTimeout(() => el.remove(), 3200);
+        }
+
+        const DICT = {
+            ar: { page: 'الملف الشخصي', form_title: 'تعديل المعلومات', lbl_name: 'الاسم الكامل', lbl_phone: 'رقم الهاتف', lbl_wilaya: 'الولاية', lbl_neighborhood: 'الحي', lbl_lang: 'اللغة المفضلة', btn_save: '💾 حفظ التغييرات', saved: '✅ تم حفظ التغييرات بنجاح!', error: '❌ حدث خطأ، حاول مرة أخرى', lbl_clubs: 'النوادي', lbl_courses: 'الدورات' },
+            fr: { page: 'Mon Profil', form_title: 'Modifier le profil', lbl_name: 'Nom complet', lbl_phone: 'Téléphone', lbl_wilaya: 'Wilaya', lbl_neighborhood: 'Quartier', lbl_lang: 'Langue préférée', btn_save: '💾 Sauvegarder', saved: '✅ Profil mis à jour !', error: '❌ Erreur, réessayez.', lbl_clubs: 'Clubs', lbl_courses: 'Formations' },
+            en: { page: 'My Profile', form_title: 'Edit Profile', lbl_name: 'Full Name', lbl_phone: 'Phone', lbl_wilaya: 'Wilaya', lbl_neighborhood: 'Neighborhood', lbl_lang: 'Preferred Language', btn_save: '💾 Save Changes', saved: '✅ Profile saved!', error: '❌ Error, please retry.', lbl_clubs: 'Clubs', lbl_courses: 'Courses' }
+        };
 
         async function init() {
             const auth = await requireAuth();
             if (!auth) return;
             injectLayout();
 
-            document.getElementById('user-name').innerText = auth.profile.full_name;
-            document.getElementById('impact').innerText = `${auth.profile.impact_points} IMPACT POINTS`;
-            document.getElementById('full_name').value = auth.profile.full_name;
-            document.getElementById('phone').value = auth.profile.phone || '';
-        }
+            const lang = getCurrentLang();
+            const t = DICT[lang] || DICT.ar;
 
-        document.getElementById('profile-form').onsubmit = async (e) => {
-            e.preventDefault();
-            const { user } = await requireAuth();
-            const res = await updateProfile(user.id, {
-                full_name: document.getElementById('full_name').value,
-                phone: document.getElementById('phone').value
+            // Translate static labels
+            document.getElementById('page-title').textContent = t.page;
+            document.getElementById('form-title').textContent = t.form_title;
+            document.getElementById('lbl-name').textContent = t.lbl_name;
+            document.getElementById('lbl-phone').textContent = t.lbl_phone;
+            document.getElementById('lbl-wilaya').textContent = t.lbl_wilaya;
+            document.getElementById('lbl-neighborhood').textContent = t.lbl_neighborhood;
+            document.getElementById('lbl-lang').textContent = t.lbl_lang;
+            document.getElementById('btn-save').textContent = t.btn_save;
+            document.getElementById('lbl-clubs').textContent = t.lbl_clubs;
+            document.getElementById('lbl-courses').textContent = t.lbl_courses;
+
+            const p = auth.profile;
+            document.getElementById('user-name').textContent = p.full_name || '—';
+            document.getElementById('user-wilaya').textContent = p.wilaya || '—';
+            document.getElementById('user-points').textContent = p.impact_points || 0;
+
+            // Role badge
+            const rb = document.getElementById('role-badge');
+            rb.textContent = p.role;
+            rb.className = `role-badge role-${p.role}`;
+
+            // Populate form
+            document.getElementById('full_name').value = p.full_name || '';
+            document.getElementById('phone').value = p.phone || '';
+            document.getElementById('wilaya').value = p.wilaya || '';
+            document.getElementById('neighborhood').value = p.neighborhood || '';
+
+            // Stats
+            const { data: clubs } = await neon.from('club_memberships').select().eq('user_id', auth.user.id);
+            const { data: courses } = await neon.from('initiative_members').select().eq('user_id', auth.user.id);
+            document.getElementById('stat-clubs').textContent = (clubs || []).length;
+            document.getElementById('stat-courses').textContent = (courses || []).length;
+
+            // Save
+            document.getElementById('profile-form').onsubmit = async (e) => {
+                e.preventDefault();
+                const btn = document.getElementById('btn-save');
+                btn.disabled = true;
+                btn.textContent = '⏳ ...';
+
+                const { error } = await neon.from('profiles').update({
+                    full_name: document.getElementById('full_name').value,
+                    phone: document.getElementById('phone').value,
+                    wilaya: document.getElementById('wilaya').value,
+                    neighborhood: document.getElementById('neighborhood').value
+                }).eq('id', auth.user.id);
+
+                btn.disabled = false;
+                btn.textContent = t.btn_save;
+                toast(error ? t.error : t.saved, error ? 'error' : 'success');
+            };
+
+            // Language switcher
+            document.querySelectorAll('.lang-opt').forEach(btn => {
+                if (btn.dataset.lang === lang) btn.style.background = 'rgba(255,42,109,0.15)';
+                btn.onclick = () => { setLanguage(btn.dataset.lang); window.location.reload(); };
             });
-            if (!res.error) alert('تم حفظ التغييرات بنجاح');
-        };
+        }
 
         init();
     </script>

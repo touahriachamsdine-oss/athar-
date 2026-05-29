@@ -56,3 +56,50 @@ export function timeAgo(date, lang = 'ar') {
     if (diff < 86400) return translations[lang].h;
     return translations[lang].d;
 }
+
+// ── Global Toast Notification System ──────────────────────────────────────────
+// Usage: import { showToast } from '../src/js/utils.js';
+//        showToast('Saved!', 'success');  // type: 'success' | 'error' | 'info'
+
+export function showToast(message, type = 'success', durationMs = 3200) {
+    let container = document.getElementById('athar-toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'athar-toast-container';
+        container.style.cssText = `
+            position:fixed; bottom:30px; left:50%; transform:translateX(-50%);
+            z-index:9999; display:flex; flex-direction:column;
+            gap:10px; pointer-events:none; min-width:240px;
+        `;
+        document.body.appendChild(container);
+
+        // Inject toast CSS once
+        const style = document.createElement('style');
+        style.textContent = `
+            .athar-toast {
+                padding:14px 28px; border-radius:14px;
+                font-size:14px; font-weight:700; text-align:center;
+                box-shadow:4px 4px 0px rgba(0,0,0,0.3);
+                animation:atharToastIn 0.35s cubic-bezier(0.34,1.56,0.64,1) forwards;
+                pointer-events:auto;
+            }
+            .athar-toast.out { animation:atharToastOut 0.25s ease forwards; }
+            .athar-toast-success { background:var(--accent-cyan,#05D9E8); color:#000; }
+            .athar-toast-error   { background:var(--accent-pink,#FF2A6D); color:#fff; }
+            .athar-toast-info    { background:rgba(163,0,255,0.9); color:#fff; }
+            @keyframes atharToastIn  { from{opacity:0;transform:translateY(16px) scale(0.9)} to{opacity:1;transform:translateY(0) scale(1)} }
+            @keyframes atharToastOut { from{opacity:1;transform:scale(1)} to{opacity:0;transform:scale(0.9)} }
+        `;
+        document.head.appendChild(style);
+    }
+
+    const el = document.createElement('div');
+    el.className = `athar-toast athar-toast-${type}`;
+    el.textContent = message;
+    container.appendChild(el);
+
+    setTimeout(() => {
+        el.classList.add('out');
+        setTimeout(() => el.remove(), 280);
+    }, durationMs);
+}

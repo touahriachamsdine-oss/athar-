@@ -3,51 +3,188 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>استكشف — أثر</title>
     <link rel="stylesheet" href="../src/css/reset.css">
     <link rel="stylesheet" href="../src/css/variables.css">
     <link rel="stylesheet" href="../src/css/typography.css">
     <link rel="stylesheet" href="../src/css/glass.css">
     <link rel="stylesheet" href="../src/css/components.css">
+    <link rel="stylesheet" href="../src/css/animations.css">
     <link rel="stylesheet" href="../src/css/layout.css">
     <link rel="stylesheet" href="../src/css/utilities.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Cairo', 'Outfit', sans-serif; }
+
+        .explore-card {
+            background: rgba(255,255,255,0.02);
+            border-radius: 28px; padding: 35px;
+            cursor: pointer; transition: var(--transition);
+            position: relative; overflow: hidden;
+        }
+        .explore-card::before {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.02), transparent);
+            opacity: 0; transition: opacity 0.4s;
+        }
+        .explore-card:hover::before { opacity: 1; }
+        .explore-card:hover {
+            transform: translateY(-8px) translateX(-4px);
+            box-shadow: 10px 10px 0px rgba(0,0,0,0.25);
+            background: rgba(255,255,255,0.04);
+        }
+
+        .health-bar {
+            height: 4px; border-radius: 4px;
+            background: rgba(255,255,255,0.05); overflow: hidden; margin-top: 15px;
+        }
+        .health-fill { height: 100%; border-radius: 4px; transition: width 1s ease; }
+
+        .category-chip {
+            display: inline-block; padding: 5px 14px;
+            border-radius: 100px; font-size: 10px;
+            font-family: var(--mono); font-weight: 800;
+            text-transform: uppercase; letter-spacing: 1px;
+            margin-bottom: 18px;
+        }
+
+        .filter-btn {
+            padding: 8px 20px; border-radius: 100px;
+            font-size: 13px; font-weight: 700;
+            cursor: pointer; border: none; outline: none;
+            transition: var(--transition); background: rgba(255,255,255,0.05);
+            color: var(--text-primary);
+        }
+        .filter-btn.active, .filter-btn:hover {
+            background: var(--accent-pink); color: #fff;
+        }
+
+        .empty-state { text-align: center; padding: 80px 20px; opacity: 0.5; }
+        .empty-state div { font-size: 64px; margin-bottom: 20px; }
+    </style>
 </head>
 
 <body class="dashboard-grid">
     <aside class="sidebar glass" style="margin:20px; border-radius:30px;"></aside>
-    <main class="container mt-40">
-        <h1 class="gradient-text">استكشف المبادرات</h1>
+
+    <main class="container" style="padding:40px; max-width:1200px; width:100%; box-sizing:border-box;">
+        <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom:40px; flex-wrap:wrap; gap:20px;">
+            <div>
+                <h1 class="gradient-text syne" style="font-size:34px; font-weight:800;" id="page-title">استكشف المبادرات</h1>
+                <p style="opacity:0.5; margin-top:6px; font-size:14px;" id="page-subtitle">اكتشف المبادرات والنشاطات المعتمدة ببيوت الشباب</p>
+            </div>
+            <input type="text" id="search-input" class="input-field" placeholder="🔍 ابحث..." style="max-width:260px; margin-bottom:0; padding:12px 20px;">
         </header>
 
-        <div id="explore-grid"
-            style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px,1fr)); gap:30px;">
-            <!-- Loaded via JS -->
+        <!-- Category filters -->
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:35px;" id="filters">
+            <button class="filter-btn active" data-cat="all" id="filter-all">الكل</button>
+            <button class="filter-btn" data-cat="clubs">🤖 النوادي</button>
+            <button class="filter-btn" data-cat="awareness">🛡️ التوعية</button>
+            <button class="filter-btn" data-cat="training">🎓 التدريب</button>
+            <button class="filter-btn" data-cat="schools">🏫 المدارس</button>
         </div>
 
-        <script type="module">
-            import { neon } from '../src/js/neon.js';
-            import { injectLayout } from '../src/js/layout.js';
+        <div id="explore-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px,1fr)); gap:25px;">
+            <div class="empty-state" id="loading-state">
+                <div>⏳</div>
+                <p>جاري التحميل...</p>
+            </div>
+        </div>
+    </main>
 
+    <script type="module">
+        import { requireAuth } from '../src/js/auth.js';
+        import { neon } from '../src/js/neon.js';
+        import { injectLayout } from '../src/js/layout.js';
+        import { getCurrentLang } from '../src/js/i18n.js';
+
+        const CATEGORY_COLORS = {
+            clubs:    { bg: 'rgba(5,217,232,0.1)', color: 'var(--accent-cyan)' },
+            awareness:{ bg: 'rgba(255,42,109,0.1)', color: 'var(--accent-pink)' },
+            training: { bg: 'rgba(255,190,11,0.1)', color: 'var(--accent-amber)' },
+            schools:  { bg: 'rgba(163,0,255,0.1)', color: 'var(--accent-purple)' }
+        };
+
+        const DICT = {
+            ar: { page: 'استكشف المبادرات', subtitle: 'اكتشف المبادرات والنشاطات المعتمدة', filter_all: 'الكل', empty: 'لا توجد مبادرات حالياً', health: 'صحة', join: 'انضمام' },
+            fr: { page: 'Explorer les Initiatives', subtitle: 'Découvrez les initiatives approuvées', filter_all: 'Tout', empty: 'Aucune initiative pour l\'instant', health: 'Santé', join: 'Rejoindre' },
+            en: { page: 'Explore Initiatives', subtitle: 'Discover approved initiatives and activities', filter_all: 'All', empty: 'No initiatives yet', health: 'Health', join: 'Join' }
+        };
+
+        let allData = [];
+        let activeCat = 'all';
+
+        function renderCards(data, lang) {
+            const t = DICT[lang] || DICT.ar;
+            const grid = document.getElementById('explore-grid');
+            if (!data.length) {
+                grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div>🔭</div><p>${t.empty}</p></div>`;
+                return;
+            }
+            const titleKey = lang === 'fr' ? 'title_fr' : (lang === 'en' ? 'title_en' : 'title_ar');
+            const descKey  = lang === 'fr' ? 'description_fr' : (lang === 'en' ? 'description_en' : 'description_ar');
+
+            const colorFill = { green: '#00d4b4', teal: '#05D9E8', blue: '#4A9EFF', amber: '#FFBE0B' };
+            grid.innerHTML = data.map(i => {
+                const cat = i.category || 'clubs';
+                const cc = CATEGORY_COLORS[cat] || CATEGORY_COLORS.clubs;
+                const score = i.health_score || 0;
+                const fill = score > 70 ? '#00d4b4' : score > 40 ? '#FFBE0B' : '#FF2A6D';
+                return `
+                <div class="explore-card glass" onclick="location.href='initiative.html?id=${i.id}'">
+                    <div class="category-chip" style="background:${cc.bg}; color:${cc.color};">${cat.toUpperCase()}</div>
+                    <h2 class="syne" style="font-size:20px; font-weight:800; line-height:1.3; margin-bottom:10px;">${i[titleKey] || i.title_ar}</h2>
+                    <p style="font-size:13px; opacity:0.55; line-height:1.6; margin-bottom:20px;">${(i[descKey] || i.description_ar || '').substring(0,90)}...</p>
+                    <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px;">
+                        <span style="opacity:0.45; font-family:var(--mono);">📍 ${i.wilaya || '—'}</span>
+                        <span style="color:${fill}; font-family:var(--mono); font-weight:800;">${score}% ${t.health}</span>
+                    </div>
+                    <div class="health-bar">
+                        <div class="health-fill" style="width:${score}%; background:${fill};"></div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        async function init() {
+            const auth = await requireAuth();
+            if (!auth) return;
             injectLayout();
 
-            async function load() {
-                const { data } = await neon.from('initiatives').select().eq('is_approved', true);
-                const grid = document.getElementById('explore-grid');
-                grid.innerHTML = (data || []).map(i => `
-                <div class="glass glass-interactive reveal active" style="padding:40px; border-radius:30px;" onclick="location.href='initiative.html?id=${i.id}'">
-                    <div class="badge mb-20" style="background:var(--neon-green); color:black;">${i.category.toUpperCase()}</div>
-                    <h2 class="syne" style="font-size:24px; margin-bottom:15px;">${i.title_ar}</h2>
-                    <p style="font-size:14px; opacity:0.6; line-height:1.6; margin-bottom:30px;">${i.wilaya} — ${i.neighborhood}</p>
-                    
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <div class="mono" style="font-size:12px; color:var(--neon-teal);">${i.health_score}% HEALTH</div>
-                        <div style="width:50px; height:50px; border-radius:50%; background:rgba(5, 217, 232, 0.1); display:flex; align-items:center; justify-content:center; font-size:20px; color:var(--neon-teal);">→</div>
-                    </div>
-                </div>
-            `).join('');
-            }
-            load();
-        </script>
+            const lang = getCurrentLang();
+            const t = DICT[lang] || DICT.ar;
+            document.getElementById('page-title').textContent = t.page;
+            document.getElementById('page-subtitle').textContent = t.subtitle;
+            document.getElementById('filter-all').textContent = t.filter_all;
+
+            const { data } = await neon.from('initiatives').select().eq('is_approved', true);
+            allData = data || [];
+            document.getElementById('loading-state')?.remove();
+            renderCards(allData, lang);
+
+            // Category filter
+            document.getElementById('filters').addEventListener('click', e => {
+                const btn = e.target.closest('.filter-btn');
+                if (!btn) return;
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                activeCat = btn.dataset.cat;
+                const filtered = activeCat === 'all' ? allData : allData.filter(i => i.category === activeCat);
+                const search = document.getElementById('search-input').value.toLowerCase();
+                renderCards(search ? filtered.filter(i => (i.title_ar||'').includes(search) || (i.title_fr||'').toLowerCase().includes(search)) : filtered, lang);
+            });
+
+            // Search
+            document.getElementById('search-input').addEventListener('input', e => {
+                const q = e.target.value.toLowerCase();
+                const base = activeCat === 'all' ? allData : allData.filter(i => i.category === activeCat);
+                renderCards(q ? base.filter(i => (i.title_ar||'').includes(q) || (i.title_fr||'').toLowerCase().includes(q) || (i.title_en||'').toLowerCase().includes(q)) : base, lang);
+            });
+        }
+        init();
+    </script>
 </body>
 
 </html>
