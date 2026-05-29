@@ -42,8 +42,8 @@ async function build() {
     const configPath = path.join(outputDir, 'src/js/config.js');
     if (fs.existsSync(configPath)) {
         let config = fs.readFileSync(configPath, 'utf8');
-        const neonAuthUrl = process.env.NEON_AUTH_URL || 'https://ep-fragrant-mouse-ajalcux2.neonauth.c-3.us-east-2.aws.neon.tech/neondb/auth';
-        const neonApiUrl = process.env.NEON_API_URL || 'https://ep-fragrant-mouse-ajalcux2.apirest.c-3.us-east-2.aws.neon.tech/neondb/rest/v1';
+        const neonAuthUrl = process.env.NEON_AUTH_URL || 'https://ep-silent-bread-aqt1uezw.neonauth.c-8.us-east-1.aws.neon.tech/neondb/auth';
+        const neonApiUrl = process.env.NEON_API_URL || 'https://ep-silent-bread-aqt1uezw.apirest.c-8.us-east-1.aws.neon.tech/neondb/rest/v1';
         config = config.replace(/YOUR_NEON_AUTH_URL/g, neonAuthUrl);
         config = config.replace(/YOUR_NEON_API_URL/g, neonApiUrl);
         fs.writeFileSync(configPath, config);
