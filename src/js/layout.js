@@ -43,8 +43,8 @@ export function injectLayout() {
     if (sidebar) {
         sidebar.innerHTML = `
             <div style="padding:40px 20px; display:flex; flex-direction:column; height:100%; gap:10px;">
-                <div class="logo-container" style="display:flex; align-items:center; justify-content:center; margin-bottom:40px;">
-                    <img src="../public/logo.png" alt="Athar Logo" style="width:64px; height:64px; filter:drop-shadow(0 0 12px var(--neon-green)); object-fit:contain;">
+                <div class="logo-container" style="display:flex; align-items:center; justify-content:center; margin-bottom:40px; height:64px; width:64px; margin-inline:auto; overflow:visible;">
+                    <img src="../public/logo.png" alt="Athar Logo" style="width:448px; height:448px; max-width:none; margin: -192px 0; filter:drop-shadow(0 0 16px var(--neon-green)); object-fit:contain;">
                 </div>
                 <nav style="display:flex; flex-direction:column; gap:8px;">${navLinks}</nav>
                 <div style="margin-top:auto; display:flex; flex-direction:column; gap:15px;">${bottomControls}</div>
@@ -68,8 +68,8 @@ export function injectLayout() {
             border-bottom:1px solid rgba(255,255,255,0.05);
         `;
         topbar.innerHTML = `
-            <div style="display:flex; align-items:center;">
-                <img src="../public/logo.png" alt="Athar Logo" style="width:40px; height:40px; filter:drop-shadow(0 0 8px var(--neon-green)); object-fit:contain;">
+            <div style="display:flex; align-items:center; height:40px; width:40px; overflow:visible;">
+                <img src="../public/logo.png" alt="Athar Logo" style="width:280px; height:280px; max-width:none; margin:-120px 0; filter:drop-shadow(0 0 8px var(--neon-green)); object-fit:contain;">
             </div>
             <button id="mobile-menu-btn" style="background:rgba(255,255,255,0.05); border:none; outline:none; width:40px; height:40px; border-radius:12px; font-size:20px; cursor:pointer; color:var(--text-primary); display:flex; align-items:center; justify-content:center;">☰</button>
         `;
@@ -89,8 +89,10 @@ export function injectLayout() {
                 padding:30px 20px; display:flex; flex-direction:column; gap:10px;
                 overflow-y:auto; transform:translateX(100%); transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);
             ">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
-                    <img src="../public/logo.png" alt="Athar Logo" style="width:44px; height:44px; filter:drop-shadow(0 0 8px var(--neon-green)); object-fit:contain;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px; height:44px; overflow:visible;">
+                    <div style="display:flex; align-items:center; height:44px; width:44px; overflow:visible;">
+                        <img src="../public/logo.png" alt="Athar Logo" style="width:308px; height:308px; max-width:none; margin:-132px 0; filter:drop-shadow(0 0 8px var(--neon-green)); object-fit:contain;">
+                    </div>
                     <button id="drawer-close" style="background:rgba(255,255,255,0.05); border:none; outline:none; width:38px; height:38px; border-radius:10px; font-size:18px; cursor:pointer; color:var(--text-primary);">✕</button>
                 </div>
                 <nav style="display:flex; flex-direction:column; gap:6px; flex:1;">${navLinks}</nav>

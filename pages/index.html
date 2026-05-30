@@ -20,6 +20,67 @@
             font-family: 'Cairo', 'Outfit', sans-serif;
         }
 
+        .lang-selector {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 4px;
+            border-radius: 12px;
+            gap: 2px;
+            display: flex;
+            align-items: center;
+            transition: var(--transition);
+        }
+
+        .lang-btn {
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .lang-btn:hover {
+            color: var(--text-primary);
+        }
+
+        .lang-btn.active {
+            background: var(--accent-pink);
+            color: var(--text-static) !important;
+        }
+
+        .theme-toggle-nav {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-toggle-nav:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
+        }
+
+        [data-theme="light"] .lang-selector {
+            background: rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        [data-theme="light"] .theme-toggle-nav {
+            background: rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
         .hero-glow {
             position: absolute;
             top: 40%;
@@ -92,14 +153,27 @@
 
     <!-- NAVBAR -->
     <nav class="glass navbar flex-center" style="justify-content: space-between; border-radius: 24px; padding: 15px 30px;">
-        <div style="display:flex; align-items:center; gap:12px;">
+        <div style="display:flex; align-items:center; gap:12px; height:38px; overflow:visible;">
             <img src="../public/logo.png" alt="Athar Logo"
-                style="width:38px; height:38px; filter: drop-shadow(0 0 10px rgba(255, 42, 109, 0.4));">
-            <div class="logo syne gradient-text" style="font-weight:900; font-size:24px; letter-spacing:-1px;">ATHAR — أثر</div>
+                style="width:266px; height:266px; margin: -114px 0; filter: drop-shadow(0 0 15px rgba(255, 42, 109, 0.4)); object-fit: contain;">
         </div>
-        <div class="nav-links flex-center" style="gap:25px;">
+        <div class="nav-links flex-center" style="gap:15px; align-items:center;">
+            <!-- Language Selector Segmented Control -->
+            <div class="lang-selector control-container">
+                <button class="lang-btn" data-lang="ar">AR</button>
+                <button class="lang-btn" data-lang="fr">FR</button>
+                <button class="lang-btn" data-lang="en">EN</button>
+            </div>
+
+            <!-- Theme Toggle Button -->
+            <button id="theme-toggle-nav" class="theme-toggle-nav control-container" title="Toggle Theme">
+                <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+            </button>
+
+            <!-- Login Button -->
             <a href="auth.html" class="btn btn-primary" data-i18n="login_title"
-                style="padding:10px 28px; border-radius:14px; font-weight:700; font-size:15px;">دخول</a>
+                style="padding:10px 28px; border-radius:14px; font-weight:700; font-size:15px; display:inline-flex; align-items:center; justify-content:center;">دخول</a>
         </div>
     </nav>
 
@@ -204,13 +278,58 @@
     <script type="module">
         import { injectLayout } from '../src/js/layout.js';
         import { setLanguage, getCurrentLang } from '../src/js/i18n.js';
-        import { initTheme } from '../src/js/theme.js';
+        import { initTheme, toggleTheme } from '../src/js/theme.js';
         import { initScrollReveals } from '../src/js/animations.js';
         import { initPWA } from '../src/js/pwa.js';
 
         window.onload = () => {
+            // Theme setup
             initTheme();
-            setLanguage(getCurrentLang());
+            const themeToggleBtn = document.getElementById('theme-toggle-nav');
+            const sunIcon = themeToggleBtn.querySelector('.sun-icon');
+            const moonIcon = themeToggleBtn.querySelector('.moon-icon');
+
+            const updateThemeUI = (theme) => {
+                if (theme === 'dark') {
+                    sunIcon.style.display = 'block';
+                    moonIcon.style.display = 'none';
+                } else {
+                    sunIcon.style.display = 'none';
+                    moonIcon.style.display = 'block';
+                }
+            };
+
+            const initialTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+            updateThemeUI(initialTheme);
+
+            themeToggleBtn.addEventListener('click', async () => {
+                const newTheme = await toggleTheme();
+                updateThemeUI(newTheme);
+            });
+
+            // Language setup
+            const updateLangUI = (lang) => {
+                document.querySelectorAll('.lang-btn').forEach(btn => {
+                    if (btn.getAttribute('data-lang') === lang) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+            };
+
+            const currentLang = getCurrentLang();
+            setLanguage(currentLang);
+            updateLangUI(currentLang);
+
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const lang = btn.getAttribute('data-lang');
+                    setLanguage(lang);
+                    updateLangUI(lang);
+                });
+            });
+
             injectLayout();
             initScrollReveals();
             initPWA();
