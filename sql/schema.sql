@@ -637,7 +637,7 @@ create table public.awareness_quiz_attempts (
 );
 alter table public.awareness_quiz_attempts enable row level security;
 create policy "Users read own quiz attempts" on awareness_quiz_attempts for select
-  using (user_id = auth.uid());
+  using (user_id = auth.uid() or public.is_platform_admin());
 create policy "Quiz writes are function-only" on awareness_quiz_attempts for insert with check (false);
 
 create or replace function public.try_award_points(p_user_id uuid, p_amount int, p_reason text, p_ref_type text, p_ref_id uuid)
@@ -715,6 +715,9 @@ declare
   v_breakdown jsonb;
   v_tier int;
 begin
+  if auth.uid() is null then raise exception 'unauthorized' using errcode = '28000'; end if;
+  if p_user_id is distinct from auth.uid() and not public.is_platform_admin()
+     then raise exception 'forbidden' using errcode = '42501'; end if;
   select coalesce(sum(amount), 0),
          coalesce(jsonb_object_agg(reason, total), '{}'::jsonb)
   into v_total, v_breakdown
@@ -738,11 +741,21 @@ returns jsonb language sql stable security definer set search_path = public as $
   );
 $$;
 
-create or replace function public.update_profile_settings(p_lang text default null, p_theme text default null)
+create or replace function public.update_profile_settings(
+  p_lang text default null, p_theme text default null,
+  p_full_name text default null, p_phone text default null,
+  p_wilaya text default null, p_neighborhood text default null)
 returns jsonb language plpgsql security definer set search_path = public as $$
 begin
   if auth.uid() is null then raise exception 'unauthorized' using errcode = '28000'; end if;
-  update public.profiles set lang = coalesce(p_lang, lang), theme = coalesce(p_theme, theme), updated_at = now()
+  update public.profiles set
+    lang = coalesce(p_lang, lang),
+    theme = coalesce(p_theme, theme),
+    full_name = coalesce(p_full_name, full_name),
+    phone = coalesce(p_phone, phone),
+    wilaya = coalesce(p_wilaya, wilaya),
+    neighborhood = coalesce(p_neighborhood, neighborhood),
+    updated_at = now()
   where id = auth.uid();
   return jsonb_build_object('status', 'updated');
 end; $$;

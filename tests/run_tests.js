@@ -50,7 +50,8 @@ async function runSuite() {
         global.localStorage = {
             store: { 'athar_lang': 'ar' },
             getItem(key) { return this.store[key] || null; },
-            setItem(key, val) { this.store[key] = val; }
+            setItem(key, val) { this.store[key] = val; },
+            removeItem(key) { delete this.store[key]; }
         };
         
         global.document = {
@@ -270,6 +271,13 @@ async function runSuite() {
             await neon.rpc('update_profile_settings', { p_lang: 'en', p_theme: 'light' });
             const stored = JSON.parse(localStorage.getItem('athar_mock_db_profiles') || '[]').find(p => p.id === member.id);
             assert(stored && stored.lang === 'en' && stored.theme === 'light', 'update_profile_settings persists own profile in demo');
+
+            localStorage.removeItem('neon_session');
+            const noSessSummary = await neon.rpc('get_impact_summary', { p_user_id: member.id });
+            assert(noSessSummary.error && noSessSummary.error.code === 'unauthorized', 'get_impact_summary requires a session');
+            localStorage.setItem('neon_session', JSON.stringify({ user: { id: member.id }, token: 'mock-session-jwt-token-test' }));
+            const ownSummary = await neon.rpc('get_impact_summary', { p_user_id: member.id });
+            assert(ownSummary.data && typeof ownSummary.data.total_points === 'number', 'own impact summary returns ledger totals');
         }
 
         store['athar_mock_mode'] = 'false';

@@ -71,6 +71,12 @@ async function mockRecordQuizAttempt(contentId, passed, score) {
     return { data: { status: 'recorded' }, error: null };
 }
 async function mockImpactSummary(userId) {
+    const sess = JSON.parse(localStorage.getItem('neon_session') || 'null');
+    if (!sess || !sess.user) return { data: null, error: { code: 'unauthorized', message: 'login required' } };
+    const me = JSON.parse(localStorage.getItem('athar_mock_db_profiles') || '[]').find(x => x.id === sess.user.id);
+    if (userId !== sess.user.id && !(me && ['admin', 'superadmin'].includes(me.role))) {
+        return { data: null, error: { code: 'forbidden', message: 'forbidden' } };
+    }
     const ledger = JSON.parse(localStorage.getItem('athar_mock_db_ledger') || '[]').filter(l => l.user_id === userId);
     const total = ledger.reduce((s, l) => s + l.amount, 0);
     const breakdown = ledger.reduce((o, l) => { o[l.reason] = (o[l.reason] || 0) + l.amount; return o; }, {});
@@ -98,12 +104,20 @@ async function mockAwardAdmin(userId, amount, reason) {
     mockLogPoints(userId, amount, reason || 'admin_adjustment', 'admin', null);
     return { data: { status: 'awarded' }, error: null };
 }
-async function mockUpdateProfileSettings(pLang, pTheme) {
+async function mockUpdateProfileSettings(pLang, pTheme, pFullName, pPhone, pWilaya, pNeighborhood) {
     const sess = JSON.parse(localStorage.getItem('neon_session') || 'null');
     if (!sess || !sess.user) return { data: null, error: { code: 'unauthorized', message: 'login required' } };
     const profiles = JSON.parse(localStorage.getItem('athar_mock_db_profiles') || '[]');
     const p = profiles.find(x => x.id === sess.user.id);
-    if (p) { if (pLang) p.lang = pLang; if (pTheme) p.theme = pTheme; localStorage.setItem('athar_mock_db_profiles', JSON.stringify(profiles)); }
+    if (p) {
+        if (pLang) p.lang = pLang;
+        if (pTheme) p.theme = pTheme;
+        if (pFullName) p.full_name = pFullName;
+        if (pPhone) p.phone = pPhone;
+        if (pWilaya) p.wilaya = pWilaya;
+        if (pNeighborhood) p.neighborhood = pNeighborhood;
+        localStorage.setItem('athar_mock_db_profiles', JSON.stringify(profiles));
+    }
     return { data: { status: 'updated' }, error: null };
 }
 function mockRpcDispatch(fn, p) {
@@ -190,19 +204,16 @@ function mockRpcDispatch(fn, p) {
         session.updated_at = new Date().toISOString();
         const signups = getMockTable('volunteer_signups');
         let attended = 0;
-        const profiles = getMockTable('profiles');
         signups.forEach(row => {
             if (String(row.session_id) === String(session.id) && row.status === 'attended') {
                 row.hours = hours;
                 row.points_awarded = points;
                 attended++;
-                const prof = profiles.find(x => String(x.id) === String(row.volunteer_id));
-                if (prof) prof.impact_points = (prof.impact_points || 0) + points;
+                mockLogPoints(row.volunteer_id, points, 'volunteer_complete', 'volunteer_signups', row.id);
             }
         });
         saveMockTable('volunteer_sessions', sessions);
         saveMockTable('volunteer_signups', signups);
-        saveMockTable('profiles', profiles);
         return mockOk({ status: 'completed', per_volunteer: points, attended });
     }
 
@@ -259,7 +270,7 @@ function mockRpcDispatch(fn, p) {
         return mockAwardAdmin(p.p_user_id, p.p_amount, p.p_reason);
     }
     if (fn === 'update_profile_settings') {
-        return mockUpdateProfileSettings(p.p_lang, p.p_theme);
+        return mockUpdateProfileSettings(p.p_lang, p.p_theme, p.p_full_name, p.p_phone, p.p_wilaya, p.p_neighborhood);
     }
 
     return mockErr('unknown_rpc');
