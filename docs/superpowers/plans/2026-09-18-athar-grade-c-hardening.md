@@ -155,11 +155,12 @@ $$;
 **Interfaces:**
 - Consumes: `NEON_AUTH_URL`, `NEON_ANON_KEY`; produces `neon_session` `{access_token, refresh_token, expires_at, user}`.
 
-- [ ] **Step 1:** Rebuild `signUp` real branch → `POST ${NEON_AUTH_URL}/v1/signup` with `apikey: NEON_ANON_KEY` header; parse GoTrue response (`access_token`, `refresh_token`, `user`).
-- [ ] **Step 2:** Rebuild `signIn` real branch → `POST ${NEON_AUTH_URL}/v1/token?grant_type=password`; persist `neon_session` new shape; role loaded from `profiles` as today.
-- [ ] **Step 3:** Add `refreshSession()` (`grant_type=refresh_token`), called when `expires_at` is near; `getSession()` returns parsed session.
-- [ ] **Step 4:** Mock branch untouched. Tests assert real-branch URL/header/body construction for signup + signin + refresh; mock branch still returns `mock_user_*` flows.
-- [ ] **Step 5:** `node --check src/js/auth.js`; tests green. **Commit** `feat(auth): neon auth gotrue contract with refresh`.
+- [x] **Step 1:** Rebuild `signUp` real branch → `POST ${NEON_AUTH_URL}/v1/signup` with `apikey: NEON_ANON_KEY` header; parse GoTrue response (`access_token`, `refresh_token`, `user`).
+- [x] **Step 2:** Rebuild `signIn` real branch → `POST ${NEON_AUTH_URL}/v1/token?grant_type=password`; persist `neon_session` new shape; role loaded from `profiles` as today.
+- [x] **Step 3:** Add `refreshSession()` (`grant_type=refresh_token`), called when `expires_at` is near; `getSession()` returns parsed session.
+- [x] **Step 4:** Mock branch untouched. Tests assert real-branch URL/header/body construction for signup + signin + refresh; mock branch still returns `mock_user_*` flows.
+- [x] **Step 5:** `node --check src/js/auth.js`; tests green. **Commit** `feat(auth): neon auth gotrue contract with refresh`.
+- **DONE (Task 5):** `normalizeSession()` + `persistSession()` in auth.js; legacy `token` alias kept so existing page code still works; signIn role fetch unchanged; `getSession()` auto-refreshes within 30s of expiry; `refreshSession()` returns `{error}` on failure; signOut fires `/v1/logout`. New `tests/auth_contract_test.js` (18 tests, DOM+fetch stubbed, lazy import), full suite + gateway suite still green.
 
 ## Task 6: Sanitization — `esc()` + page sweep
 

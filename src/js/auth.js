@@ -1,6 +1,31 @@
 // Neon Auth & Demo Mode Implementation
-import { NEON_AUTH_URL } from './config.js';
+import { NEON_AUTH_URL, NEON_ANON_KEY } from './config.js';
 import { neon, seedMockDB } from './neon.js';
+
+function withAuthHeaders() {
+    return { apikey: NEON_ANON_KEY, 'Content-Type': 'application/json' };
+}
+
+// GoTrue session shape -> app session shape (+ legacy `token` alias so older
+// page code keeps working) 
+function normalizeSession(data) {
+    const accessToken = data.access_token || data.token || '';
+    const user = data.user || (data.session ? data.session.user : null) || null;
+    return {
+        access_token: accessToken,
+        refresh_token: data.refresh_token || '',
+        expires_at: data.expires_at || (data.expires_in ? Date.now() + data.expires_in * 1000 : null),
+        token_type: data.token_type || 'bearer',
+        token: accessToken,
+        user: user ? { id: user.id, email: user.email, name: (user.user_metadata && user.user_metadata.full_name) || user.name || user.email, ...user } : null
+    };
+}
+
+function persistSession(session) {
+    localStorage.removeItem('athar_mock_mode');
+    localStorage.setItem('neon_session', JSON.stringify(session));
+    neon.setToken(session.token || session.access_token);
+}
 
 export async function signUp(email, password, fullName, phone, wilaya, neighborhood) {
     if (localStorage.getItem('athar_mock_mode') === 'true' || email.endsWith('@athar.dz')) {
@@ -49,17 +74,24 @@ export async function signUp(email, password, fullName, phone, wilaya, neighborh
     }
 
     try {
-        const res = await fetch(`${NEON_AUTH_URL}/signUp`, {
+        const res = await fetch(`${NEON_AUTH_URL}/v1/signup`, {
             method: 'POST',
-            body: JSON.stringify({ email, password, name: fullName, metadata: { phone, wilaya, neighborhood } })
+            headers: withAuthHeaders(),
+            body: JSON.stringify({
+                email,
+                password,
+                data: { full_name: fullName, phone, wilaya, neighborhood }
+            })
         });
-        const data = await res.json();
-        if (data.error) throw new Error(data.error);
+        const data = await res.json().catch(() => null);
+        if (!res.ok) {
+            const msg = (data && (data.msg || data.error_description || data.message)) || 'failed to create account';
+            throw new Error(msg);
+        }
 
-        localStorage.removeItem('athar_mock_mode');
-        localStorage.setItem('neon_session', JSON.stringify(data.session));
+        const session = normalizeSession(data);
+        persistSession(session);
         localStorage.setItem('athar_user_role', 'member');
-        neon.setToken(data.session.token);
         window.location.href = '/pages/dashboard.html';
     } catch (e) {
         return { error: e.message };
@@ -118,19 +150,22 @@ export async function signIn(email, password) {
     }
 
     try {
-        const res = await fetch(`${NEON_AUTH_URL}/signIn`, {
+        const res = await fetch(`${NEON_AUTH_URL}/v1/token?grant_type=password`, {
             method: 'POST',
+            headers: withAuthHeaders(),
             body: JSON.stringify({ email, password })
         });
-        const data = await res.json();
-        if (data.error) throw new Error(data.error);
+        const data = await res.json().catch(() => null);
+        if (!res.ok) {
+            const msg = (data && (data.msg || data.error_description || data.message)) || 'invalid credentials';
+            throw new Error(msg);
+        }
 
-        localStorage.removeItem('athar_mock_mode');
-        localStorage.setItem('neon_session', JSON.stringify(data.session));
-        neon.setToken(data.session.token);
+        const session = normalizeSession(data);
+        persistSession(session);
 
         // Fetch role from remote database
-        const { data: profile } = await neon.from('profiles').select().id(data.session.user.id);
+        const { data: profile } = await neon.from('profiles').select().id(session.user ? session.user.id : null);
         const role = profile && profile[0] ? profile[0].role : 'member';
         localStorage.setItem('athar_user_role', role);
         
@@ -139,7 +174,7 @@ export async function signIn(email, password) {
         } else {
             window.location.href = '/pages/dashboard.html';
         }
-        return { session: data.session };
+        return { session };
     } catch (e) {
         return { error: e.message };
     }
@@ -177,14 +212,55 @@ export async function signOut() {
     localStorage.removeItem('neon_session');
     localStorage.removeItem('athar_mock_mode');
     localStorage.removeItem('athar_user_role');
+    try {
+        if (!localStorage.getItem('athar_mock_mode')) {
+            const session = JSON.parse(localStorage.getItem('neon_session') || 'null');
+            if (session && session.refresh_token) {
+                await fetch(`${NEON_AUTH_URL}/v1/logout`, {
+                    method: 'POST',
+                    headers: withAuthHeaders(),
+                    body: JSON.stringify({ refresh_token: session.refresh_token })
+                });
+            }
+        }
+    } catch (e) { /* signout must never throw */ }
     window.location.href = '/pages/auth.html';
+}
+
+export async function refreshSession(refreshToken) {
+    try {
+        const res = await fetch(`${NEON_AUTH_URL}/v1/token?grant_type=refresh_token`, {
+            method: 'POST',
+            headers: withAuthHeaders(),
+            body: JSON.stringify({ refresh_token: refreshToken })
+        });
+        const data = await res.json().catch(() => null);
+        if (!res.ok || !data || data.error) {
+            const msg = (data && (data.msg || data.error_description)) || 'session expired';
+            return { error: msg };
+        }
+        const session = normalizeSession(data);
+        persistSession(session);
+        return { session };
+    } catch (e) {
+        return { error: e.message };
+    }
 }
 
 export async function getSession() {
     const sessionStr = localStorage.getItem('neon_session');
     if (!sessionStr) return null;
     const session = JSON.parse(sessionStr);
-    neon.setToken(session.token);
+    neon.setToken(session.token || session.access_token);
+
+    const isRealSession = localStorage.getItem('athar_mock_mode') !== 'true' && !!session.access_token;
+    if (isRealSession && session.expires_at && Date.now() >= session.expires_at - 30000 && session.refresh_token) {
+        const refreshed = await refreshSession(session.refresh_token);
+        if (refreshed.session) return refreshed.session;
+        localStorage.removeItem('neon_session');
+        localStorage.removeItem('athar_user_role');
+        return null;
+    }
     return session;
 }
 
