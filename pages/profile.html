@@ -236,12 +236,12 @@
                 btn.disabled = true;
                 btn.textContent = '⏳ ...';
 
-                const { error } = await neon.from('profiles').update({
-                    full_name: document.getElementById('full_name').value,
-                    phone: document.getElementById('phone').value,
-                    wilaya: document.getElementById('wilaya').value,
-                    neighborhood: document.getElementById('neighborhood').value
-                }, auth.user.id);
+                const { error } = await neon.rpc('update_profile_settings', {
+                    p_full_name: document.getElementById('full_name').value,
+                    p_phone: document.getElementById('phone').value,
+                    p_wilaya: document.getElementById('wilaya').value,
+                    p_neighborhood: document.getElementById('neighborhood').value
+                });
 
                 btn.disabled = false;
                 btn.textContent = t.btn_save;

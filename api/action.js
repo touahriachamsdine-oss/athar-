@@ -5,7 +5,7 @@
 import crypto from 'crypto';
 
 const ALLOWED_TABLES = new Set([
-    'profiles', 'initiatives', 'initiative_members', 'tasks', 'notifications',
+    'initiatives', 'initiative_members', 'tasks', 'notifications',
     'clubs', 'club_members', 'training_courses', 'training_enrollments', 'consultations',
     'awareness_content', 'school_visits', 'invites', 'volunteer_sessions', 'volunteer_signups'
 ]);

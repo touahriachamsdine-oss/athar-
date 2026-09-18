@@ -262,7 +262,7 @@ export function setLanguage(lang) {
 async function syncLang(lang) {
     const session = await getSession();
     if (session) {
-        await neon.from('profiles').update({ lang }, session.user.id);
+        await neon.rpc('update_profile_settings', { p_lang: lang });
     }
 }
 

@@ -16,7 +16,7 @@ export async function toggleTheme() {
 
     const session = await getSession();
     if (session) {
-        await neon.from('profiles').update({ theme: newTheme }, session.user.id);
+        await neon.rpc('update_profile_settings', { p_theme: newTheme });
     }
     return newTheme;
 }

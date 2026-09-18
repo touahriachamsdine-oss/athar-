@@ -75,6 +75,17 @@ async function run() {
 
     out = await processAction({ action: 'insert', table: 'audit_logs', payload: {} }, meta);
     assert(out.status === 403 && out.body.error.code === 'forbidden', 'audit_logs is not client-writable');
+
+    console.log('\n[Phase 3B] profiles is read-only through the gateway');
+    calls.length = 0;
+    out = await processAction({ action: 'insert', table: 'profiles', payload: { full_name: 'X' }, token: 'jwt' }, {});
+    assert(out.status === 403 && out.body.error.code === 'forbidden', 'profiles insert rejected');
+    out = await processAction({ action: 'update', table: 'profiles', id: 'u-1', payload: { impact_points: 999 }, token: 'jwt' }, {});
+    assert(out.status === 403 && out.body.error.code === 'forbidden', 'profiles update rejected (no self-inflation)');
+    out = await processAction({ action: 'delete', table: 'profiles', id: 'u-1', token: 'jwt' }, {});
+    assert(out.status === 403 && out.body.error.code === 'forbidden', 'profiles delete rejected');
+    assert(!calls.some(c => c.url.includes('/profiles')), 'no profiles request ever reaches the DB');
+
     out = await processAction({ action: 'bogus', table: 'tasks', payload: {} }, meta);
     assert(out.status === 400 && out.body.error.code === 'validation', 'unknown action rejected');
 
