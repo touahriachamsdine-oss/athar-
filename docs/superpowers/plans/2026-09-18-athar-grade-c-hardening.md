@@ -109,7 +109,7 @@ $$;
 - [ ] **Step 4: Write the 7 RPCs** per spec §6.2/§6.3. `signup_to_session` must count + insert in one function body and return `{status}` on conflict; `complete_session` guards on `status='approved'` and credits points/hours once.
 - [ ] **Step 5: Trigger backstops** — `trg_audit_volunteer` on `volunteer_sessions` (status→`approved`/`rejected`) and `trg_audit_initiative` on `initiatives` (`is_approved`) inserting into `audit_logs` with `actor_user_id = auth.uid()`; trigger creating a notification on session reject.
 - [ ] **Step 6: SQL surface tests** in `run_tests.js` — read `sql/schema.sql`, assert presence of each table, each RPC, and `enable row level security` for every table in §8 list.
-- [ ] **Step 7:** `node tests/run_tests.js` green. **Commit** `feat(db): grade-c rls, volunteer tables, atomic rpcs, audit`.
+- [x] **Step 7:** `node tests/run_tests.js` green. **Commit** `feat(db): grade-c rls, volunteer tables, atomic rpcs, audit`.
 
 ## Task 3: neon.js — `rpc()`, `apikey`, gateway routing
 
@@ -121,11 +121,11 @@ $$;
 - Produces: `neon.rpc(fn, payload)` → mock: runs parity rules (create/signup/cancel/mark_attendance/complete/approve/reject) against `athar_mock_db_*`; real: `POST /api/action` `{token, action:'rpc', payload:{fn, payload}}`.
 - Produces: real-mode `insert`/`update`/`delete` reroute through `/api/action`; `select` stays direct with `apikey` header + bearer.
 
-- [ ] **Step 1: Add `rpc()` method** with mock dispatch table returning `{ data }` / `{ error, code }` matching the gate rules from spec §6.2 (capacity, unique, approval/future gating, founder/admin auth, idempotent completion).
-- [ ] **Step 2: Reroute real-mode writes** through `fetch('/api/action', {method:'POST', body: JSON.stringify({token, action:'insert'|'update'|'delete'|'rpc', ...})})`.
-- [ ] **Step 3: Add `apikey` header** to real-mode `select` requests.
-- [ ] **Step 4: Tests** — assert (a) `rpc('signup_to_session', …)` in mock fills a seat, (b) inserting when `capacity` reached returns `{error:'conflict'}`, (c) real-mode `rpc` builds a POST to `/api/action` with the right JSON body, (d) `select` request includes `apikey`.
-- [ ] **Step 5:** `node --check src/js/neon.js`; run tests. **Commit** `feat(db-client): rpc support, apikey header, gateway routing`.
+- [x] **Step 1: Add `rpc()` method** with mock dispatch table returning `{ data }` / `{ error, code }` matching the gate rules from spec §6.2 (capacity, unique, approval/future gating, founder/admin auth, idempotent completion).
+- [x] **Step 2: Reroute real-mode writes** through `fetch('/api/action', {method:'POST', body: JSON.stringify({token, action:'insert'|'update'|'delete'|'rpc', ...})})`.
+- [x] **Step 3: Add `apikey` header** to real-mode `select` requests.
+- [x] **Step 4: Tests** — assert (a) `rpc('signup_to_session', …)` in mock fills a seat, (b) inserting when `capacity` reached returns `{error:'conflict'}`, (c) real-mode `rpc` builds a POST to `/api/action` with the right JSON body, (d) `select` request includes `apikey`. (Phase 4 rewrite + Phase 4B; fixed completion fixture to an 8h session so the 50-cap asserts the real formula.)
+- [x] **Step 5:** `node --check src/js/neon.js`; run tests. **Commit** `feat(db-client): rpc support, apikey header, gateway routing`.
 
 ## Task 4: Gateway — `api/action.js`, server parity, vercel config
 
@@ -143,7 +143,8 @@ $$;
 - [ ] **Step 2: `server.js` parity** — before static handling, match `POST /api/action` and require it (function `handleApiAction(req, res, body)` shared logic; local runner reads env or falls back to mock responses).
 - [ ] **Step 3: `vercel.json`** — rewrites: add `api` to the negative lookahead (`((?!api|src|public|pages|manifest\\.json|vercel\\.json).*)`); add security headers block per spec §9.
 - [ ] **Step 4: `tests/api_test.js`** — exercise handler with a stub fetch: success shape, rate-limit shape when over threshold, unauthorized when service key missing, audit insert called.
-- [ ] **Step 5:** `node --check api/action.js server.js`; run new + full tests; smoke `POST /api/action` against local server returns the expected shape. **Commit** `feat(api): action gateway with ratelimit + audit; vercel headers`.
+- [x] **Step 5:** `node --check api/action.js server.js`; run new + full tests; smoke `POST /api/action` against local server returns the expected shape. **Commit** `feat(api): action gateway with ratelimit + audit; vercel headers`.
+- **DONE (Task 4):** `api/action.js` (zero-dep) + `tests/api_test.js` (21 tests green) + `server.js` parity route + `vercel.json` rewrite + security headers. Node check clean. Local smoke: home 200, `/api/action` returns `{"error":{"code":"validation","message":"action required"}}` on empty body. Server restarted on 8080; stale 3000 process killed.
 
 ## Task 5: Real auth — GoTrue contract
 

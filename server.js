@@ -3,12 +3,22 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import { processAction } from './api/action.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const PORT = process.env.PORT || 3000;
 const PUBLIC_DIR = path.join(__dirname, 'public');
+
+function readBody(req) {
+    return new Promise((resolve, reject) => {
+        const chunks = [];
+        req.on('data', (c) => chunks.push(c));
+        req.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
+        req.on('error', reject);
+    });
+}
 
 const MIME_TYPES = {
     '.html': 'text/html; charset=utf-8',
@@ -29,6 +39,34 @@ const MIME_TYPES = {
 
 const server = http.createServer((req, res) => {
     let urlPath = req.url.split('?')[0];
+
+    // Grade-C gateway parity: mirror /api/action locally (matches api/action.js)
+    if (req.method === 'OPTIONS') {
+        res.statusCode = 204;
+        res.end();
+        return;
+    }
+    if (req.method === 'POST' && urlPath === '/api/action') {
+        readBody(req)
+            .then(async (raw) => {
+                const body = JSON.parse(raw || '{}');
+                const out = await processAction(body, {
+                    ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '',
+                    userAgent: req.headers['user-agent'] || '',
+                    requestId: req.headers['x-request-id'] || ('req-' + Date.now())
+                });
+                res.setHeader('Access-Control-Allow-Origin', process.env.APP_ORIGIN || '*');
+                res.setHeader('Content-Type', 'application/json');
+                res.statusCode = out.status;
+                res.end(JSON.stringify(out.body));
+            })
+            .catch((e) => {
+                res.statusCode = 500;
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify({ error: { code: 'server_error', message: e.message } }));
+            });
+        return;
+    }
 
     // Clean leading/trailing slashes for path operations
     let relativePath = urlPath;
