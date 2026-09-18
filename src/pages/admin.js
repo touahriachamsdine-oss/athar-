@@ -4,6 +4,7 @@ import { injectLayout } from '../js/layout.js';
 import { renderWilayaMap } from '../js/map.js';
 import { getCurrentLang, setLanguage, TRANSLATIONS } from '../js/i18n.js';
 import { showToast } from '../js/notifications.js';
+import { esc } from '../js/utils.js';
 
 let usersCache = [];
 let initiativesCache = [];
@@ -180,11 +181,11 @@ function renderApprovalsQueue(pendingList) {
         return `
             <div class="glass flex-center" style="padding:24px; justify-content:space-between; border-radius:20px; flex-wrap:wrap; gap:20px;">
                 <div>
-                    <div style="font-weight:700; font-size:18px; margin-bottom:4px;">${title}</div>
-                    <div style="font-size:13px; opacity:0.6; margin-bottom:10px;">${desc}</div>
+                    <div style="font-weight:700; font-size:18px; margin-bottom:4px;">${esc(title)}</div>
+                    <div style="font-size:13px; opacity:0.6; margin-bottom:10px;">${esc(desc)}</div>
                     <div style="display:flex; gap:10px; font-size:11px;">
-                        <span class="badge" style="background:rgba(255, 42, 109, 0.08); color:var(--accent-pink);">${i.category}</span>
-                        <span class="badge" style="background:rgba(5, 217, 232, 0.08); color:var(--accent-cyan);">Wilaya ${i.wilaya}</span>
+                        <span class="badge" style="background:rgba(255, 42, 109, 0.08); color:var(--accent-pink);">${esc(i.category)}</span>
+                        <span class="badge" style="background:rgba(5, 217, 232, 0.08); color:var(--accent-cyan);">Wilaya ${esc(i.wilaya)}</span>
                     </div>
                 </div>
                 <div style="display:flex; gap:10px;">
@@ -212,7 +213,7 @@ function renderUsersTable(users) {
         if (userClubs.length > 0) {
             clubsHtml = userClubs.map(c => {
                 const name = c[`name_${currentLang}`] || c.name_ar;
-                return `<span class="badge" style="background:rgba(5, 217, 232, 0.08); color:var(--accent-cyan); font-size:11px; padding:4px 8px; border-radius:6px; margin:2px; display:inline-block;">${name}</span>`;
+                return `<span class="badge" style="background:rgba(5, 217, 232, 0.08); color:var(--accent-cyan); font-size:11px; padding:4px 8px; border-radius:6px; margin:2px; display:inline-block;">${esc(name)}</span>`;
             }).join('');
         } else {
             clubsHtml = `<span style="opacity:0.45; font-size:12px;">${dictionary.admin_no_club || '—'}</span>`;
@@ -226,7 +227,7 @@ function renderUsersTable(users) {
         if (userInits.length > 0) {
             initsHtml = userInits.map(i => {
                 const title = i[`title_${currentLang}`] || i.title_ar;
-                return `<span class="badge" style="background:rgba(163, 0, 255, 0.08); color:var(--accent-purple); font-size:11px; padding:4px 8px; border-radius:6px; margin:2px; display:inline-block;">${title}</span>`;
+                return `<span class="badge" style="background:rgba(163, 0, 255, 0.08); color:var(--accent-purple); font-size:11px; padding:4px 8px; border-radius:6px; margin:2px; display:inline-block;">${esc(title)}</span>`;
             }).join('');
         } else {
             initsHtml = `<span style="opacity:0.45; font-size:12px;">${dictionary.admin_no_initiative || '—'}</span>`;
@@ -234,14 +235,14 @@ function renderUsersTable(users) {
 
         return `
             <tr style="border-bottom:1px solid rgba(255,255,255,0.03);">
-                <td style="padding:15px; font-weight:700;">${u.full_name}</td>
-                <td style="padding:15px;" class="mono">${u.phone || '—'}</td>
-                <td style="padding:15px;">${u.wilaya || '—'}</td>
+                <td style="padding:15px; font-weight:700;">${esc(u.full_name)}</td>
+                <td style="padding:15px;" class="mono">${esc(u.phone || '—')}</td>
+                <td style="padding:15px;">${esc(u.wilaya || '—')}</td>
                 <td style="padding:15px;">${clubsHtml}</td>
                 <td style="padding:15px;">${initsHtml}</td>
                 <td style="padding:15px;">
                     <span class="badge" style="${isUserAdmin ? 'background:rgba(255, 42, 109, 0.08); color:var(--accent-pink);' : 'background:rgba(255,255,255,0.05); color:var(--text-dim);'}">
-                        ${u.role}
+                        ${esc(u.role)}
                     </span>
                 </td>
                 <td style="padding:15px; font-weight:800; color:var(--accent-amber);" class="syne">${u.impact_points || 0}</td>
@@ -263,14 +264,14 @@ function renderInitiativesTable(initiatives) {
         const title = i[`title_${currentLang}`] || i.title_ar;
         return `
             <tr style="border-bottom:1px solid rgba(255,255,255,0.03);">
-                <td style="padding:15px; font-weight:700;">${title}</td>
+                <td style="padding:15px; font-weight:700;">${esc(title)}</td>
                 <td style="padding:15px;">
-                    <span class="badge" style="background:rgba(5, 217, 232, 0.08); color:var(--accent-cyan);">${i.category}</span>
+                    <span class="badge" style="background:rgba(5, 217, 232, 0.08); color:var(--accent-cyan);">${esc(i.category)}</span>
                 </td>
-                <td style="padding:15px;">${i.wilaya}</td>
+                <td style="padding:15px;">${esc(i.wilaya)}</td>
                 <td style="padding:15px;" class="mono">${i.current_step} / 5</td>
                 <td style="padding:15px;">
-                    <span class="badge" style="background:rgba(255, 190, 11, 0.08); color:var(--accent-amber);">${i.status}</span>
+                    <span class="badge" style="background:rgba(255, 190, 11, 0.08); color:var(--accent-amber);">${esc(i.status)}</span>
                 </td>
                 <td style="padding:15px;">
                     <span class="badge" style="${i.is_approved ? 'background:rgba(0, 255, 178, 0.08); color:var(--neon-teal);' : 'background:rgba(255, 42, 109, 0.08); color:var(--accent-pink);'}">

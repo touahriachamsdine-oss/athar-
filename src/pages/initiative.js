@@ -1,6 +1,7 @@
 import { neon } from '../js/neon.js';
 import { requireAuth } from '../js/auth.js';
 import { injectLayout } from '../js/layout.js';
+import { esc } from '../js/utils.js';
 
 async function init() {
     await requireAuth({ guests: true });
@@ -14,10 +15,10 @@ async function init() {
         document.getElementById('initiative-info').innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:start; flex-wrap:wrap; gap:40px;">
                 <div style="flex:1; min-width:300px;">
-                    <div class="badge mb-20" style="background:var(--neon-teal); color:black;">${initia.category.toUpperCase()}</div>
-                    <h1 class="gradient-text reveal active" style="font-size:clamp(32px, 5vw, 64px);">${initia.title_ar}</h1>
-                    <p class="mt-40 mono" style="font-size:18px; opacity:0.7;">📍 ${initia.wilaya} — ${initia.neighborhood}</p>
-                    <p class="mt-40" style="font-size:20px; line-height:1.6; opacity:0.9;">${initia.description_ar}</p>
+                    <div class="badge mb-20" style="background:var(--neon-teal); color:black;">${esc(initia.category.toUpperCase())}</div>
+                    <h1 class="gradient-text reveal active" style="font-size:clamp(32px, 5vw, 64px);">${esc(initia.title_ar)}</h1>
+                    <p class="mt-40 mono" style="font-size:18px; opacity:0.7;">📍 ${esc(initia.wilaya)} — ${esc(initia.neighborhood)}</p>
+                    <p class="mt-40" style="font-size:20px; line-height:1.6; opacity:0.9;">${esc(initia.description_ar)}</p>
                     <div class="mt-40" style="display:flex; gap:20px;">
                         <button class="btn btn-primary" id="join-init-btn">انضم الآن</button>
                         <button class="btn btn-outline" onclick="history.back()">العودة</button>

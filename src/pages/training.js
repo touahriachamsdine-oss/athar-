@@ -2,6 +2,7 @@ import { requireAuth, requireUser } from '../js/auth.js';
 import { neon } from '../js/neon.js';
 import { setLanguage, getCurrentLang } from '../js/i18n.js';
 import { injectLayout } from '../js/layout.js';
+import { esc } from '../js/utils.js';
 
 const DICT = {
     ar: {
@@ -103,8 +104,8 @@ function renderCourses() {
 
     grid.innerHTML = filtered.map(c => {
         const enrollment = enrolledList.find(e => e.course_id === c.id);
-        const title = lang === 'ar' ? c.title_ar : (lang === 'fr' ? c.title_fr : c.title_en);
-        const desc = lang === 'ar' ? c.description_ar : (lang === 'fr' ? c.description_fr : c.description_en);
+        const title = lang === 'ar' ? esc(c.title_ar) : (lang === 'fr' ? esc(c.title_fr) : esc(c.title_en));
+        const desc = lang === 'ar' ? esc(c.description_ar) : (lang === 'fr' ? esc(c.description_fr) : esc(c.description_en));
         
         let actionBtnHTML = '';
         if (!enrollment) {
@@ -125,7 +126,7 @@ function renderCourses() {
                 <div>
                     <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:20px;">
                         <div style="font-size:38px;">🎓</div>
-                        <span class="badge" style="background:rgba(255,255,255,0.03); color:rgba(255,255,255,0.6); font-size:10px;">${c.duration || ''} • ${c.instructor || ''}</span>
+                        <span class="badge" style="background:rgba(255,255,255,0.03); color:rgba(255,255,255,0.6); font-size:10px;">${esc(c.duration || '')} • ${esc(c.instructor || '')}</span>
                     </div>
                     <h3 class="syne mb-10" style="font-size:22px; font-weight:700;">${title}</h3>
                     <p style="font-size:14px; opacity:0.65; line-height:1.6; margin-bottom:25px;">${desc || ''}</p>

@@ -3,6 +3,7 @@ import { neon } from '../js/neon.js';
 import { injectLayout } from '../js/layout.js';
 import { getCurrentLang } from '../js/i18n.js';
 import { APP_CONFIG } from '../js/config.js';
+import { esc } from '../js/utils.js';
 
 const CAT_COLORS_BG = ['rgba(5,217,232,0.1)', 'rgba(255,42,109,0.1)', 'rgba(255,190,11,0.1)', 'rgba(163,0,255,0.1)'];
 const CAT_COLORS_FG = ['var(--accent-cyan)', 'var(--accent-pink)', 'var(--accent-amber)', 'var(--accent-purple)'];
@@ -46,11 +47,11 @@ function renderCards(data, lang, emptyMsg) {
         const fill = score > 70 ? '#00d4b4' : score > 40 ? '#FFBE0B' : '#FF2A6D';
         return `
         <div class="explore-card glass" onclick="location.href='initiative.html?id=${i.id}'">
-            <div class="category-chip" style="background:${ci.bg}; color:${ci.color};">${ci.icon} ${ci.label}</div>
-            <h2 class="syne" style="font-size:20px; font-weight:800; line-height:1.3; margin-bottom:10px;">${i[titleKey] || i.title_ar}</h2>
-            <p style="font-size:13px; opacity:0.55; line-height:1.6; margin-bottom:20px;">${(i[descKey] || i.description_ar || '').substring(0,90)}...</p>
+            <div class="category-chip" style="background:${ci.bg}; color:${ci.color};">${ci.icon} ${esc(ci.label)}</div>
+            <h2 class="syne" style="font-size:20px; font-weight:800; line-height:1.3; margin-bottom:10px;">${esc(i[titleKey] || i.title_ar)}</h2>
+            <p style="font-size:13px; opacity:0.55; line-height:1.6; margin-bottom:20px;">${esc((i[descKey] || i.description_ar || '').substring(0,90))}...</p>
             <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px;">
-                <span style="opacity:0.45; font-family:var(--mono);">📍 ${i.wilaya || '—'}</span>
+                <span style="opacity:0.45; font-family:var(--mono);">📍 ${esc(i.wilaya || '—')}</span>
                 <span style="color:${fill}; font-family:var(--mono); font-weight:800;">${score}% ${t.health}</span>
             </div>
             <div class="health-bar">

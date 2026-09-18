@@ -2,6 +2,7 @@ import { requireAuth, requireUser } from '../js/auth.js';
 import { neon } from '../js/neon.js';
 import { setLanguage, getCurrentLang } from '../js/i18n.js';
 import { injectLayout } from '../js/layout.js';
+import { esc } from '../js/utils.js';
 
 const DICT = {
     ar: {
@@ -125,8 +126,8 @@ const fmt = (iso) => {
     } catch (e) { return iso; }
 };
 
-const titleOf = (s) => lang === 'ar' ? s.title_ar : (lang === 'fr' ? s.title_fr : s.title_en);
-const descOf = (s) => lang === 'ar' ? s.description_ar : (lang === 'fr' ? s.description_fr : s.description_en);
+const titleOf = (s) => esc(lang === 'ar' ? s.title_ar : (lang === 'fr' ? s.title_fr : s.title_en));
+const descOf = (s) => esc(lang === 'ar' ? s.description_ar : (lang === 'fr' ? s.description_fr : s.description_en));
 
 function mySignup(sessionId) {
     return signups.find(x => x.session_id === sessionId && x.volunteer_id === uid());
@@ -173,7 +174,7 @@ function renderCard(s) {
             </div>
             <h3 class="syne mb-10" style="font-size:19px; font-weight:800;">${titleOf(s)}</h3>
             <p style="font-size:13px; opacity:0.65; line-height:1.6; margin-bottom:18px; flex:1;">${descOf(s) || ''}</p>
-            <div class="vs-row" style="margin-bottom:6px;">📍 ${s.location || ''}</div>
+            <div class="vs-row" style="margin-bottom:6px;">📍 ${esc(s.location || '')}</div>
             <div class="vs-row" style="margin-bottom:18px;">📅 ${fmt(s.start_at)}</div>
             <div class="vs-row" style="margin-bottom:20px;">🪑 ${t('seats')}${s.capacity} ${s.status === 'approved' ? '— ' + seatsLeft + ' ' + t('seats_left') : ''}</div>
             ${action}
@@ -188,7 +189,7 @@ function renderQueue(s) {
             </div>
             <h3 class="syne mb-10" style="font-size:19px; font-weight:800;">${titleOf(s)}</h3>
             <p style="font-size:13px; opacity:0.65; line-height:1.6; margin-bottom:18px; flex:1;">${descOf(s) || ''}</p>
-            <div class="vs-row" style="margin-bottom:18px;">📅 ${fmt(s.start_at)} — 📍 ${s.location || ''}</div>
+            <div class="vs-row" style="margin-bottom:18px;">📅 ${fmt(s.start_at)} — 📍 ${esc(s.location || '')}</div>
             ${isAdmin ? `
             <div style="display:flex; gap:12px;">
                 <button class="btn btn-primary act" data-act="approve" data-id="${s.id}" style="flex:1; justify-content:center;">${t('approve')}</button>
@@ -217,7 +218,7 @@ async function load() {
 
     const createInit = [...new Map([...leaderInitiatives, ...adminInitiatives].map(i => [i.id, i])).values()];
     const cInit = document.getElementById('c-init');
-    cInit.innerHTML = createInit.map(i => `<option value="${i.id}">${lang === 'ar' ? i.title_ar : lang === 'fr' ? i.title_fr : i.title_en}</option>`).join('')
+    cInit.innerHTML = createInit.map(i => `<option value="${i.id}">${esc(lang === 'ar' ? i.title_ar : lang === 'fr' ? i.title_fr : i.title_en)}</option>`).join('')
         || '<option value="">—</option>';
 
     document.getElementById('btn-create').style.display = (createInit.length > 0) ? 'inline-flex' : 'none';

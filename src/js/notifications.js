@@ -1,6 +1,7 @@
 // Notification and Toast System
 import { APP_CONFIG } from './config.js';
 import { getCurrentLang } from './i18n.js';
+import { esc } from './utils.js';
 
 export function showToast(notif) {
     const lang = getCurrentLang();
@@ -16,8 +17,8 @@ export function showToast(notif) {
         <div style="display:flex; gap:15px; align-items:center;">
             <div style="font-size:24px;">${icon}</div>
             <div>
-                <div class="mono" style="font-size:14px; font-weight:bold;">${notif['title_' + lang]}</div>
-                <div style="font-size:12px; opacity:0.8;">${notif['body_' + lang]}</div>
+                <div class="mono" style="font-size:14px; font-weight:bold;">${esc(notif['title_' + lang])}</div>
+                <div style="font-size:12px; opacity:0.8;">${esc(notif['body_' + lang])}</div>
             </div>
         </div>
     `;
