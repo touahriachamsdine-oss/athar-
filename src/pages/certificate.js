@@ -1,6 +1,7 @@
 import { requireAuth } from '../js/auth.js';
 import { neon } from '../js/neon.js';
-import { getCurrentLang } from '../js/i18n.js';
+import { getCurrentLang, setLanguage } from '../js/i18n.js';
+import { injectLayout } from '../js/layout.js';
 import { formatDate } from '../js/utils.js';
 
 const DICT = {
@@ -35,6 +36,9 @@ async function init() {
     if (!sess) return;
 
     const lang = getCurrentLang();
+    setLanguage(lang);
+    injectLayout();
+
     const d = DICT[lang] || DICT.ar;
 
     document.getElementById('btn-print').onclick = () => window.print();
