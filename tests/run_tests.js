@@ -91,6 +91,9 @@ async function runSuite() {
         assert(APP_CONFIG.categories.length === 6, 'Youth Categories has exactly 6 options');
         assert(APP_CONFIG.steps.length === 5, 'Empowerment journey has exactly 5 steps');
 
+        assert(configModule.VOLUNTEER_POINTS_PER_HOUR === 10, 'Volunteer points rate is 10/hour');
+        assert(configModule.VOLUNTEER_MAX_SESSION_POINTS === 50, 'Volunteer session points cap is 50');
+
         // --- 3. DICTIONARY & I18N CHECKS ---
         console.log(`\n${BOLD}${CYAN}[Phase 3: Validating Trilingual Translations]${RESET}`);
         const i18nModule = await import('../src/js/i18n.js');

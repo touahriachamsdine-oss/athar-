@@ -46,6 +46,13 @@ async function build() {
         const neonApiUrl = process.env.NEON_API_URL || 'https://ep-silent-bread-aqt1uezw.apirest.c-8.us-east-1.aws.neon.tech/neondb/rest/v1';
         config = config.replace(/YOUR_NEON_AUTH_URL/g, neonAuthUrl);
         config = config.replace(/YOUR_NEON_API_URL/g, neonApiUrl);
+
+        // Client-safe anon key (leave placeholder in dev when env absent).
+        // SECURITY: SERVICE_ROLE_KEY, UPSTASH_REDIS_REST_URL/TOKEN and other
+        // server-only secrets MUST never be injected into the public build.
+        const neonAnonKey = process.env.NEON_ANON_KEY || 'YOUR_NEON_ANON_KEY';
+        config = config.replace(/YOUR_NEON_ANON_KEY/g, neonAnonKey);
+
         fs.writeFileSync(configPath, config);
         console.log('Build: Neon variables injected into output config.');
     }

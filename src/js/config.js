@@ -1,6 +1,10 @@
 // Athar App Configuration (Neon Native)
 export const NEON_AUTH_URL = 'YOUR_NEON_AUTH_URL';
 export const NEON_API_URL = 'YOUR_NEON_API_URL';
+export const NEON_ANON_KEY = 'YOUR_NEON_ANON_KEY';
+
+export const VOLUNTEER_POINTS_PER_HOUR = 10;
+export const VOLUNTEER_MAX_SESSION_POINTS = 50;
 
 export const APP_CONFIG = {
     name: { ar: 'أثر', fr: 'Athar', en: 'Athar' },
