@@ -296,6 +296,16 @@ async function runSuite() {
         assert(schemaSql.includes('security definer'), 'RPCs run security-definer');
         assert(schemaSql.includes('auth.uid()'), 'Policies and RPCs use auth.uid()');
 
+        // --- 7. esc() HTML ESCAPING ---
+        console.log(`\n${BOLD}${CYAN}[Phase 7: esc() HTML escaping]${RESET}`);
+        {
+            const { esc } = await import('../src/js/utils.js?esc-test-' + Date.now());
+            assert(esc('<script>alert(1)</script>') === '&lt;script&gt;alert(1)&lt;/script&gt;', 'esc escapes angle brackets');
+            assert(esc('a&b"c\'d') === 'a&amp;b&quot;c&#39;d', 'esc escapes &, quotes');
+            assert(esc(42) === 42, 'esc leaves non-strings untouched');
+            assert(esc(null) === null, 'esc leaves null untouched');
+        }
+
         // --- SUMMARY REPORT ---
         console.log(`\n${PINK}${BOLD}================================================================${RESET}`);
         console.log(`${GOLD}${BOLD}                       TEST SUITE SUMMARY                       ${RESET}`);
