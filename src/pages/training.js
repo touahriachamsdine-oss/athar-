@@ -185,8 +185,8 @@ async function completeCourse(enrollId, element) {
     element.disabled = true;
     element.innerText = '...';
 
-    // Generate simulated certificate url
-    const certUrl = `https://athar.dev/credentials/cert-${enrollId}.pdf`;
+    // Generate certificate url (real page, same-dir relative)
+    const certUrl = 'certificate.html?enroll=' + encodeURIComponent(enrollId);
 
     const { error } = await neon.from('training_enrollments').update({
         status: 'completed',
