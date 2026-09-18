@@ -137,27 +137,117 @@ async function runSuite() {
         // Mock token authentication
         neon.setToken('auth_token_secret');
 
-        // Test GET query builder
+        // Test GET query builder (reads stay direct via PostgREST with apikey)
         await neon.from('profiles').select().id('user_456');
         assert(lastFetch !== null, 'Fetch called for query select.id');
         assert(lastFetch.url.endsWith('/profiles?id=eq.user_456'), 'Correct query parameter for ID filter');
         assert(lastFetch.options.headers['Authorization'] === 'Bearer auth_token_secret', 'Correct token sent in header');
+        assert(lastFetch.options.headers['apikey'] !== undefined, 'apikey header sent on coordinate read requests');
 
-        // Test POST builder
+        // Writes now route through the /api/action gateway
         await neon.from('clubs').insert({ name: 'Robotics Club' });
-        assert(lastFetch.options.method === 'POST', 'POST request generated for insert');
-        assert(lastFetch.options.headers['Prefer'] === 'return=representation', 'Representation headers requested');
-        assert(JSON.parse(lastFetch.options.body).name === 'Robotics Club', 'Body contains valid insert payload');
+        assert(lastFetch.url === '/api/action', 'Writes route through /api/action gateway');
+        assert(lastFetch.options.method === 'POST', 'Gateway request is POST');
+        let gw = JSON.parse(lastFetch.options.body);
+        assert(gw.action === 'insert', 'Gateway body carries action=insert');
+        assert(gw.table === 'clubs', 'Gateway body carries table=clubs');
+        assert(gw.payload.name === 'Robotics Club', 'Gateway body carries insert payload');
+        assert(gw.token === 'auth_token_secret', 'Gateway body carries auth token');
 
-        // Test PATCH builder
         await neon.from('profiles').update({ xp: 100 }, 'user_789');
-        assert(lastFetch.options.method === 'PATCH', 'PATCH request generated for update');
-        assert(lastFetch.url.endsWith('/profiles?id=eq.user_789'), 'Correct target endpoint for patch query');
+        gw = JSON.parse(lastFetch.options.body);
+        assert(gw.action === 'update' && gw.table === 'profiles' && gw.id === 'user_789', 'Gateway update carries table+id');
+        assert(gw.payload.xp === 100, 'Gateway update carries payload');
 
-        // Test DELETE builder
         await neon.from('notifications').delete('notif_111');
-        assert(lastFetch.options.method === 'DELETE', 'DELETE request generated for remove action');
-        assert(lastFetch.url.endsWith('/notifications?id=eq.notif_111'), 'Correct target endpoint for delete query');
+        gw = JSON.parse(lastFetch.options.body);
+        assert(gw.action === 'delete' && gw.table === 'notifications' && gw.id === 'notif_111', 'Gateway delete carries table+id');
+
+        // RPC routed through gateway
+        await neon.rpc('approve_session', { p_session_id: 'vs_abc' });
+        gw = JSON.parse(lastFetch.options.body);
+        assert(gw.action === 'rpc' && gw.fn === 'approve_session', 'RPC routed through gateway with fn');
+        assert(gw.payload.p_session_id === 'vs_abc', 'RPC payload preserved');
+
+        // --- 4B. MOCK RPC VOLUNTEER LOGIC (parity with DB security-definer rules) ---
+        console.log(`\n${BOLD}${CYAN}[Phase 4B: Mock RPC Volunteer Logic]${RESET}`);
+        const store = global.localStorage.store;
+        store['athar_mock_mode'] = 'true';
+        store['neon_session'] = JSON.stringify({ user: { id: 'member_user_1' } });
+        store['athar_mock_db_profiles'] = JSON.stringify([
+            { id: 'member_user_1', role: 'member', impact_points: 10 },
+            { id: 'member_user_2', role: 'member', impact_points: 0 },
+            { id: 'admin_user_id', role: 'superadmin', impact_points: 0 }
+        ]);
+        store['athar_mock_db_initiative_members'] = JSON.stringify([
+            { initiative_id: 'init_x', user_id: 'member_user_1', role: 'founder' }
+        ]);
+        const futureISODate = new Date(Date.now() + 86400000).toISOString();
+        const futureEndISODate = new Date(Date.now() + 86400000 + 8 * 3600000).toISOString();
+        const pastISODate = new Date(Date.now() - 86400000).toISOString();
+        store['athar_mock_db_volunteer_sessions'] = JSON.stringify([
+            { id: 'vs_open', initiative_id: 'init_x', status: 'approved', start_at: futureISODate, end_at: futureEndISODate, capacity: 3, created_by: 'admin_user_id' },
+            { id: 'vs_full', initiative_id: 'init_x', status: 'approved', start_at: futureISODate, end_at: futureISODate, capacity: 1, created_by: 'admin_user_id' },
+            { id: 'vs_pending', initiative_id: 'init_x', status: 'pending', start_at: futureISODate, end_at: futureISODate, capacity: 3, created_by: 'admin_user_id' },
+            { id: 'vs_past', initiative_id: 'init_x', status: 'approved', start_at: pastISODate, end_at: pastISODate, capacity: 3, created_by: 'admin_user_id' }
+        ]);
+        store['athar_mock_db_volunteer_signups'] = JSON.stringify([
+            { id: 'g1', session_id: 'vs_full', volunteer_id: 'member_user_2', status: 'registered', points_awarded: 0 }
+        ]);
+
+        let mr = await neon.rpc('signup_to_session', { p_session_id: 'vs_open', p_volunteer_id: 'member_user_1' });
+        assert(!mr.error && mr.data.status === 'registered', 'Volunteer registers to an approved future session');
+
+        mr = await neon.rpc('signup_to_session', { p_session_id: 'vs_open', p_volunteer_id: 'member_user_1' });
+        assert(!mr.error && mr.data.status === 'registered', 'Re-registration is idempotent');
+
+        const openSeats = JSON.parse(store['athar_mock_db_volunteer_signups']).filter(x => x.session_id === 'vs_open').length;
+        assert(openSeats === 1, 'Duplicate signup does not consume extra seats');
+
+        mr = await neon.rpc('signup_to_session', { p_session_id: 'vs_full', p_volunteer_id: 'member_user_1' });
+        assert(mr.error && mr.error.code === 'conflict', 'Capacity-full session blocks signup');
+
+        mr = await neon.rpc('signup_to_session', { p_session_id: 'vs_pending', p_volunteer_id: 'member_user_1' });
+        assert(mr.error && mr.error.code === 'validation', 'Pending session blocks signup');
+
+        mr = await neon.rpc('signup_to_session', { p_session_id: 'vs_past', p_volunteer_id: 'member_user_1' });
+        assert(mr.error && mr.error.code === 'validation', 'Ended session blocks signup');
+
+        mr = await neon.rpc('create_volunteer_session', { p_payload: { initiative_id: 'init_other', title_en: 'X', location: 'L', start_at: futureISODate, end_at: futureISODate, capacity: 2 } });
+        assert(mr.error && mr.error.code === 'forbidden', 'Non-founder cannot create session for a foreign initiative');
+
+        let createdSessionId = null;
+        mr = await neon.rpc('create_volunteer_session', { p_payload: { initiative_id: 'init_x', title_en: 'Cleanup Day', location: 'Alger', start_at: futureISODate, end_at: futureISODate, capacity: 2 } });
+        assert(!mr.error && mr.data[0].status === 'pending', 'Founder creates a pending session');
+        createdSessionId = mr.data[0].id;
+
+        mr = await neon.rpc('cancel_signup', { p_session_id: 'vs_open', p_volunteer_id: 'member_user_1' });
+        assert(!mr.error && mr.data.status === 'cancelled', 'Volunteer cancels registration');
+
+        mr = await neon.rpc('signup_to_session', { p_session_id: 'vs_open', p_volunteer_id: 'member_user_1' });
+        assert(!mr.error && mr.data.status === 'registered', 'Cancelled volunteer can re-register');
+
+        mr = await neon.rpc('mark_attendance', { p_session_id: 'vs_open', p_volunteer_id: 'member_user_1', p_attended: true });
+        assert(!mr.error && mr.data.status === 'attended', 'Founder marks attendance');
+
+        mr = await neon.rpc('complete_session', { p_session_id: 'vs_open' });
+        assert(!mr.error && mr.data.status === 'completed' && mr.data.attended === 1, 'Completion credits the attended volunteer');
+
+        const memberProfile = JSON.parse(store['athar_mock_db_profiles']).find(x => x.id === 'member_user_1');
+        assert(memberProfile.impact_points === 10 + 50, 'Points awarded once on completion (capped at 50)');
+
+        mr = await neon.rpc('complete_session', { p_session_id: 'vs_open' });
+        assert(mr.error && mr.error.code === 'validation', 'Second completion is blocked (idempotent)');
+
+        store['neon_session'] = JSON.stringify({ user: { id: 'admin_user_id' } });
+        mr = await neon.rpc('approve_session', { p_session_id: createdSessionId });
+        assert(!mr.error && mr.data.status === 'approved', 'Admin approves pending session');
+
+        store['neon_session'] = JSON.stringify({ user: { id: 'member_user_1' } });
+        mr = await neon.rpc('approve_session', { p_session_id: createdSessionId });
+        assert(mr.error && mr.error.code === 'forbidden', 'Non-admin cannot approve sessions');
+
+        store['athar_mock_mode'] = 'false';
 
         // --- 5. BUILD & COMPILED ASSETS VERIFICATION ---
         console.log(`\n${BOLD}${CYAN}[Phase 5: Verifying Output Build & Asset Compilation]${RESET}`);

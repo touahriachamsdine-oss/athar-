@@ -1,5 +1,5 @@
 // Highly Capable Neon Client (With High Fidelity Local Mock/Demo Fallback)
-import { NEON_API_URL } from './config.js';
+import { NEON_API_URL, NEON_ANON_KEY } from './config.js';
 
 function getMockTable(table) {
     const data = localStorage.getItem(`athar_mock_db_${table}`);
@@ -8,6 +8,180 @@ function getMockTable(table) {
 
 function saveMockTable(table, data) {
     localStorage.setItem(`athar_mock_db_${table}`, JSON.stringify(data));
+}
+
+// ---- Mock RPC parity: mirrors the DB security-definer rules (spec §6.2) ----
+function mockUserId() {
+    const s = JSON.parse(localStorage.getItem('neon_session') || 'null');
+    return s && s.user ? s.user.id : null;
+}
+
+function mockErr(code) {
+    return { data: null, error: { code, message: code } };
+}
+
+function mockOk(data) {
+    return { data, error: null };
+}
+
+function mockIsAdmin() {
+    const id = mockUserId();
+    if (!id) return false;
+    const p = getMockTable('profiles').find(x => String(x.id) === String(id));
+    return !!p && (p.role === 'admin' || p.role === 'superadmin');
+}
+
+function mockIsInitiativeLeader(initiativeId) {
+    const id = mockUserId();
+    if (!id) return false;
+    if (mockIsAdmin()) return true;
+    return getMockTable('initiative_members').some(m =>
+        String(m.initiative_id) === String(initiativeId) &&
+        String(m.user_id) === String(id) &&
+        (m.role === 'founder' || m.role === 'leader'));
+}
+
+function mockRpcDispatch(fn, p) {
+    const id = mockUserId();
+    if (!id) return mockErr('unauthorized');
+
+    if (fn === 'create_volunteer_session') {
+        const pl = p.p_payload || {};
+        if (!mockIsInitiativeLeader(pl.initiative_id)) return mockErr('forbidden');
+        const rows = getMockTable('volunteer_sessions');
+        const row = {
+            id: 'vs-' + Math.random().toString(36).substring(2, 15),
+            initiative_id: pl.initiative_id,
+            title_ar: pl.title_ar || '', title_fr: pl.title_fr || '', title_en: pl.title_en || '',
+            description_ar: pl.description_ar, description_fr: pl.description_fr, description_en: pl.description_en,
+            location: pl.location || '',
+            start_at: pl.start_at, end_at: pl.end_at,
+            capacity: Math.max(1, parseInt(pl.capacity, 10) || 1),
+            status: 'pending',
+            created_by: id, reviewed_by: null, reviewed_at: null, reject_reason: null,
+            created_at: new Date().toISOString(), updated_at: new Date().toISOString()
+        };
+        rows.push(row);
+        saveMockTable('volunteer_sessions', rows);
+        return mockOk([row]);
+    }
+
+    const sessions = getMockTable('volunteer_sessions');
+    const session = sessions.find(s => String(s.id) === String(p.p_session_id));
+
+    if (fn === 'signup_to_session') {
+        if (!session) return mockErr('not_found');
+        if (session.status !== 'approved') return mockErr('validation');
+        if (new Date(session.end_at) <= new Date()) return mockErr('validation');
+        if (String(p.p_volunteer_id) === String(session.created_by)) return mockErr('validation');
+        const signups = getMockTable('volunteer_signups');
+        const existing = signups.find(x => String(x.session_id) === String(session.id) && String(x.volunteer_id) === String(p.p_volunteer_id));
+        if (existing && (existing.status === 'registered' || existing.status === 'attended')) return mockOk({ status: 'registered' });
+        const seated = signups.filter(x => String(x.session_id) === String(session.id) && ['registered', 'attended'].includes(x.status)).length;
+        if (seated >= session.capacity) return mockErr('conflict');
+        if (existing && existing.status === 'cancelled') {
+            existing.status = 'registered';
+            saveMockTable('volunteer_signups', signups);
+            return mockOk({ status: 'registered' });
+        }
+        signups.push({
+            id: 'vsg-' + Math.random().toString(36).substring(2, 15),
+            session_id: session.id, volunteer_id: p.p_volunteer_id,
+            status: 'registered', attended_at: null, hours: null, points_awarded: 0,
+            created_at: new Date().toISOString()
+        });
+        saveMockTable('volunteer_signups', signups);
+        return mockOk({ status: 'registered' });
+    }
+
+    if (fn === 'cancel_signup') {
+        const signups = getMockTable('volunteer_signups');
+        const row = signups.find(x => String(x.session_id) === String(p.p_session_id) && String(x.volunteer_id) === String(p.p_volunteer_id) && x.status === 'registered');
+        if (!row) return mockErr('not_found');
+        row.status = 'cancelled';
+        saveMockTable('volunteer_signups', signups);
+        return mockOk({ status: 'cancelled' });
+    }
+
+    if (fn === 'mark_attendance') {
+        if (!session) return mockErr('not_found');
+        if (!mockIsInitiativeLeader(session.initiative_id)) return mockErr('forbidden');
+        const signups = getMockTable('volunteer_signups');
+        const row = signups.find(x => String(x.session_id) === String(p.p_session_id) && String(x.volunteer_id) === String(p.p_volunteer_id) && x.status === 'registered');
+        if (!row) return mockErr('not_found');
+        row.status = p.p_attended ? 'attended' : 'no_show';
+        row.attended_at = p.p_attended ? new Date().toISOString() : null;
+        saveMockTable('volunteer_signups', signups);
+        return mockOk({ status: row.status });
+    }
+
+    if (fn === 'complete_session') {
+        if (!session) return mockErr('not_found');
+        if (!mockIsInitiativeLeader(session.initiative_id)) return mockErr('forbidden');
+        if (session.status !== 'approved') return mockErr('validation');
+        const hours = Math.max(1, Math.min(8, Math.floor((new Date(session.end_at) - new Date(session.start_at)) / 3600000)));
+        const points = Math.min(50, hours * 10);
+        session.status = 'completed';
+        session.updated_at = new Date().toISOString();
+        const signups = getMockTable('volunteer_signups');
+        let attended = 0;
+        const profiles = getMockTable('profiles');
+        signups.forEach(row => {
+            if (String(row.session_id) === String(session.id) && row.status === 'attended') {
+                row.hours = hours;
+                row.points_awarded = points;
+                attended++;
+                const prof = profiles.find(x => String(x.id) === String(row.volunteer_id));
+                if (prof) prof.impact_points = (prof.impact_points || 0) + points;
+            }
+        });
+        saveMockTable('volunteer_sessions', sessions);
+        saveMockTable('volunteer_signups', signups);
+        saveMockTable('profiles', profiles);
+        return mockOk({ status: 'completed', per_volunteer: points, attended });
+    }
+
+    if (fn === 'approve_session') {
+        if (!mockIsAdmin()) return mockErr('forbidden');
+        if (!session) return mockErr('not_found');
+        if (session.status !== 'pending') return mockErr('not_found');
+        session.status = 'approved';
+        session.reviewed_by = id;
+        session.reviewed_at = new Date().toISOString();
+        session.updated_at = session.reviewed_at;
+        saveMockTable('volunteer_sessions', sessions);
+        return mockOk({ status: 'approved' });
+    }
+
+    if (fn === 'reject_session') {
+        if (!mockIsAdmin()) return mockErr('forbidden');
+        if (!session) return mockErr('not_found');
+        if (session.status !== 'pending') return mockErr('not_found');
+        session.status = 'rejected';
+        session.reviewed_by = id;
+        session.reviewed_at = new Date().toISOString();
+        session.reject_reason = p.p_reason || null;
+        session.updated_at = session.reviewed_at;
+        saveMockTable('volunteer_sessions', sessions);
+        if (session.created_by) {
+            const notifs = getMockTable('notifications');
+            notifs.push({
+                id: 'ntf-' + Math.random().toString(36).substring(2, 15),
+                user_id: session.created_by,
+                type: 'volunteer_rejected',
+                title_ar: 'تم رفض نشاط التطوع', title_fr: 'Session de bénévolat rejetée', title_en: 'Volunteer session rejected',
+                body_ar: session.reject_reason || 'راجع البيانات وأعد المحاولة',
+                body_fr: session.reject_reason || 'Vérifiez les données et réessayez',
+                body_en: session.reject_reason || 'Check the data and try again',
+                is_read: false, initiative_id: session.initiative_id,
+                created_at: new Date().toISOString()
+            });
+            saveMockTable('notifications', notifs);
+        }
+        return mockOk({ status: 'rejected' });
+    }
+
+    return mockErr('unknown_rpc');
 }
 
 export function seedMockDB() {
@@ -412,6 +586,7 @@ class NeonClient {
     async request(path, options = {}) {
         const headers = { 'Content-Type': 'application/json', ...options.headers };
         if (this.token) headers['Authorization'] = `Bearer ${this.token}`;
+        headers['apikey'] = NEON_ANON_KEY;
 
         const response = await fetch(`${this.baseURL}${path}`, { ...options, headers });
         if (!response.ok) {
@@ -420,6 +595,34 @@ class NeonClient {
         }
         const data = await response.json();
         return { data, error: null };
+    }
+
+    async requestGateway(body) {
+        let response;
+        try {
+            response = await fetch('/api/action', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+        } catch (e) {
+            return { data: null, error: { code: 'network', message: e.message } };
+        }
+        let json = null;
+        try { json = await response.json(); } catch (e) {}
+        if (!response.ok || (json && json.error)) {
+            const err = (json && json.error) ? json.error : { code: 'unknown', message: 'API Error' };
+            return { data: null, error: err };
+        }
+        return { data: (json && json.data !== undefined) ? json.data : json, error: null };
+    }
+
+    async rpc(fn, payload) {
+        if (localStorage.getItem('athar_mock_mode') === 'true') {
+            seedMockDB();
+            return mockRpcDispatch(fn, payload || {});
+        }
+        return this.requestGateway({ token: this.token, action: 'rpc', fn, payload: payload || {} });
     }
 
     from(table) {
@@ -492,17 +695,9 @@ class NeonClient {
                     then: (cb) => this.request(buildUrl()).then(cb)
                 };
             },
-            insert: async (payload) => this.request(`/${table}`, {
-                method: 'POST',
-                body: JSON.stringify(payload),
-                headers: { 'Prefer': 'return=representation' }
-            }),
-            update: async (payload, id) => this.request(`/${table}?id=eq.${id}`, {
-                method: 'PATCH',
-                body: JSON.stringify(payload),
-                headers: { 'Prefer': 'return=representation' }
-            }),
-            delete: async (id) => this.request(`/${table}?id=eq.${id}`, { method: 'DELETE' })
+            insert: async (payload) => this.requestGateway({ token: this.token, action: 'insert', table, payload }),
+            update: async (payload, id) => this.requestGateway({ token: this.token, action: 'update', table, id, payload }),
+            delete: async (id) => this.requestGateway({ token: this.token, action: 'delete', table, id })
         };
     }
 }
