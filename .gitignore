@@ -4,3 +4,4 @@ public/
 *.log
 .vercel/
 mobile/node_modules/
+/.superpowers/
