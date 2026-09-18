@@ -806,6 +806,20 @@ class NeonClient {
         return { data: (json && json.data !== undefined) ? json.data : json, error: null };
     }
 
+    async recoverPassword(email) {
+        if (localStorage.getItem('athar_mock_mode') === 'true') {
+            return { data: { message: 'Recovery email sent (mock)' }, error: null };
+        }
+        return this.requestGateway({ action: 'recover', email });
+    }
+
+    async updatePassword(token, password) {
+        if (localStorage.getItem('athar_mock_mode') === 'true') {
+            return { data: { message: 'Password updated successfully (mock)' }, error: null };
+        }
+        return this.requestGateway({ action: 'update_password', token, password });
+    }
+
     async rpc(fn, payload) {
         if (localStorage.getItem('athar_mock_mode') === 'true') {
             seedMockDB();

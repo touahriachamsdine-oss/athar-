@@ -99,6 +99,24 @@ async function proxyAuth(action, body) {
     } else if (action === 'refresh') {
         url += 'token?grant_type=refresh_token';
         payload = { refresh_token: body.refresh_token };
+    } else if (action === 'recover') {
+        url += 'recover';
+        payload = { email: body.email };
+    } else if (action === 'update_password') {
+        url += 'user';
+        // For GoTrue user update, we need authorization header with access token
+        const res = await fetch(url, {
+            method: 'PUT',
+            headers: { apikey: env('NEON_ANON_KEY'), 'Content-Type': 'application/json', 'Authorization': `Bearer ${body.token}` },
+            body: JSON.stringify({ password: body.password }),
+            signal: AbortSignal.timeout(15000)
+        });
+        const data = await res.json().catch(() => null);
+        if (!res.ok) {
+            const msg = (data && (data.msg || data.message || data.error_description)) || 'password update failed';
+            return jsonOut(res.status, { error: { code: 'auth_error', message: msg } });
+        }
+        return jsonOut(200, data);
     }
     try {
         const res = await fetch(url, {
@@ -170,7 +188,7 @@ export async function processAction(body, meta) {
     const userAgent = meta.userAgent || '';
     const actorId = decodeUserId(body.token);
 
-    if (['signup', 'signin', 'refresh', 'signout'].includes(action)) {
+    if (['signup', 'signin', 'refresh', 'signout', 'recover', 'update_password'].includes(action)) {
         const lim = await rateCheck('auth', ip, 5, 60);
         if (lim && lim.blocked) return jsonOut(429, { error: { code: 'rate_limit', retry_after: lim.retryAfter } });
         return proxyAuth(action, body);
