@@ -199,7 +199,7 @@ create table public.awareness_quiz_attempts (
 );
 alter table public.awareness_quiz_attempts enable row level security;
 create policy "Users read own quiz attempts" on awareness_quiz_attempts for select
-  using (user_id = auth.uid());
+  using (user_id = auth.uid() or public.is_platform_admin());
 create policy "Quiz writes are function-only" on awareness_quiz_attempts for insert with check (false);
 
 create or replace function public.try_award_points(p_user_id uuid, p_amount int, p_reason text, p_ref_type text, p_ref_id uuid)
@@ -277,6 +277,9 @@ declare
   v_breakdown jsonb;
   v_tier int;
 begin
+  if auth.uid() is null then raise exception 'unauthorized' using errcode = '28000'; end if;
+  if p_user_id is distinct from auth.uid() and not public.is_platform_admin()
+     then raise exception 'forbidden' using errcode = '42501'; end if;
   select coalesce(sum(amount), 0),
          coalesce(jsonb_object_agg(reason, total), '{}'::jsonb)
   into v_total, v_breakdown
@@ -300,11 +303,21 @@ returns jsonb language sql stable security definer set search_path = public as $
   );
 $$;
 
-create or replace function public.update_profile_settings(p_lang text default null, p_theme text default null)
+create or replace function public.update_profile_settings(
+  p_lang text default null, p_theme text default null,
+  p_full_name text default null, p_phone text default null,
+  p_wilaya text default null, p_neighborhood text default null)
 returns jsonb language plpgsql security definer set search_path = public as $$
 begin
   if auth.uid() is null then raise exception 'unauthorized' using errcode = '28000'; end if;
-  update public.profiles set lang = coalesce(p_lang, lang), theme = coalesce(p_theme, theme), updated_at = now()
+  update public.profiles set
+    lang = coalesce(p_lang, lang),
+    theme = coalesce(p_theme, theme),
+    full_name = coalesce(p_full_name, full_name),
+    phone = coalesce(p_phone, phone),
+    wilaya = coalesce(p_wilaya, wilaya),
+    neighborhood = coalesce(p_neighborhood, neighborhood),
+    updated_at = now()
   where id = auth.uid();
   return jsonb_build_object('status', 'updated');
 end; $$;
@@ -345,7 +358,7 @@ if (fn === 'award_points_admin') {
     return await mockAwardAdmin(payload.p_user_id, payload.p_amount, payload.p_reason);
 }
 if (fn === 'update_profile_settings') {
-    return mockUpdateProfileSettings(payload.p_lang, payload.p_theme);
+    return mockUpdateProfileSettings(payload.p_lang, payload.p_theme, payload.p_full_name, payload.p_phone, payload.p_wilaya, payload.p_neighborhood);
 }
 ```
 
@@ -382,6 +395,12 @@ async function mockRecordQuizAttempt(contentId, passed, score) {
     return { data: { status: 'recorded' }, error: null };
 }
 async function mockImpactSummary(userId) {
+    const sess = JSON.parse(localStorage.getItem('neon_session') || 'null');
+    if (!sess || !sess.user) return { data: null, error: { code: 'unauthorized', message: 'login required' } };
+    const me = JSON.parse(localStorage.getItem('athar_mock_db_profiles') || '[]').find(x => x.id === sess.user.id);
+    if (userId !== sess.user.id && !(me && ['admin', 'superadmin'].includes(me.role))) {
+        return { data: null, error: { code: 'forbidden', message: 'forbidden' } };
+    }
     const ledger = JSON.parse(localStorage.getItem('athar_mock_db_ledger') || '[]').filter(l => l.user_id === userId);
     const total = ledger.reduce((s, l) => s + l.amount, 0);
     const breakdown = ledger.reduce((o, l) => { o[l.reason] = (o[l.reason] || 0) + l.amount; return o; }, {});
@@ -409,12 +428,20 @@ async function mockAwardAdmin(userId, amount, reason) {
     mockLogPoints(userId, amount, reason || 'admin_adjustment', 'admin', null);
     return { data: { status: 'awarded' }, error: null };
 }
-async function mockUpdateProfileSettings(pLang, pTheme) {
+async function mockUpdateProfileSettings(pLang, pTheme, pFullName, pPhone, pWilaya, pNeighborhood) {
     const sess = JSON.parse(localStorage.getItem('neon_session') || 'null');
     if (!sess || !sess.user) return { data: null, error: { code: 'unauthorized', message: 'login required' } };
     const profiles = JSON.parse(localStorage.getItem('athar_mock_db_profiles') || '[]');
     const p = profiles.find(x => x.id === sess.user.id);
-    if (p) { if (pLang) p.lang = pLang; if (pTheme) p.theme = pTheme; localStorage.setItem('athar_mock_db_profiles', JSON.stringify(profiles)); }
+    if (p) {
+        if (pLang) p.lang = pLang;
+        if (pTheme) p.theme = pTheme;
+        if (pFullName) p.full_name = pFullName;
+        if (pPhone) p.phone = pPhone;
+        if (pWilaya) p.wilaya = pWilaya;
+        if (pNeighborhood) p.neighborhood = pNeighborhood;
+        localStorage.setItem('athar_mock_db_profiles', JSON.stringify(profiles));
+    }
     return { data: { status: 'updated' }, error: null };
 }
 ```
@@ -422,19 +449,31 @@ async function mockUpdateProfileSettings(pLang, pTheme) {
   - In the insert pipeline add a hook after `club_members` insert succeeds: `mockLogPoints(row.user_id, 100, 'club_join', 'club_members', row.club_id);`
   - In the update pipeline: after a `training_enrollments` update that sets `status:'completed'`, `mockLogPoints(row.user_id, 200, 'training_complete', 'training_enrollments', row.id)`; after a `school_visits` update that sets `status` to `'confirmed'` or `'completed'` where the row has `user_id`, `mockLogPoints(row.user_id, 120, 'school_visit', 'school_visits', row.id)`. Only fire when the previous stored status differs (mirror `is distinct from old.status`).
   - In the `from('profiles')` write path (insert/update/delete), return `mockBlockedProfilesWrite()` — mirror the gateway lock.
+  - In the mock `complete_session` rpc handler (neon.js:183-207), after the points bump of each attended volunteer replace the direct `prof.impact_points += points` with `mockLogPoints(prof.id, points, 'volunteer_complete', 'volunteer_signups', row.id)` per attended signup — so demo `get_impact_summary` includes volunteer credits (parity with the real `complete_session` ledger refactor). Keep the `hours`/`points_awarded` signup updates and the same return payload.
   - In `seedMockDB()`, initialize `athar_mock_db_ledger`/`athar_mock_db_quiz_attempts` to `[]` so helpers never see null (keep seed's existing direct `impact_points` values as the baseline the ledger then extends from).
 
-- [ ] **Step 7: Run the suite to verify both blocks pass**
+- [ ] **Step 7 (add-on): extend Phase 4C with the summary gate** — append to the Phase 4C block (after the settings-persistence assert):
+
+```js
+    localStorage.removeItem('neon_session');
+    const noSessSummary = await neon.rpc('get_impact_summary', { p_user_id: member.id });
+    assert(noSessSummary.error && noSessSummary.error.code === 'unauthorized', 'get_impact_summary requires a session');
+    localStorage.setItem('neon_session', JSON.stringify({ user: { id: member.id }, token: 'mock-session-jwt-token-test' }));
+    const ownSummary = await neon.rpc('get_impact_summary', { p_user_id: member.id });
+    assert(ownSummary.data && typeof ownSummary.data.total_points === 'number', 'own impact summary returns ledger totals');
+```
+
+- [ ] **Step 8: Run the suite to verify both blocks pass**
 
 Run: `node tests/run_tests.js`
 Expected: all Phase 6 schema assertions and Phase 4C mock-parity assertions pass; total suite stays green (95 + new).
 
-- [ ] **Step 8: Run the other two suites (regression)**
+- [ ] **Step 9: Run the other two suites (regression)**
 
 Run: `node tests/api_test.js; node tests/auth_contract_test.js`
 Expected: 21/21 and 18/18 (the gateway lock lands in Task 3; these must not regress here).
 
-- [ ] **Step 9: Commit**
+- [ ] **Step 10: Commit**
 
 ```bash
 git add sql/schema.sql src/js/neon.js tests/run_tests.js
@@ -492,15 +531,26 @@ const ALLOWED_TABLES = new Set([
 - `src/js/i18n.js` line ~265: replace `await neon.from('profiles').update({ lang }, session.user.id);` with `await neon.rpc('update_profile_settings', { p_lang: lang });`
 - Leave `src/js/db.js` `updateProfile` untouched (dead export, no callers).
 
-- [ ] **Step 5: Run to verify passing**
+- [ ] **Step 5: Repoint the profile edit form too** — `pages/profile.html:239` writes `full_name, phone, wilaya, neighborhood` directly to `profiles`; after the lock this breaks in real and demo. Replace the `neon.from('profiles').update({...}, auth.user.id)` call with:
+
+```js
+                const { error } = await neon.rpc('update_profile_settings', {
+                    p_full_name: document.getElementById('full_name').value,
+                    p_phone: document.getElementById('phone').value,
+                    p_wilaya: document.getElementById('wilaya').value,
+                    p_neighborhood: document.getElementById('neighborhood').value
+                });
+```
+
+- [ ] **Step 6: Run to verify passing**
 
 Run: `node tests/api_test.js`
 Expected: new Phase 3B asserts pass; all 21 existing still pass.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 7: Commit**
 
 ```bash
-git add api/action.js tests/api_test.js src/js/theme.js src/js/i18n.js
+git add api/action.js tests/api_test.js src/js/theme.js src/js/i18n.js pages/profile.html
 git -c user.name=anouar -c user.email=anouar@local commit -m "fix(api): profiles is read-only through the gateway (closes self-inflation)"
 ```
 
