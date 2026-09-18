@@ -108,6 +108,7 @@ assert(schemaSql.includes('function public.record_quiz_attempt'), 'Schema define
 assert(schemaSql.includes('function public.get_impact_summary'), 'Schema defines function get_impact_summary');
 assert(schemaSql.includes('function public.get_platform_stats'), 'Schema defines function get_platform_stats');
 assert(schemaSql.includes('function public.award_points_admin'), 'Schema defines function award_points_admin');
+assert(schemaSql.includes('function public.update_profile_settings'), 'Schema defines function update_profile_settings');
 assert(schemaSql.includes("school_type in ('public','private')"), 'school_visits accepts public/private school types');
 assert(schemaSql.includes("activity_type in ('awareness_day','hostel_visit','competition','partnership')"), 'school_visits accepts product activity types');
 assert(schemaSql.includes('create trigger trg_club_join_points'), 'Schema defines club-join points trigger');
@@ -139,6 +140,12 @@ console.log(`\n${BOLD}${CYAN}[Phase 4C: Mock Points Parity]${RESET}`);
     assert(getPoints(member.id) === before + 100, 'club join awards +100 through the mock');
     await neon.from('profiles').update({ impact_points: 999999 }, member.id);
     assert(getPoints(member.id) === before + 100, 'mock rejects direct profile point edits (gateway parity)');
+
+    // settings RPC (session must exist; helpers read neon_session)
+    localStorage.setItem('neon_session', JSON.stringify({ user: { id: member.id }, token: 'mock-session-jwt-token-test' }));
+    await neon.rpc('update_profile_settings', { p_lang: 'en', p_theme: 'light' });
+    const stored = JSON.parse(localStorage.getItem('athar_mock_db_profiles') || '[]').find(p => p.id === member.id);
+    assert(stored && stored.lang === 'en' && stored.theme === 'light', 'update_profile_settings persists own profile in demo');
 }
 ```
 
@@ -292,6 +299,15 @@ returns jsonb language sql stable security definer set search_path = public as $
     'volunteer_hours', (select coalesce(sum(hours), 0) from public.volunteer_signups)
   );
 $$;
+
+create or replace function public.update_profile_settings(p_lang text default null, p_theme text default null)
+returns jsonb language plpgsql security definer set search_path = public as $$
+begin
+  if auth.uid() is null then raise exception 'unauthorized' using errcode = '28000'; end if;
+  update public.profiles set lang = coalesce(p_lang, lang), theme = coalesce(p_theme, theme), updated_at = now()
+  where id = auth.uid();
+  return jsonb_build_object('status', 'updated');
+end; $$;
 ```
 
 - [ ] **Step 5: Refactor `complete_session` to the ledger** — replace the body at `sql/schema.sql:519-523` (the two direct profile-bump statements) with a per-attendee ledger award
@@ -327,6 +343,9 @@ if (fn === 'get_platform_stats') {
 }
 if (fn === 'award_points_admin') {
     return await mockAwardAdmin(payload.p_user_id, payload.p_amount, payload.p_reason);
+}
+if (fn === 'update_profile_settings') {
+    return mockUpdateProfileSettings(payload.p_lang, payload.p_theme);
 }
 ```
 
@@ -389,6 +408,14 @@ async function mockAwardAdmin(userId, amount, reason) {
     }
     mockLogPoints(userId, amount, reason || 'admin_adjustment', 'admin', null);
     return { data: { status: 'awarded' }, error: null };
+}
+async function mockUpdateProfileSettings(pLang, pTheme) {
+    const sess = JSON.parse(localStorage.getItem('neon_session') || 'null');
+    if (!sess || !sess.user) return { data: null, error: { code: 'unauthorized', message: 'login required' } };
+    const profiles = JSON.parse(localStorage.getItem('athar_mock_db_profiles') || '[]');
+    const p = profiles.find(x => x.id === sess.user.id);
+    if (p) { if (pLang) p.lang = pLang; if (pTheme) p.theme = pTheme; localStorage.setItem('athar_mock_db_profiles', JSON.stringify(profiles)); }
+    return { data: { status: 'updated' }, error: null };
 }
 ```
 
@@ -459,15 +486,21 @@ const ALLOWED_TABLES = new Set([
 ]);
 ```
 
-- [ ] **Step 4: Run to verify passing**
+- [ ] **Step 4: Repoint the two client settings writers to the RPC** (must land before the lock or theme/language persistence breaks in real mode; Task 2 added `update_profile_settings`)
+
+- `src/js/theme.js` line ~19: replace `await neon.from('profiles').update({ theme: newTheme }, session.user.id);` with `await neon.rpc('update_profile_settings', { p_theme: newTheme });`
+- `src/js/i18n.js` line ~265: replace `await neon.from('profiles').update({ lang }, session.user.id);` with `await neon.rpc('update_profile_settings', { p_lang: lang });`
+- Leave `src/js/db.js` `updateProfile` untouched (dead export, no callers).
+
+- [ ] **Step 5: Run to verify passing**
 
 Run: `node tests/api_test.js`
 Expected: new Phase 3B asserts pass; all 21 existing still pass.
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 6: Commit**
 
 ```bash
-git add api/action.js tests/api_test.js
+git add api/action.js tests/api_test.js src/js/theme.js src/js/i18n.js
 git -c user.name=anouar -c user.email=anouar@local commit -m "fix(api): profiles is read-only through the gateway (closes self-inflation)"
 ```
 
