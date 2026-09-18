@@ -497,6 +497,7 @@ declare
   v_hours int;
   v_points int;
   v_attended int;
+  v_row record;
 begin
   if auth.uid() is null then raise exception 'unauthorized' using errcode = '28000'; end if;
   select * into v_session from public.volunteer_sessions where id = p_session_id;
@@ -513,13 +514,15 @@ begin
     where id = p_session_id and status = 'approved';
   update public.volunteer_signups vs
   set hours = v_hours, points_awarded = v_points
-  from (select id from public.volunteer_signups where session_id = p_session_id and status = 'attended') sub
+  from (select id, volunteer_id from public.volunteer_signups where session_id = p_session_id and status = 'attended') sub
   where vs.id = sub.id;
   get diagnostics v_attended = row_count;
-  update public.profiles p
-  set impact_points = p.impact_points + v_points, updated_at = now()
-  from (select volunteer_id from public.volunteer_signups where session_id = p_session_id and status = 'attended') sub
-  where p.id = sub.volunteer_id;
+  for v_row in
+    select id, volunteer_id from public.volunteer_signups
+    where session_id = p_session_id and status = 'attended'
+  loop
+    perform public.try_award_points(v_row.volunteer_id, v_points, 'volunteer_complete', 'volunteer_signups', v_row.id);
+  end loop;
   return jsonb_build_object('status','completed','per_volunteer', v_points, 'attended', v_attended);
 end; $$;
 
@@ -591,4 +594,156 @@ end; $$;
 create trigger trg_audit_initiative_status
 after update of is_approved on public.initiatives
 for each row execute function public.trg_audit_initiative_status();
+
+-- ============================================================================
+-- PHASE A: schema/UI parity + server-enforced points ledger
+-- ============================================================================
+
+alter table public.school_visits drop constraint school_visits_school_type_check;
+alter table public.school_visits add constraint school_visits_school_type_check
+  check (school_type in ('public','private'));
+alter table public.school_visits drop constraint school_visits_activity_type_check;
+alter table public.school_visits add constraint school_visits_activity_type_check
+  check (activity_type in ('awareness_day','hostel_visit','competition','partnership'));
+
+alter table public.club_members add column status text not null default 'active';
+
+alter table public.training_enrollments alter column completed_at drop not null;
+alter table public.training_enrollments alter column completed_at set default now();
+
+create table public.points_ledger (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references public.profiles(id) on delete cascade not null,
+  amount int not null check (amount <> 0),
+  reason text not null,
+  ref_type text,
+  ref_id uuid,
+  created_at timestamptz not null default now()
+);
+create index points_ledger_user_idx on public.points_ledger (user_id, created_at desc);
+alter table public.points_ledger enable row level security;
+create policy "Users read own ledger" on points_ledger for select
+  using (user_id = auth.uid() or public.is_platform_admin());
+create policy "Ledger writes are function-only" on points_ledger for insert with check (false);
+
+create table public.awareness_quiz_attempts (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references public.profiles(id) on delete cascade not null,
+  content_id uuid references public.awareness_content(id) on delete cascade not null,
+  passed boolean not null default false,
+  score integer not null default 0,
+  created_at timestamptz not null default now(),
+  unique (user_id, content_id)
+);
+alter table public.awareness_quiz_attempts enable row level security;
+create policy "Users read own quiz attempts" on awareness_quiz_attempts for select
+  using (user_id = auth.uid());
+create policy "Quiz writes are function-only" on awareness_quiz_attempts for insert with check (false);
+
+create or replace function public.try_award_points(p_user_id uuid, p_amount int, p_reason text, p_ref_type text, p_ref_id uuid)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  insert into public.points_ledger (user_id, amount, reason, ref_type, ref_id)
+  values (p_user_id, p_amount, p_reason, p_ref_type, p_ref_id);
+  update public.profiles set impact_points = impact_points + p_amount, updated_at = now()
+  where id = p_user_id;
+end; $$;
+
+create or replace function public.trg_club_join_points()
+returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  perform public.try_award_points(new.user_id, 100, 'club_join', 'club_members', new.club_id);
+  return new;
+end; $$;
+create trigger trg_club_join_points after insert on public.club_members
+  for each row execute function public.trg_club_join_points();
+
+create or replace function public.trg_training_complete_points()
+returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  if new.status = 'completed' and new.status is distinct from old.status then
+    perform public.try_award_points(new.user_id, 200, 'training_complete', 'training_enrollments', new.id);
+    new.completed_at := coalesce(new.completed_at, now());
+  end if;
+  return new;
+end; $$;
+create trigger trg_training_complete_points after update of status on public.training_enrollments
+  for each row execute function public.trg_training_complete_points();
+
+create or replace function public.trg_school_visit_points()
+returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  if new.status in ('confirmed','completed') and new.status is distinct from old.status and new.user_id is not null then
+    perform public.try_award_points(new.user_id, 120, 'school_visit', 'school_visits', new.id);
+  end if;
+  return new;
+end; $$;
+create trigger trg_school_visit_points after update of status on public.school_visits
+  for each row execute function public.trg_school_visit_points();
+
+create or replace function public.record_quiz_attempt(p_content_id uuid, p_passed boolean, p_score integer default 0)
+returns jsonb language plpgsql security definer set search_path = public as $$
+declare
+  v_passed boolean := coalesce(p_passed, false);
+begin
+  if auth.uid() is null then raise exception 'unauthorized' using errcode = '28000'; end if;
+  insert into public.awareness_quiz_attempts (user_id, content_id, passed, score)
+  values (auth.uid(), p_content_id, v_passed, coalesce(p_score, 0))
+  on conflict (user_id, content_id) do update set passed = excluded.passed, score = excluded.score;
+  if v_passed and not exists (
+    select 1 from public.points_ledger
+    where user_id = auth.uid() and reason = 'awareness_quiz' and ref_id = p_content_id
+  ) then
+    perform public.try_award_points(auth.uid(), 50, 'awareness_quiz', 'awareness_content', p_content_id);
+  end if;
+  return jsonb_build_object('status', 'recorded');
+end; $$;
+
+create or replace function public.award_points_admin(p_user_id uuid, p_amount int, p_reason text)
+returns jsonb language plpgsql security definer set search_path = public as $$
+begin
+  if auth.uid() is null then raise exception 'unauthorized' using errcode = '28000'; end if;
+  if not public.is_platform_admin() then raise exception 'forbidden' using errcode = '42501'; end if;
+  perform public.try_award_points(p_user_id, p_amount, coalesce(p_reason, 'admin_adjustment'), 'admin', null);
+  return jsonb_build_object('status', 'awarded');
+end; $$;
+
+create or replace function public.get_impact_summary(p_user_id uuid)
+returns jsonb language plpgsql security definer set search_path = public as $$
+declare
+  v_total int;
+  v_breakdown jsonb;
+  v_tier int;
+begin
+  select coalesce(sum(amount), 0),
+         coalesce(jsonb_object_agg(reason, total), '{}'::jsonb)
+  into v_total, v_breakdown
+  from (
+    select reason, sum(amount) as total
+    from public.points_ledger where user_id = p_user_id group by reason
+  ) s;
+  v_tier := case when v_total >= 2000 then 5 when v_total >= 1000 then 4
+                 when v_total >= 500  then 3 when v_total >= 250 then 2
+                 when v_total > 0     then 1 else 0 end;
+  return jsonb_build_object('total_points', v_total, 'breakdown', v_breakdown, 'badge_tier', v_tier);
+end; $$;
+
+create or replace function public.get_platform_stats()
+returns jsonb language sql stable security definer set search_path = public as $$
+  select jsonb_build_object(
+    'clubs', (select count(*) from public.clubs),
+    'members', (select count(*) from public.profiles),
+    'school_visits', (select count(*) from public.school_visits),
+    'volunteer_hours', (select coalesce(sum(hours), 0) from public.volunteer_signups)
+  );
+$$;
+
+create or replace function public.update_profile_settings(p_lang text default null, p_theme text default null)
+returns jsonb language plpgsql security definer set search_path = public as $$
+begin
+  if auth.uid() is null then raise exception 'unauthorized' using errcode = '28000'; end if;
+  update public.profiles set lang = coalesce(p_lang, lang), theme = coalesce(p_theme, theme), updated_at = now()
+  where id = auth.uid();
+  return jsonb_build_object('status', 'updated');
+end; $$;
 

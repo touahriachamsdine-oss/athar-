@@ -41,6 +41,71 @@ function mockIsInitiativeLeader(initiativeId) {
         (m.role === 'founder' || m.role === 'leader'));
 }
 
+function mockLogPoints(userId, amount, reason, refType, refId) {
+    const db = JSON.parse(localStorage.getItem('athar_mock_db_ledger') || '[]');
+    db.push({ id: 'm-' + Math.random().toString(36).slice(2), user_id: userId, amount, reason, ref_type: refType, ref_id: refId, created_at: new Date().toISOString() });
+    localStorage.setItem('athar_mock_db_ledger', JSON.stringify(db));
+    const profiles = JSON.parse(localStorage.getItem('athar_mock_db_profiles') || '[]');
+    const p = profiles.find(x => x.id === userId);
+    if (p) { p.impact_points = (p.impact_points || 0) + amount; }
+    localStorage.setItem('athar_mock_db_profiles', JSON.stringify(profiles));
+}
+function mockBlockedProfilesWrite() {
+    return { data: null, error: { code: 'forbidden', message: 'table not allowed' } };
+}
+async function mockRecordQuizAttempt(contentId, passed, score) {
+    const sess = JSON.parse(localStorage.getItem('neon_session') || 'null');
+    if (!sess || !sess.user) return { data: null, error: { code: 'unauthorized', message: 'login required' } };
+    const uid = sess.user.id;
+    const attempts = JSON.parse(localStorage.getItem('athar_mock_db_quiz_attempts') || '[]');
+    const existing = attempts.find(a => a.user_id === uid && a.content_id === contentId);
+    if (existing) { existing.passed = !!passed; existing.score = score || 0; }
+    else { attempts.push({ id: 'm-quiz', user_id: uid, content_id: contentId, passed: !!passed, score: score || 0 }); }
+    localStorage.setItem('athar_mock_db_quiz_attempts', JSON.stringify(attempts));
+    if (passed) {
+        const ledger = JSON.parse(localStorage.getItem('athar_mock_db_ledger') || '[]');
+        if (!ledger.some(l => l.user_id === uid && l.reason === 'awareness_quiz' && l.ref_id === contentId)) {
+            mockLogPoints(uid, 50, 'awareness_quiz', 'awareness_content', contentId);
+        }
+    }
+    return { data: { status: 'recorded' }, error: null };
+}
+async function mockImpactSummary(userId) {
+    const ledger = JSON.parse(localStorage.getItem('athar_mock_db_ledger') || '[]').filter(l => l.user_id === userId);
+    const total = ledger.reduce((s, l) => s + l.amount, 0);
+    const breakdown = ledger.reduce((o, l) => { o[l.reason] = (o[l.reason] || 0) + l.amount; return o; }, {});
+    const tier = total >= 2000 ? 5 : total >= 1000 ? 4 : total >= 500 ? 3 : total >= 250 ? 2 : total > 0 ? 1 : 0;
+    return { data: { total_points: total, breakdown, badge_tier: tier }, error: null };
+}
+async function mockPlatformStats() {
+    const clubs = JSON.parse(localStorage.getItem('athar_mock_db_clubs') || '[]');
+    const profilesCount = JSON.parse(localStorage.getItem('athar_mock_db_profiles') || '[]').length;
+    const schoolVisits = JSON.parse(localStorage.getItem('athar_mock_db_school_visits') || '[]');
+    const signups = JSON.parse(localStorage.getItem('athar_mock_db_volunteer_signups') || '[]');
+    return { data: {
+        clubs: clubs.length,
+        members: profilesCount,
+        school_visits: schoolVisits.length,
+        volunteer_hours: signups.reduce((s, v) => s + (v.hours || 0), 0)
+    }, error: null };
+}
+async function mockAwardAdmin(userId, amount, reason) {
+    const profiles = JSON.parse(localStorage.getItem('athar_mock_db_profiles') || '[]');
+    const me = profiles.find(x => x.id === JSON.parse(localStorage.getItem('neon_session') || 'null')?.user?.id);
+    if (!me || !['admin', 'superadmin'].includes(me.role)) {
+        return { data: null, error: { code: 'forbidden', message: 'forbidden' } };
+    }
+    mockLogPoints(userId, amount, reason || 'admin_adjustment', 'admin', null);
+    return { data: { status: 'awarded' }, error: null };
+}
+async function mockUpdateProfileSettings(pLang, pTheme) {
+    const sess = JSON.parse(localStorage.getItem('neon_session') || 'null');
+    if (!sess || !sess.user) return { data: null, error: { code: 'unauthorized', message: 'login required' } };
+    const profiles = JSON.parse(localStorage.getItem('athar_mock_db_profiles') || '[]');
+    const p = profiles.find(x => x.id === sess.user.id);
+    if (p) { if (pLang) p.lang = pLang; if (pTheme) p.theme = pTheme; localStorage.setItem('athar_mock_db_profiles', JSON.stringify(profiles)); }
+    return { data: { status: 'updated' }, error: null };
+}
 function mockRpcDispatch(fn, p) {
     const id = mockUserId();
     if (!id) return mockErr('unauthorized');
@@ -179,6 +244,22 @@ function mockRpcDispatch(fn, p) {
             saveMockTable('notifications', notifs);
         }
         return mockOk({ status: 'rejected' });
+    }
+
+    if (fn === 'record_quiz_attempt') {
+        return mockRecordQuizAttempt(p.p_content_id, p.p_passed, p.p_score);
+    }
+    if (fn === 'get_impact_summary') {
+        return mockImpactSummary(p.p_user_id);
+    }
+    if (fn === 'get_platform_stats') {
+        return mockPlatformStats();
+    }
+    if (fn === 'award_points_admin') {
+        return mockAwardAdmin(p.p_user_id, p.p_amount, p.p_reason);
+    }
+    if (fn === 'update_profile_settings') {
+        return mockUpdateProfileSettings(p.p_lang, p.p_theme);
     }
 
     return mockErr('unknown_rpc');
@@ -627,6 +708,14 @@ export function seedMockDB() {
         ];
         localStorage.setItem('athar_mock_db_volunteer_signups', JSON.stringify(initialSignups));
     }
+
+    if (!localStorage.getItem('athar_mock_db_ledger')) {
+        localStorage.setItem('athar_mock_db_ledger', JSON.stringify([]));
+    }
+
+    if (!localStorage.getItem('athar_mock_db_quiz_attempts')) {
+        localStorage.setItem('athar_mock_db_quiz_attempts', JSON.stringify([]));
+    }
 }
 
 class NeonClient {
@@ -706,6 +795,7 @@ class NeonClient {
                     };
                 },
                 insert: async (payload) => {
+                    if (table === 'profiles') return mockBlockedProfilesWrite();
                     const data = getMockTable(table);
                     const newRow = {
                         id: payload.id || 'uid-' + Math.random().toString(36).substring(2, 15),
@@ -714,22 +804,33 @@ class NeonClient {
                     };
                     data.push(newRow);
                     saveMockTable(table, data);
+                    if (table === 'club_members') mockLogPoints(newRow.user_id, 100, 'club_join', 'club_members', newRow.club_id);
                     return { data: [newRow], error: null };
                 },
                 update: async (payload, id) => {
+                    if (table === 'profiles') return mockBlockedProfilesWrite();
                     const data = getMockTable(table);
                     let updatedRow = null;
+                    let oldRow = null;
                     const nextData = data.map(x => {
                         if (x.id === id) {
+                            oldRow = x;
                             updatedRow = { ...x, ...payload, updated_at: new Date().toISOString() };
                             return updatedRow;
                         }
                         return x;
                     });
                     saveMockTable(table, nextData);
+                    if (updatedRow && table === 'training_enrollments' && updatedRow.status === 'completed' && oldRow.status !== 'completed') {
+                        mockLogPoints(updatedRow.user_id, 200, 'training_complete', 'training_enrollments', updatedRow.id);
+                    }
+                    if (updatedRow && table === 'school_visits' && ['confirmed', 'completed'].includes(updatedRow.status) && oldRow.status !== updatedRow.status && updatedRow.user_id) {
+                        mockLogPoints(updatedRow.user_id, 120, 'school_visit', 'school_visits', updatedRow.id);
+                    }
                     return { data: updatedRow ? [updatedRow] : [], error: null };
                 },
                 delete: async (id) => {
+                    if (table === 'profiles') return mockBlockedProfilesWrite();
                     const data = getMockTable(table);
                     const nextData = data.filter(x => x.id !== id);
                     saveMockTable(table, nextData);

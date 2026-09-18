@@ -247,6 +247,31 @@ async function runSuite() {
         mr = await neon.rpc('approve_session', { p_session_id: createdSessionId });
         assert(mr.error && mr.error.code === 'forbidden', 'Non-admin cannot approve sessions');
 
+        console.log(`\n${BOLD}${CYAN}[Phase 4C: Mock Points Parity]${RESET}`);
+        {
+            const { seedMockDB } = await import('../src/js/neon.js?mockpoints-' + Date.now());
+            seedMockDB();
+            const profiles = JSON.parse(localStorage.getItem('athar_mock_db_profiles') || '[]');
+            const getPoints = (id) => (JSON.parse(localStorage.getItem('athar_mock_db_profiles') || '[]').find(p => p.id === id) || {}).impact_points || 0;
+
+            const member = profiles.find(p => p.role === 'member');
+            const clubs = JSON.parse(localStorage.getItem('athar_mock_db_clubs') || '[]');
+            const mems = JSON.parse(localStorage.getItem('athar_mock_db_club_members') || '[]');
+            const freeClub = clubs.find(c => !mems.some(m => m.club_id === c.id && m.user_id === member.id));
+            const before = getPoints(member.id);
+            const { neon } = await import('../src/js/neon.js?mockpoints2-' + Date.now());
+            neon.setToken('mock-session-jwt-token-test');
+            await neon.from('club_members').insert({ club_id: freeClub.id, user_id: member.id });
+            assert(getPoints(member.id) === before + 100, 'club join awards +100 through the mock');
+            await neon.from('profiles').update({ impact_points: 999999 }, member.id);
+            assert(getPoints(member.id) === before + 100, 'mock rejects direct profile point edits (gateway parity)');
+
+            localStorage.setItem('neon_session', JSON.stringify({ user: { id: member.id }, token: 'mock-session-jwt-token-test' }));
+            await neon.rpc('update_profile_settings', { p_lang: 'en', p_theme: 'light' });
+            const stored = JSON.parse(localStorage.getItem('athar_mock_db_profiles') || '[]').find(p => p.id === member.id);
+            assert(stored && stored.lang === 'en' && stored.theme === 'light', 'update_profile_settings persists own profile in demo');
+        }
+
         store['athar_mock_mode'] = 'false';
 
         // --- 5. BUILD & COMPILED ASSETS VERIFICATION ---
@@ -280,6 +305,20 @@ async function runSuite() {
             'volunteer_sessions', 'volunteer_signups', 'audit_logs'
         ];
         sqlTables.forEach(t => assert(schemaSql.includes(`create table public.${t}`), `Schema defines table ${t}`));
+
+        assert(schemaSql.includes('create table public.points_ledger'), 'Schema defines table points_ledger');
+        assert(schemaSql.includes('create table public.awareness_quiz_attempts'), 'Schema defines table awareness_quiz_attempts');
+        assert(schemaSql.includes('function public.try_award_points'), 'Schema defines function try_award_points');
+        assert(schemaSql.includes('function public.record_quiz_attempt'), 'Schema defines function record_quiz_attempt');
+        assert(schemaSql.includes('function public.get_impact_summary'), 'Schema defines function get_impact_summary');
+        assert(schemaSql.includes('function public.get_platform_stats'), 'Schema defines function get_platform_stats');
+        assert(schemaSql.includes('function public.award_points_admin'), 'Schema defines function award_points_admin');
+        assert(schemaSql.includes('function public.update_profile_settings'), 'Schema defines function update_profile_settings');
+        assert(schemaSql.includes("school_type in ('public','private')"), 'school_visits accepts public/private school types');
+        assert(schemaSql.includes("activity_type in ('awareness_day','hostel_visit','competition','partnership')"), 'school_visits accepts product activity types');
+        assert(schemaSql.includes('create trigger trg_club_join_points'), 'Schema defines club-join points trigger');
+        assert(schemaSql.includes('create trigger trg_training_complete_points'), 'Schema defines training-complete points trigger');
+        assert(schemaSql.includes('create trigger trg_school_visit_points'), 'Schema defines school-visit points trigger');
 
         const sqlFunctions = [
             'create_volunteer_session', 'signup_to_session', 'cancel_signup',
