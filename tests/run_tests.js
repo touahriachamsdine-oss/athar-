@@ -179,6 +179,33 @@ async function runSuite() {
         assert(!compiledConfig.includes('YOUR_NEON_AUTH_URL') && !compiledConfig.includes('YOUR_NEON_API_URL'), 
             'Active Neon PostgreSQL URLs correctly injected into compiled configuration');
 
+        // --- 6. SQL SCHEMA SURFACE CHECKS ---
+        console.log(`\n${BOLD}${CYAN}[Phase 6: Verifying SQL Schema Surface (Grade C)]${RESET}`);
+        const schemaSql = fs.readFileSync(path.join(__dirname, '../sql/schema.sql'), 'utf8');
+
+        const sqlTables = [
+            'profiles', 'initiatives', 'initiative_members', 'tasks', 'notifications',
+            'clubs', 'club_members', 'training_courses', 'training_enrollments', 'consultations',
+            'awareness_content', 'school_visits', 'invites',
+            'volunteer_sessions', 'volunteer_signups', 'audit_logs'
+        ];
+        sqlTables.forEach(t => assert(schemaSql.includes(`create table public.${t}`), `Schema defines table ${t}`));
+
+        const sqlFunctions = [
+            'create_volunteer_session', 'signup_to_session', 'cancel_signup',
+            'mark_attendance', 'complete_session', 'approve_session', 'reject_session',
+            'is_platform_admin', 'is_initiative_member', 'is_initiative_leader', 'initiative_of_session'
+        ];
+        sqlFunctions.forEach(fn => assert(schemaSql.includes(`function public.${fn}`), `Schema defines function ${fn}`));
+
+        sqlTables.forEach(t => assert(schemaSql.includes(`alter table public.${t} enable row level security`), `RLS enabled on ${t}`));
+
+        const missingPolicies = sqlTables.filter(t => !schemaSql.includes(`on ${t} for`));
+        assert(missingPolicies.length === 0, `Every table has at least one policy (missing: ${missingPolicies.join(', ') || 'none'})`);
+
+        assert(schemaSql.includes('security definer'), 'RPCs run security-definer');
+        assert(schemaSql.includes('auth.uid()'), 'Policies and RPCs use auth.uid()');
+
         // --- SUMMARY REPORT ---
         console.log(`\n${PINK}${BOLD}================================================================${RESET}`);
         console.log(`${GOLD}${BOLD}                       TEST SUITE SUMMARY                       ${RESET}`);
