@@ -278,6 +278,18 @@ async function runSuite() {
             localStorage.setItem('neon_session', JSON.stringify({ user: { id: member.id }, token: 'mock-session-jwt-token-test' }));
             const ownSummary = await neon.rpc('get_impact_summary', { p_user_id: member.id });
             assert(ownSummary.data && typeof ownSummary.data.total_points === 'number', 'own impact summary returns ledger totals');
+
+            // awareness quiz +50 once per article (uses mockRecordQuizAttempt)
+            {
+                const { neon } = await import('../src/js/neon.js?quiztest-' + Date.now());
+                neon.setToken('mock-session-jwt-token-test');
+                const art = JSON.parse(localStorage.getItem('athar_mock_db_awareness_content') || '[]')[0];
+                const before = getPoints(member.id);
+                await neon.rpc('record_quiz_attempt', { p_content_id: art.id, p_passed: true, p_score: 2 });
+                assert(getPoints(member.id) === before + 50, 'quiz pass awards +50 once');
+                await neon.rpc('record_quiz_attempt', { p_content_id: art.id, p_passed: true, p_score: 2 });
+                assert(getPoints(member.id) === before + 50, 'quiz re-attempt does not re-award');
+            }
         }
 
         store['athar_mock_mode'] = 'false';

@@ -5,9 +5,9 @@ import { getCurrentLang } from '../js/i18n.js';
 import { timeAgo } from '../js/utils.js';
 
 const DICT = {
-    ar: { page: 'التنبيهات', subtitle: 'آخر الأخبار والتحديثات', mark_all: '✓ تحديد الكل كمقروء', empty: 'لا توجد تنبيهات حالياً' },
-    fr: { page: 'Notifications', subtitle: 'Dernières nouvelles et mises à jour', mark_all: '✓ Tout marquer comme lu', empty: 'Aucune notification pour l\'instant' },
-    en: { page: 'Notifications', subtitle: 'Latest updates and news for you', mark_all: '✓ Mark all as read', empty: 'No notifications yet' }
+    ar: { page: 'التنبيهات', subtitle: 'آخر الأخبار والتحديثات', mark_all: '✓ تحديد الكل كمقروء', empty_state: 'لا توجد إشعارات بعد' },
+    fr: { page: 'Notifications', subtitle: 'Dernières nouvelles et mises à jour', mark_all: '✓ Tout marquer comme lu', empty_state: 'Aucune notification pour l\'instant' },
+    en: { page: 'Notifications', subtitle: 'Latest updates and news for you', mark_all: '✓ Mark all as read', empty_state: 'No notifications yet' }
 };
 
 // Mock notifications for demo
@@ -32,19 +32,24 @@ async function init() {
     document.getElementById('page-subtitle').textContent = t.subtitle;
     document.getElementById('mark-all-btn').textContent = t.mark_all;
 
-    // Try real data, fall back to mock
+    // Real data in real mode; fall back to mock only in demo mode
     let notifs = [];
-    try {
+    if (localStorage.getItem('athar_mock_mode') === 'true') {
+        try {
+            const { data } = await neon.from('notifications').select().eq('user_id', auth.user.id);
+            notifs = data && data.length ? data : MOCK_NOTIFS;
+        } catch { notifs = MOCK_NOTIFS; }
+    } else {
         const { data } = await neon.from('notifications').select().eq('user_id', auth.user.id);
-        notifs = data && data.length ? data : MOCK_NOTIFS;
-    } catch { notifs = MOCK_NOTIFS; }
+        notifs = data || [];
+    }
     notifs = [...notifs].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
     const titleKey = lang === 'fr' ? 'title_fr' : (lang === 'en' ? 'title_en' : 'title_ar');
     const list = document.getElementById('notif-list');
 
     if (!notifs.length) {
-        list.innerHTML = `<div class="empty-state"><div>🔔</div><p>${t.empty}</p></div>`;
+        list.innerHTML = `<div class="empty-state"><div>🔔</div><p>${t.empty_state}</p></div>`;
         return;
     }
 

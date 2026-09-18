@@ -351,10 +351,8 @@ window.updateRole = async (id, role) => {
 window.addPoints = async (id) => {
     const input = document.getElementById(`pts-input-${id}`);
     const amount = parseInt(input.value) || 0;
-    const user = usersCache.find(u => u.id === id);
-    if (user) {
-        const newPoints = (user.impact_points || 0) + amount;
-        await neon.from('profiles').update({ impact_points: newPoints }, id);
+    const res = await neon.rpc('award_points_admin', { p_user_id: id, p_amount: amount, p_reason: 'admin_adjustment' });
+    if (!res.error) {
         triggerNotification('admin_toast_points_added', 'msg_success');
         await loadData();
     }

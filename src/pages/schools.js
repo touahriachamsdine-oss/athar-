@@ -167,17 +167,13 @@ async function handleFormSubmit(e) {
         wilaya: wilaya,
         visit_date: date,
         activity_type: activity,
-        status: 'planned'
+        status: 'pending'
     });
 
     if (error) {
         alert(error.message);
         return;
     }
-
-    // Award 120 points
-    const currentPoints = authSession.profile.impact_points || 0;
-    await neon.from('profiles').update({ impact_points: currentPoints + 120 }, authSession.user.id);
 
     // Refetch visits
     const res = await neon.from('school_visits').select();

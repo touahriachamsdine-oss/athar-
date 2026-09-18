@@ -156,10 +156,6 @@ async function joinClub(clubId, element) {
         return;
     }
 
-    // Award 100 impact points
-    const currentPoints = authSession.profile.impact_points || 0;
-    await neon.from('profiles').update({ impact_points: currentPoints + 100 }, authSession.user.id);
-    
     memberClubIds.push(clubId);
     element.className = 'btn btn-outline';
     element.innerText = d.btn_joined;

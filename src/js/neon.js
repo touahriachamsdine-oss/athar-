@@ -720,6 +720,39 @@ export function seedMockDB() {
         localStorage.setItem('athar_mock_db_volunteer_signups', JSON.stringify(initialSignups));
     }
 
+    if (!localStorage.getItem('athar_mock_db_notifications')) {
+        const now = Date.now();
+        const initialNotifs = [
+            {
+                id: 'ntf_invite',
+                user_id: 'member_user_1',
+                type: 'invite',
+                title_ar: 'دعوة للانضمام إلى مبادرة ورشة الذكاء الاصطناعي والروبوتيك',
+                title_fr: 'Invitation à rejoindre l\'initiative Atelier IA & Robotique',
+                title_en: 'Invitation to join the AI & Robotics Workshop initiative',
+                body_ar: 'تمت دعوتك للانضمام إلى المبادرة من طرف أمين المشرف.',
+                body_fr: 'Vous avez été invité à rejoindre l\'initiative par l\'administrateur.',
+                body_en: 'You have been invited to join the initiative by the admin.',
+                is_read: false,
+                created_at: new Date(now - 1000 * 60 * 45).toISOString()
+            },
+            {
+                id: 'ntf_vol_approved',
+                user_id: 'member_user_1',
+                type: 'volunteer_approved',
+                title_ar: 'تمت الموافقة على تسجيلك في النشاط التطوعي',
+                title_fr: 'Votre inscription au bénévolat est approuvée',
+                title_en: 'Your volunteer registration is approved',
+                body_ar: 'تم قبول طلب تطوعك في حملة توزيع الدعم الغذائي بالحي.',
+                body_fr: 'Votre candidature pour la campagne alimentaire du quartier a été acceptée.',
+                body_en: 'Your volunteer application for the neighborhood food drive has been accepted.',
+                is_read: false,
+                created_at: new Date(now - 1000 * 60 * 60 * 3).toISOString()
+            }
+        ];
+        localStorage.setItem('athar_mock_db_notifications', JSON.stringify(initialNotifs));
+    }
+
     if (!localStorage.getItem('athar_mock_db_ledger')) {
         localStorage.setItem('athar_mock_db_ledger', JSON.stringify([]));
     }

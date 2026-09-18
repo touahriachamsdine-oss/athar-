@@ -14,6 +14,7 @@ const DICT = {
         search_placeholder: 'ابحث عن مقالات أو مقاطع فيديو...',
         btn_search: 'بحث',
         articles_title: 'المحتوى التوعوي والوقائي',
+        start_quiz: 'ابدأ الاختبار',
         sec_tip_title: '💡 نصيحة اليوم للوقاية',
         sec_tip_desc: '"الاستثمار في نوادي بيوت الشباب العلمية والرياضية هو الدرع الأقوى لحماية العقل من الملهيات والوقوع في شرك الإدمان. بادر بالانضمام والمشاركة!"'
     },
@@ -27,6 +28,7 @@ const DICT = {
         search_placeholder: 'Rechercher des articles, vidéos...',
         btn_search: 'Chercher',
         articles_title: 'Ressources de Prévention',
+        start_quiz: 'Démarrer le quiz',
         sec_tip_title: '💡 Conseil de prévention',
         sec_tip_desc: '"S\'engager dans les clubs scientifiques et sportifs est le bouclier le plus fort pour protéger l\'esprit de l\'addiction. Rejoignez-nous !"'
     },
@@ -40,6 +42,7 @@ const DICT = {
         search_placeholder: 'Search articles, videos...',
         btn_search: 'Search',
         articles_title: 'Awareness Materials',
+        start_quiz: 'Start quiz',
         sec_tip_title: '💡 Today\'s Prevention Tip',
         sec_tip_desc: '"Investing time in youth hostels\' scientific and sports clubs is the strongest shield against distractions and addiction. Take the lead!"'
     }
@@ -74,6 +77,7 @@ let quizIndex = 0;
 let authSession = null;
 let lang = 'ar';
 let articles = [];
+let currentQuizArticleId = null;
 
 async function init() {
     authSession = await requireAuth({ guests: true });
@@ -99,6 +103,9 @@ async function init() {
     // Fetch dynamic articles/materials from Neon
     const res = await neon.from('awareness_content').select();
     articles = res.data || [];
+    if (!currentQuizArticleId && articles.length) {
+        currentQuizArticleId = articles[0].id;
+    }
 
     renderArticles();
     loadQuizQuestion();
@@ -156,10 +163,9 @@ async function showQuizResult() {
     document.getElementById('result-title').innerText = d.result_title;
     document.getElementById('result-desc').innerText = d.result_desc;
 
-    // Award 50 impact points (members only)
-    if (authSession && authSession.user && authSession.profile) {
-        const currentPoints = authSession.profile.impact_points || 0;
-        await neon.from('profiles').update({ impact_points: currentPoints + 50 }, authSession.user.id);
+    // Award 50 impact points via the server RPC (once per article)
+    if (authSession && authSession.user && currentQuizArticleId) {
+        await neon.rpc('record_quiz_attempt', { p_content_id: currentQuizArticleId, p_passed: true, p_score: QUIZ_QUESTIONS.length });
     }
 }
 
@@ -189,6 +195,7 @@ function renderArticles() {
         return;
     }
 
+    const d = DICT[lang] || DICT.ar;
     grid.innerHTML = filtered.map(a => {
         const title = lang === 'ar' ? a.title_ar : (lang === 'fr' ? a.title_fr : a.title_en);
         const desc = lang === 'ar' ? a.description_ar : (lang === 'fr' ? a.description_fr : a.description_en);
@@ -202,12 +209,22 @@ function renderArticles() {
                     <h3 style="font-size:18px; font-weight:700; margin-bottom:12px; line-height:1.4;">${title}</h3>
                     <p style="font-size:14px; opacity:0.65; line-height:1.6; margin-bottom:20px;">${desc || ''}</p>
                 </div>
-                <a href="${a.media_url || '#'}" target="_blank" class="btn btn-secondary" style="width:fit-content; font-size:12px;">
-                    ${lang === 'ar' ? 'تصفح المحتوى' : 'Ouvrir'}
-                </a>
+                <div style="display:flex; flex-direction:column; gap:10px;">
+                    <a href="${a.media_url || '#'}" target="_blank" class="btn btn-secondary" style="width:100%; font-size:12px; justify-content:center;">
+                        ${lang === 'ar' ? 'تصفح المحتوى' : 'Ouvrir'}
+                    </a>
+                    <button class="btn btn-primary quiz-start-btn" data-id="${a.id}" style="width:100%; font-size:12px; justify-content:center;">${d.start_quiz}</button>
+                </div>
             </div>
         `;
     }).join('');
+
+    document.querySelectorAll('.quiz-start-btn').forEach(btn => {
+        btn.onclick = () => {
+            currentQuizArticleId = btn.getAttribute('data-id');
+            restartQuiz();
+        };
+    });
 }
 
 init();

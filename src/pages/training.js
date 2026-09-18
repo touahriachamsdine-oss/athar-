@@ -171,10 +171,6 @@ async function enrollCourse(courseId, element) {
         return;
     }
 
-    // Award 50 points
-    const currentPoints = authSession.profile.impact_points || 0;
-    await neon.from('profiles').update({ impact_points: currentPoints + 50 }, authSession.user.id);
-
     // Refetch enrollments
     const enrollRes = await neon.from('training_enrollments').select().eq('user_id', authSession.user.id);
     enrolledList = enrollRes.data || [];
@@ -194,7 +190,8 @@ async function completeCourse(enrollId, element) {
 
     const { error } = await neon.from('training_enrollments').update({
         status: 'completed',
-        certificate_url: certUrl
+        certificate_url: certUrl,
+        completed_at: new Date().toISOString()
     }, enrollId);
 
     if (error) {
@@ -203,10 +200,6 @@ async function completeCourse(enrollId, element) {
         element.innerText = d.btn_complete;
         return;
     }
-
-    // Award 200 points
-    const currentPoints = authSession.profile.impact_points || 0;
-    await neon.from('profiles').update({ impact_points: currentPoints + 200 }, authSession.user.id);
 
     // Refetch enrollments
     const enrollRes = await neon.from('training_enrollments').select().eq('user_id', authSession.user.id);
