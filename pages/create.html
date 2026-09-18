@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <title>إطلاق مبادرة جديدة — أثر</title>
+    <link rel="stylesheet" href="../src/css/reset.css">
+    <link rel="stylesheet" href="../src/css/variables.css">
+    <link rel="stylesheet" href="../src/css/typography.css">
+    <link rel="stylesheet" href="../src/css/glass.css">
+    <link rel="stylesheet" href="../src/css/components.css">
+    <link rel="stylesheet" href="../src/css/layout.css">
+    <link rel="stylesheet" href="../src/css/utilities.css">
+</head>
+
+<body class="dashboard-grid">
+    <aside class="sidebar glass" style="margin:20px; border-radius:30px;"></aside>
+
+    <main class="container mt-40">
+        <header style="margin-bottom:40px;">
+            <h1 class="gradient-text reveal active" style="font-size:36px;">إطلاق مبادرة جديدة</h1>
+            <p style="opacity:0.6;">ابدأ تغييراً إيجابياً في حيك اليوم</p>
+        </header>
+
+        <div class="glass" style="max-width:800px; padding:40px; border-radius:30px;">
+            <form id="create-form" style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+                <div style="grid-column: span 2;">
+                    <label class="mono mb-10 block" style="font-size:12px; opacity:0.5;">INITIATIVE TITLE</label>
+                    <input type="text" id="title" placeholder="عنوان المبادرة" class="input-field" required>
+                </div>
+
+                <div style="grid-column: span 2;">
+                    <label class="mono mb-10 block" style="font-size:12px; opacity:0.5;">DESCRIPTION</label>
+                    <textarea id="description" placeholder="اشرح هدف المبادرة بالتفصيل..." class="input-field"
+                        style="height:150px; resize:none;" required></textarea>
+                </div>
+
+                <div>
+                    <label class="mono mb-10 block" style="font-size:12px; opacity:0.5;">WILAYA</label>
+                    <select id="wilaya" class="input-field" required></select>
+                </div>
+
+                <div>
+                    <label class="mono mb-10 block" style="font-size:12px; opacity:0.5;">CATEGORY</label>
+                    <select id="category" class="input-field"></select>
+                </div>
+
+                <div style="grid-column: span 2; margin-top:20px;">
+                    <button type="submit" class="btn btn-primary" style="width:100%; padding:15px; font-size:18px;">نشر
+                        المبادرة</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script type="module">
+        import { requireAuth } from '../src/js/auth.js';
+        import { createInitiative } from '../src/js/db.js';
+        import { APP_CONFIG } from '../src/js/config.js';
+        import { injectLayout } from '../src/js/layout.js';
+
+        async function init() {
+            await requireAuth();
+            injectLayout();
+
+            const select = document.getElementById('wilaya');
+            APP_CONFIG.wilayas.forEach(w => {
+                const opt = document.createElement('option');
+                opt.value = w;
+                opt.textContent = w;
+                select.appendChild(opt);
+            });
+
+            const catSelect = document.getElementById('category');
+            APP_CONFIG.categories.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.id;
+                opt.textContent = c.ar;
+                catSelect.appendChild(opt);
+            });
+        }
+
+        document.getElementById('create-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            btn.disabled = true;
+            btn.innerText = 'جاري النشر...';
+
+            const { user } = await requireAuth();
+            const res = await createInitiative({
+                title_ar: document.getElementById('title').value,
+                description_ar: document.getElementById('description').value,
+                wilaya: document.getElementById('wilaya').value,
+                category: document.getElementById('category').value,
+                neighborhood: 'حي افتراضي' // Manual for now
+            }, user.id);
+
+            if (res.data) {
+                alert('تم إرسال المبادرة للمراجعة');
+                location.href = 'dashboard.html';
+            } else {
+                alert(res.error);
+            }
+            btn.disabled = false;
+        };
+
+        init();
+    </script>
+</body>
+
+</html>

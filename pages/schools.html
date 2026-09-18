@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أثر — زيارات وحملات المدارس</title>
+    <link rel="stylesheet" href="../src/css/reset.css">
+    <link rel="stylesheet" href="../src/css/variables.css">
+    <link rel="stylesheet" href="../src/css/typography.css">
+    <link rel="stylesheet" href="../src/css/glass.css">
+    <link rel="stylesheet" href="../src/css/components.css">
+    <link rel="stylesheet" href="../src/css/animations.css">
+    <link rel="stylesheet" href="../src/css/layout.css">
+    <link rel="stylesheet" href="../src/css/utilities.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', 'Outfit', sans-serif;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: var(--sidebar-w) 1fr;
+            min-height: 100vh;
+        }
+
+        @media (max-width: 992px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                display: none;
+            }
+        }
+
+        .visit-card {
+            background: var(--glass-bg);
+            border: none !important;
+            border-radius: 24px;
+            padding: 25px;
+            box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.25);
+            transition: var(--transition);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .visit-card:hover {
+            background: rgba(16, 14, 37, 0.9);
+            transform: translateY(-8px) translateX(-4px);
+            box-shadow: 14px 14px 0px var(--accent-amber);
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            background: rgba(16, 14, 37, 0.85);
+            border: none !important;
+            outline: none !important;
+            padding: 18px 24px;
+            border-radius: 14px;
+            color: var(--text-primary);
+            transition: var(--transition);
+            margin-bottom: 20px;
+            box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.25);
+            font-family: inherit;
+        }
+
+        .form-input:focus, .form-select:focus {
+            background: rgba(16, 14, 37, 0.95);
+            box-shadow: 6px 6px 0px var(--accent-amber);
+            transform: translateY(-3px) translateX(-2px);
+        }
+    </style>
+</head>
+
+<body class="dashboard-grid">
+    <!-- SIDEBAR -->
+    <aside class="sidebar glass" style="margin:20px; border-radius:30px;"></aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="container" style="padding: 40px; max-width: 1300px; width: 100%; box-sizing: border-box;">
+        <header style="margin-bottom:40px;">
+            <h1 class="gradient-text syne" style="font-size:36px; font-weight:800;" id="page-title">زيارات الشراكة وحملات التوعية المدرسية</h1>
+            <p style="opacity:0.65; margin-top:5px;" id="page-subtitle">جدولة زيارات المدارس العمومية والخاصة إلى بيوت الشباب أو إرسال حملات توعوية تفاعلية</p>
+        </header>
+
+        <div style="display:grid; grid-template-columns: 1.2fr 1fr; gap:40px; align-items:start; flex-wrap:wrap;">
+            <!-- VISITS LIST -->
+            <section class="spring-in">
+                <h2 style="font-size:22px; font-weight:800; margin-bottom:25px;" id="sec-list-title">الزيارات والحملات المجدولة</h2>
+                <div id="visits-list" style="display:flex; flex-direction:column; gap:20px;">
+                    <p style="opacity:0.5; font-size:14px;">جاري تحميل جدول الزيارات...</p>
+                </div>
+            </section>
+
+            <!-- BOOKING FORM -->
+            <section class="glass spring-in" style="padding:35px; border-radius:28px;">
+                <h2 style="font-size:22px; font-weight:800; margin-bottom:25px;" id="sec-form-title">جدولة زيارة أو حملة جديدة</h2>
+                <form id="visit-form">
+                    <label style="display:block; font-size:13px; font-weight:700; margin-bottom:8px;" id="lbl-school-name">اسم المدرسة / المؤسسة التعليمية</label>
+                    <input type="text" id="school-name" class="form-input" required placeholder="مثال: ثانوية العقيد لطفي">
+
+                    <label style="display:block; font-size:13px; font-weight:700; margin-bottom:8px;" id="lbl-school-type">نوع المؤسسة</label>
+                    <select id="school-type" class="form-select" required>
+                        <option value="public">عمومية / Publique</option>
+                        <option value="private">خاصة / Privée</option>
+                    </select>
+
+                    <label style="display:block; font-size:13px; font-weight:700; margin-bottom:8px;" id="lbl-wilaya">الولاية</label>
+                    <select id="wilaya" class="form-select" required>
+                        <option value="">اختر الولاية...</option>
+                    </select>
+
+                    <label style="display:block; font-size:13px; font-weight:700; margin-bottom:8px;" id="lbl-visit-date">تاريخ الفعالية</label>
+                    <input type="date" id="visit-date" class="form-input" required>
+
+                    <label style="display:block; font-size:13px; font-weight:700; margin-bottom:8px;" id="lbl-activity-type">نوع النشاط التوعوي</label>
+                    <select id="activity-type" class="form-select" required>
+                        <option value="awareness_day">يوم توعوي وقائي / Journée de sensibilisation</option>
+                        <option value="hostel_visit">زيارة استكشافية لبيت الشباب / Visite du foyer</option>
+                        <option value="competition">مسابقة ثقافية وعلمية / Compétition scientifique</option>
+                        <option value="partnership">اتفاقية شراكة مستدامة / Accord de partenariat</option>
+                    </select>
+
+                    <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; padding:15px;" id="btn-submit">تأكيد الجدولة وحفظ الطلب</button>
+                </form>
+            </section>
+        </div>
+    </main>
+
+    <script type="module">
+        import { requireAuth } from '../src/js/auth.js';
+        import { neon } from '../src/js/neon.js';
+        import { setLanguage, getCurrentLang } from '../src/js/i18n.js';
+        import { injectLayout } from '../src/js/layout.js';
+        import { APP_CONFIG } from '../src/js/config.js';
+
+        const DICT = {
+            ar: {
+                title: 'زيارات الشراكة وحملات التوعية المدرسية',
+                subtitle: 'جدولة زيارات المدارس العمومية والخاصة إلى بيوت الشباب أو إرسال حملات توعوية تفاعلية',
+                sec_list: 'الزيارات والحملات المجدولة',
+                sec_form: 'جدولة زيارة أو حملة جديدة',
+                school_name: 'اسم المدرسة / المؤسسة التعليمية',
+                school_type: 'نوع المؤسسة',
+                wilaya: 'الولاية',
+                visit_date: 'تاريخ الفعالية',
+                activity_type: 'نوع النشاط التوعوي',
+                btn_submit: 'تأكيد الجدولة وحفظ الطلب',
+                success: 'تمت جدولة الحملة التوعوية بنجاح وزادت نقاط أثرك بمقدار 120 نقطة لتنسيقك الفعال!',
+                planned: 'مجدولة',
+                completed: 'مكتملة',
+                empty: 'لا يوجد زيارات مجدولة في هذه الولاية حالياً.',
+                activities: {
+                    awareness_day: 'يوم توعوي وقائي 🩺',
+                    hostel_visit: 'زيارة لبيت الشباب 🤖',
+                    competition: 'مسابقة علمية 💻',
+                    partnership: 'اتفاقية شراكة 🤝'
+                }
+            },
+            fr: {
+                title: 'Partenariats & Visites Scolaires',
+                subtitle: 'Planifiez des campagnes de sensibilisation ou des visites scolaires interactives',
+                sec_list: 'Visites et Campagnes Planifiées',
+                sec_form: 'Planifier une nouvelle visite',
+                school_name: 'Nom de l\'établissement',
+                school_type: 'Type d\'établissement',
+                wilaya: 'Wilaya',
+                visit_date: 'Date de l\'événement',
+                activity_type: 'Type d\'activité',
+                btn_submit: 'Confirmer la planification',
+                success: 'Campagne planifiée avec succès ! +120 points d\'impact pour votre coordination !',
+                planned: 'Planifié',
+                completed: 'Complété',
+                empty: 'Aucune visite planifiée pour le moment.',
+                activities: {
+                    awareness_day: 'Sensibilisation 🩺',
+                    hostel_visit: 'Visite Foyer 🤖',
+                    competition: 'Compétition 💻',
+                    partnership: 'Partenariat 🤝'
+                }
+            },
+            en: {
+                title: 'School Partnerships & Visits',
+                subtitle: 'Schedule visits from public and private schools to youth hostels or interactive campaigns',
+                sec_list: 'Scheduled Visits & Campaigns',
+                sec_form: 'Schedule New Visit or Campaign',
+                school_name: 'School / Institution Name',
+                school_type: 'Institution Type',
+                wilaya: 'Wilaya',
+                visit_date: 'Event Date',
+                activity_type: 'Activity Type',
+                btn_submit: 'Confirm & Save Schedule',
+                success: 'Poison prevention campaign scheduled successfully! +120 impact points rewarded!',
+                planned: 'Planned',
+                completed: 'Completed',
+                empty: 'No scheduled campaigns currently.',
+                activities: {
+                    awareness_day: 'Awareness Campaign 🩺',
+                    hostel_visit: 'Hostel Visit 🤖',
+                    competition: 'Scientific Contest 💻',
+                    partnership: 'Partnership Agreement 🤝'
+                }
+            }
+        };
+
+        let authSession = null;
+        let lang = 'ar';
+        let visits = [];
+
+        async function init() {
+            authSession = await requireAuth();
+            if (!authSession) return;
+
+            lang = getCurrentLang();
+            const d = DICT[lang] || DICT.ar;
+
+            setLanguage(lang);
+            injectLayout();
+
+            // Populate Wilayas select
+            const wSelect = document.getElementById('wilaya');
+            APP_CONFIG.wilayas.forEach(w => {
+                const opt = document.createElement('option');
+                opt.value = w;
+                opt.textContent = w;
+                wSelect.appendChild(opt);
+            });
+
+            // Localize text
+            document.getElementById('page-title').innerText = d.title;
+            document.getElementById('page-subtitle').innerText = d.subtitle;
+            document.getElementById('sec-list-title').innerText = d.sec_list;
+            document.getElementById('sec-form-title').innerText = d.sec_form;
+            document.getElementById('lbl-school-name').innerText = d.school_name;
+            document.getElementById('lbl-school-type').innerText = d.school_type;
+            document.getElementById('lbl-wilaya').innerText = d.wilaya;
+            document.getElementById('lbl-visit-date').innerText = d.visit_date;
+            document.getElementById('lbl-activity-type').innerText = d.activity_type;
+            document.getElementById('btn-submit').innerText = d.btn_submit;
+
+            // Load scheduled visits
+            const res = await neon.from('school_visits').select();
+            visits = res.data || [];
+
+            renderVisits();
+
+            // Form Submit Event
+            document.getElementById('visit-form').onsubmit = handleFormSubmit;
+        }
+
+        function renderVisits() {
+            const d = DICT[lang] || DICT.ar;
+            const container = document.getElementById('visits-list');
+
+            if (visits.length === 0) {
+                container.innerHTML = `<p style="opacity:0.5; font-size:14px;">${d.empty}</p>`;
+                return;
+            }
+
+            container.innerHTML = visits.map(v => {
+                const actName = d.activities[v.activity_type] || v.activity_type;
+                const statusName = v.status === 'completed' ? d.completed : d.planned;
+                const badgeColor = v.status === 'completed' ? 'var(--accent-pink)' : 'var(--accent-cyan)';
+                const instType = v.school_type === 'public' ? (lang === 'ar' ? 'مؤسسة عمومية' : 'Publique') : (lang === 'ar' ? 'مؤسسة خاصة' : 'Privée');
+
+                return `
+                    <div class="visit-card">
+                        <div>
+                            <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
+                                <h3 style="font-size:18px; font-weight:700;">${v.school_name}</h3>
+                                <span class="badge" style="background:rgba(255,255,255,0.03); color:rgba(255,255,255,0.6); font-size:9px;">${instType}</span>
+                            </div>
+                            <div style="font-size:14px; opacity:0.7; margin-bottom:10px;">${actName}</div>
+                            <div style="font-size:12px; opacity:0.5;" class="mono">${v.wilaya} • ${new Date(v.visit_date).toLocaleDateString()}</div>
+                        </div>
+                        
+                        <span class="badge" style="background:rgba(255,255,255,0.02); color:${badgeColor}; font-size:10px;">${statusName}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+            const d = DICT[lang] || DICT.ar;
+
+            const name = document.getElementById('school-name').value;
+            const type = document.getElementById('school-type').value;
+            const wilaya = document.getElementById('wilaya').value;
+            const date = document.getElementById('visit-date').value;
+            const activity = document.getElementById('activity-type').value;
+
+            const { data, error } = await neon.from('school_visits').insert({
+                school_name: name,
+                school_type: type,
+                wilaya: wilaya,
+                visit_date: date,
+                activity_type: activity,
+                status: 'planned'
+            });
+
+            if (error) {
+                alert(error.message);
+                return;
+            }
+
+            // Award 120 points
+            const currentPoints = authSession.profile.impact_points || 0;
+            await neon.from('profiles').update({ impact_points: currentPoints + 120 }, authSession.user.id);
+
+            // Refetch visits
+            const res = await neon.from('school_visits').select();
+            visits = res.data || [];
+            renderVisits();
+
+            // Clear form
+            document.getElementById('visit-form').reset();
+
+            alert(d.success);
+        }
+
+        init();
+    </script>
+</body>
+
+</html>

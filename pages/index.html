@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أثر — منصة بيوت الشباب للتنمية والوقاية</title>
+    <link rel="stylesheet" href="../src/css/reset.css">
+    <link rel="stylesheet" href="../src/css/variables.css">
+    <link rel="stylesheet" href="../src/css/typography.css">
+    <link rel="stylesheet" href="../src/css/glass.css">
+    <link rel="stylesheet" href="../src/css/components.css">
+    <link rel="stylesheet" href="../src/css/animations.css">
+    <link rel="stylesheet" href="../src/css/layout.css">
+    <link rel="stylesheet" href="../src/css/utilities.css">
+    <link rel="manifest" href="../manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', 'Outfit', sans-serif;
+        }
+
+        .lang-selector {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 4px;
+            border-radius: 12px;
+            gap: 2px;
+            display: flex;
+            align-items: center;
+            transition: var(--transition);
+        }
+
+        .lang-btn {
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .lang-btn:hover {
+            color: var(--text-primary);
+        }
+
+        .lang-btn.active {
+            background: var(--accent-pink);
+            color: var(--text-static) !important;
+        }
+
+        .theme-toggle-nav {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-toggle-nav:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
+        }
+
+        [data-theme="light"] .lang-selector {
+            background: rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        [data-theme="light"] .theme-toggle-nav {
+            background: rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        .hero-glow {
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 70vw;
+            height: 60vh;
+            background: radial-gradient(circle, rgba(255, 42, 109, 0.15) 0%, rgba(5, 217, 232, 0.05) 50%, transparent 80%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .floating-card {
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            border: none !important;
+            box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.25);
+        }
+
+        .floating-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.03), transparent);
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+
+        .floating-card:hover::before {
+            opacity: 1;
+        }
+
+        .floating-card:hover {
+            transform: translateY(-8px) translateX(-4px);
+            box-shadow: 14px 14px 0px var(--accent-pink) !important;
+        }
+
+        .pillar-icon {
+            font-size: 42px;
+            margin-bottom: 25px;
+            display: inline-block;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .floating-card:hover .pillar-icon {
+            transform: scale(1.25) rotate(8deg);
+        }
+
+        .navbar {
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            margin: 20px auto;
+            max-width: 1200px;
+            position: sticky;
+            top: 20px;
+            z-index: 1000;
+            border: none !important;
+            box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.25);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="living-canvas" style="position:fixed; inset:0; z-index:-1;"></div>
+    <div class="hero-glow"></div>
+
+    <!-- NAVBAR -->
+    <nav class="glass navbar flex-center" style="justify-content: space-between; border-radius: 24px; padding: 15px 30px;">
+        <div style="display:flex; align-items:center; gap:12px; height:38px; overflow:visible;">
+            <img src="../public/logo.png" alt="Athar Logo"
+                style="width:266px; height:266px; margin: -114px 0; filter: drop-shadow(0 0 15px rgba(255, 42, 109, 0.4)); object-fit: contain;">
+        </div>
+        <div class="nav-links flex-center" style="gap:15px; align-items:center;">
+            <!-- Language Selector Segmented Control -->
+            <div class="lang-selector control-container">
+                <button class="lang-btn" data-lang="ar">AR</button>
+                <button class="lang-btn" data-lang="fr">FR</button>
+                <button class="lang-btn" data-lang="en">EN</button>
+            </div>
+
+            <!-- Theme Toggle Button -->
+            <button id="theme-toggle-nav" class="theme-toggle-nav control-container" title="Toggle Theme">
+                <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+            </button>
+
+            <!-- Login Button -->
+            <a href="auth.html" class="btn btn-primary" data-i18n="login_title"
+                style="padding:10px 28px; border-radius:14px; font-weight:700; font-size:15px; display:inline-flex; align-items:center; justify-content:center;">دخول</a>
+        </div>
+    </nav>
+
+    <main class="container" style="max-width:1200px; margin:0 auto; padding:0 20px;">
+        <!-- HERO SECTION -->
+        <section class="hero text-center" style="padding: 100px 10px 60px; position:relative;">
+            <div class="badge mb-20 reveal active"
+                style="background:rgba(255, 42, 109, 0.08); color:var(--accent-pink); padding:8px 24px; border-radius:100px; font-weight:700; font-size:14px; display:inline-block; box-shadow: 2px 2px 0px rgba(0,0,0,0.15);"
+                data-i18n="badge_title">
+                🇩🇿 بوابة بيوت الشباب للتنمية والوقاية المبتكرة
+            </div>
+            <h1 class="reveal active gradient-text syne"
+                style="font-size: clamp(38px, 8vw, 85px); line-height:1.1; margin-bottom:25px; font-weight:800;"
+                data-i18n="hero_title">أثر — المنصة الرقمية لبيوت الشباب</h1>
+            <p class="reveal active mb-40"
+                style="font-size: 19px; opacity:0.75; max-width: 750px; margin-inline:auto; line-height:1.7;"
+                data-i18n="hero_subtitle">تمكين، توعية، ابتكار، ووقاية من أجل غد أفضل للشباب الجزائري.</p>
+
+            <div class="flex-center reveal active" style="gap:20px; justify-content:center; flex-wrap:wrap;">
+                <a href="auth.html" class="btn btn-primary"
+                    style="padding:18px 45px; font-size:16px; border-radius:16px; font-weight:800;"
+                    data-i18n="btn_start">ابدأ الآن</a>
+                <a href="auth.html" class="btn btn-outline"
+                    style="padding:18px 45px; font-size:16px; border-radius:16px; font-weight:800;"
+                    data-i18n="btn_enter">الولوج للمنصة</a>
+            </div>
+
+            <!-- MOCK STATS BAR -->
+            <div class="flex-center reveal active glass" style="gap:60px; flex-wrap:wrap; margin-top:80px; justify-content:center; padding: 30px; border-radius: 30px;">
+                <div class="text-center" style="min-width: 150px;">
+                    <div class="syne gradient-text" style="font-size:46px; font-weight:800; line-height:1;">48+</div>
+                    <p style="font-size:13px; font-weight:700; margin-top:10px; opacity:0.8;" data-i18n="stat_clubs">نادي علمي وتطبيقي</p>
+                </div>
+                <div style="width: 1px; height: 50px; background: rgba(255,255,255,0.05);" class="hide-mobile"></div>
+                <div class="text-center" style="min-width: 150px;">
+                    <div class="syne gradient-text" style="font-size:46px; font-weight:800; line-height:1;">15K+</div>
+                    <p style="font-size:13px; font-weight:700; margin-top:10px; opacity:0.8;" data-i18n="stat_youth">شاب مستفيد</p>
+                </div>
+                <div style="width: 1px; height: 50px; background: rgba(255,255,255,0.05);" class="hide-mobile"></div>
+                <div class="text-center" style="min-width: 150px;">
+                    <div class="syne gradient-text" style="font-size:46px; font-weight:800; line-height:1;">180+</div>
+                    <p style="font-size:13px; font-weight:700; margin-top:10px; opacity:0.8;" data-i18n="stat_schools">زيارة وشراكة مدرسية</p>
+                </div>
+                <div style="width: 1px; height: 50px; background: rgba(255,255,255,0.05);" class="hide-mobile"></div>
+                <div class="text-center" style="min-width: 150px;">
+                    <div class="syne gradient-text" style="font-size:46px; font-weight:800; line-height:1;">100%</div>
+                    <p style="font-size:13px; font-weight:700; margin-top:10px; opacity:0.8;" data-i18n="stat_privacy">خصوصية واستشارة آمنة</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- THE FIVE PILLARS -->
+        <section style="margin-top: 60px; margin-bottom: 100px;">
+            <h2 class="syne text-center mb-60 reveal active" style="font-size:38px; font-weight:800; text-align:center; letter-spacing:-1px;" data-i18n="pillars_title">أركان منصة أثر الريادية</h2>
+            
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:30px;">
+                <!-- PILLAR 1: CLUBS -->
+                <div class="glass floating-card reveal active" style="padding:40px; border-radius:32px;">
+                    <div class="pillar-icon" style="filter: drop-shadow(0 0 10px rgba(5, 217, 232, 0.4));">🤖</div>
+                    <h3 class="syne mb-15" style="font-size:22px; font-weight:700; color:var(--text-primary);" data-i18n="pillar_1_title">النوادي العلمية والثقافية</h3>
+                    <p style="opacity:0.65; line-height:1.7; font-size:15px;" data-i18n="pillar_1_desc">استكشف نوادي الروبوتيك، البرمجة، المسرح، والمطالعة ببيوت الشباب وسجل رقمياً لتطوير موهبتك والمشاركة في المسابقات.</p>
+                </div>
+
+                <!-- PILLAR 2: AWARENESS -->
+                <div class="glass floating-card reveal active" style="padding:40px; border-radius:32px;">
+                    <div class="pillar-icon" style="filter: drop-shadow(0 0 10px rgba(255, 42, 109, 0.4));">🛡️</div>
+                    <h3 class="syne mb-15" style="font-size:22px; font-weight:700; color:var(--text-primary);" data-i18n="pillar_2_title">التوعية والوقاية من الإدمان</h3>
+                    <p style="opacity:0.65; line-height:1.7; font-size:15px;" data-i18n="pillar_2_desc">مواد تعليمية وقصص نجاح ملهمة وفيديوهات هادفة تحمي العقول والأنفس وتوجه طاقات الشباب نحو المعرفة والتميز.</p>
+                </div>
+
+                <!-- PILLAR 3: TRAINING -->
+                <div class="glass floating-card reveal active" style="padding:40px; border-radius:32px;">
+                    <div class="pillar-icon" style="filter: drop-shadow(0 0 10px rgba(255, 190, 11, 0.4));">🎓</div>
+                    <h3 class="syne mb-15" style="font-size:22px; font-weight:700; color:var(--text-primary);" data-i18n="pillar_3_title">التدريب وصقل المهارات</h3>
+                    <p style="opacity:0.65; line-height:1.7; font-size:15px;" data-i18n="pillar_3_desc">دورات تدريبية متخصصة في ريادة الأعمال، القيادة الشبابية، ومواجهة ضغوط الأقران مع الحصول على شهادات تأهيل رقمية.</p>
+                </div>
+
+                <!-- PILLAR 4: SCHOOLS -->
+                <div class="glass floating-card reveal active" style="padding:40px; border-radius:32px;">
+                    <div class="pillar-icon" style="filter: drop-shadow(0 0 10px rgba(5, 217, 232, 0.4));">🏫</div>
+                    <h3 class="syne mb-15" style="font-size:22px; font-weight:700; color:var(--text-primary);" data-i18n="pillar_4_title">الربط والشراكة المدرسية</h3>
+                    <p style="opacity:0.65; line-height:1.7; font-size:15px;" data-i18n="pillar_4_desc">فتح أبواب بيوت الشباب أمام المدارس العمومية والخاصة للقيام بزيارات ميدانية، وأيام دراسية، وأنشطة فكرية موجهة لربط التعليم بالتطبيق.</p>
+                </div>
+
+                <!-- PILLAR 5: SUPPORT -->
+                <div class="glass floating-card reveal active" style="padding:40px; border-radius:32px;">
+                    <div class="pillar-icon" style="filter: drop-shadow(0 0 10px rgba(163, 0, 255, 0.4));">🩺</div>
+                    <h3 class="syne mb-15" style="font-size:22px; font-weight:700; color:var(--text-primary);" data-i18n="pillar_5_title">الاستشارات والتوجيه الآمن</h3>
+                    <p style="opacity:0.65; line-height:1.7; font-size:15px;" data-i18n="pillar_5_desc">تواصل بسرية وخصوصية مطلقة مع مستشارين وأخصائيين نفسيين واجتماعيين لحل مشاكلك والحصول على الدعم والإرشاد الفردي.</p>
+                </div>
+
+                <!-- CALL TO ACTION CARD -->
+                <div class="glass floating-card reveal active flex-center" style="padding:40px; border-radius:32px; background: rgba(255, 42, 109, 0.03); flex-direction: column; justify-content: center; text-align: center;">
+                    <h3 class="syne mb-15" style="font-size:22px; font-weight:800; color:var(--accent-pink);" data-i18n="cta_title">جاهز للمشاركة؟</h3>
+                    <p style="opacity:0.8; line-height:1.6; font-size:14px; margin-bottom: 25px;" data-i18n="cta_desc">أنشئ حسابك الرقمي المجاني اليوم وانخرط في نوادي ومحاضرات بيت الشباب المحلي القريب منك.</p>
+                    <a href="auth.html" class="btn btn-primary" style="padding: 12px 35px; border-radius: 12px; font-weight: 800; width: 100%; justify-content: center;" data-i18n="cta_btn">سجل الآن</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script type="module">
+        import { injectLayout } from '../src/js/layout.js';
+        import { setLanguage, getCurrentLang } from '../src/js/i18n.js';
+        import { initTheme, toggleTheme } from '../src/js/theme.js';
+        import { initScrollReveals } from '../src/js/animations.js';
+        import { initPWA } from '../src/js/pwa.js';
+
+        window.onload = () => {
+            // Theme setup
+            initTheme();
+            const themeToggleBtn = document.getElementById('theme-toggle-nav');
+            const sunIcon = themeToggleBtn.querySelector('.sun-icon');
+            const moonIcon = themeToggleBtn.querySelector('.moon-icon');
+
+            const updateThemeUI = (theme) => {
+                if (theme === 'dark') {
+                    sunIcon.style.display = 'block';
+                    moonIcon.style.display = 'none';
+                } else {
+                    sunIcon.style.display = 'none';
+                    moonIcon.style.display = 'block';
+                }
+            };
+
+            const initialTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+            updateThemeUI(initialTheme);
+
+            themeToggleBtn.addEventListener('click', async () => {
+                const newTheme = await toggleTheme();
+                updateThemeUI(newTheme);
+            });
+
+            // Language setup
+            const updateLangUI = (lang) => {
+                document.querySelectorAll('.lang-btn').forEach(btn => {
+                    if (btn.getAttribute('data-lang') === lang) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+            };
+
+            const currentLang = getCurrentLang();
+            setLanguage(currentLang);
+            updateLangUI(currentLang);
+
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const lang = btn.getAttribute('data-lang');
+                    setLanguage(lang);
+                    updateLangUI(lang);
+                });
+            });
+
+            injectLayout();
+            initScrollReveals();
+            initPWA();
+        };
+    </script>
+</body>
+
+</html>

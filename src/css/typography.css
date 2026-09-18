@@ -1,0 +1,45 @@
+/* typography.css - High Fashion Multilingual Typography */
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono&display=swap');
+
+body {
+    font-family: 'Cairo', 'Outfit', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: -0.01em;
+}
+
+h1,
+h2,
+h3,
+.syne {
+    font-family: 'Cairo', 'Outfit', sans-serif;
+    font-weight: 800;
+    line-height: 1.25;
+    /* Fixed clipping: increased from 0.9 */
+    letter-spacing: -0.02em;
+    margin-bottom: 20px;
+    padding-bottom: 5px;
+    /* Ensure descenders (ي, g, y) aren't cut off */
+}
+
+/* Vertical Spacing Helper (User Req: 10px spacing) */
+p,
+section,
+.card-element {
+    margin-bottom: 10px;
+}
+
+.mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85em;
+    letter-spacing: 0;
+}
+
+.gradient-text {
+    display: inline-block;
+    /* Helps with background-clip rendering */
+    background: linear-gradient(135deg, var(--neon-green) 0%, var(--neon-teal) 50%, #007AFF 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 10px rgba(0, 255, 178, 0.3));
+}

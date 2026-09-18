@@ -1,0 +1,29 @@
+{
+    "buildCommand": "node build.js",
+    "outputDirectory": "public",
+    "rewrites": [
+        {
+            "source": "/",
+            "destination": "/pages/index.html"
+        },
+        {
+            "source": "/((?!src|public|pages).*)\\.html",
+            "destination": "/pages/$1.html"
+        },
+        {
+            "source": "/((?!src|public|pages|manifest\\.json|vercel\\.json).*)",
+            "destination": "/pages/$1"
+        }
+    ],
+    "headers": [
+        {
+            "source": "/public/(.*)",
+            "headers": [
+                {
+                    "key": "Cache-Control",
+                    "value": "public, max-age=31536000, immutable"
+                }
+            ]
+        }
+    ]
+}

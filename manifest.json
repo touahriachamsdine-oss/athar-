@@ -1,0 +1,37 @@
+{
+  "name": "Athar — أثر",
+  "short_name": "أثر",
+  "description": "منصة التنمية والتوعية لبيوت الشباب والنوادي العلمية والثقافية",
+  "start_url": "/pages/dashboard.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#04060F",
+  "theme_color": "#00FFB2",
+  "dir": "rtl",
+  "lang": "ar",
+  "categories": [
+    "social",
+    "productivity"
+  ],
+  "icons": [
+    {
+      "src": "/public/logo.png",
+      "sizes": "500x500",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/public/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/public/logo.png",
+      "sizes": "500x500",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

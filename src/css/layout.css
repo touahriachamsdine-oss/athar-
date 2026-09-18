@@ -1,0 +1,67 @@
+/* layout.css - High Air Design */
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px 40px;
+}
+
+.navbar {
+    position: sticky;
+    top: 20px;
+    margin: 0 20px;
+    z-index: 1000;
+    padding: 15px 30px;
+}
+
+/* Dashboard Grid with Edge Margin */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    min-height: 100vh;
+    gap: 30px;
+    padding: 30px;
+    /* Air around the whole app */
+    background: var(--bg-dark);
+}
+
+.grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+@media (max-width: 768px) {
+    .grid-2 {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (min-width: 769px) {
+    .hide-mobile {
+        display: block;
+    }
+}
+
+@media (max-width: 768px) {
+    .hide-mobile {
+        display: none;
+    }
+}
+
+main.content-area {
+    padding: 40px;
+    border-radius: 40px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+}
+
+@media (max-width: 1024px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        padding: 20px;
+    }
+
+    .sidebar {
+        display: none;
+    }
+}
