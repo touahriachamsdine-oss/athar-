@@ -10,6 +10,7 @@ export function injectLayout() {
     const t = TRANSLATIONS[lang] || TRANSLATIONS.ar;
     const userRole = localStorage.getItem('athar_user_role');
     const isAdmin = userRole === 'admin' || userRole === 'superadmin';
+    const isGuest = !localStorage.getItem('neon_session');
 
     const navLinks = `
         <a href="dashboard.html" class="nav-item ${isActive('dashboard')}"><span>🏠</span> ${t.nav_dashboard}</a>
@@ -18,9 +19,10 @@ export function injectLayout() {
         <a href="awareness.html" class="nav-item ${isActive('awareness')}"><span>🛡️</span> ${t.nav_awareness}</a>
         <a href="training.html" class="nav-item ${isActive('training')}"><span>🎓</span> ${t.nav_training}</a>
         <a href="support.html" class="nav-item ${isActive('support')}"><span>🩺</span> ${t.nav_support}</a>
+        <a href="volunteers.html" class="nav-item ${isActive('volunteers')}"><span>🤝</span> ${t.nav_volunteers}</a>
         <hr style="border:none; border-top:1px solid var(--glass-border); margin:5px 0;">
         ${isAdmin ? `<a href="admin.html" class="nav-item ${isActive('admin')}"><span>🔑</span> ${t.nav_admin}</a>` : ''}
-        <a href="profile.html" class="nav-item ${isActive('profile')}"><span>👤</span> ${t.nav_profile}</a>
+        ${isGuest ? '' : `<a href="profile.html" class="nav-item ${isActive('profile')}"><span>👤</span> ${t.nav_profile}</a>`}
     `;
 
     const bottomControls = `
@@ -33,9 +35,13 @@ export function injectLayout() {
                 <option value="en" ${lang === 'en' ? 'selected' : ''}>🇬🇧 EN</option>
             </select>
         </div>
-        <button id="logout-btn" class="nav-item" style="color:var(--accent-pink); border:1px solid rgba(255,42,109,0.15);">
-            <span>🚪</span> ${t.nav_logout}
-        </button>
+        ${isGuest
+            ? `<a class="nav-item" href="../pages/auth.html" style="color:var(--accent-cyan); border:1px solid rgba(5,217,232,0.2);">
+                    <span>🔑</span> ${t.nav_login}
+                </a>`
+            : `<button id="logout-btn" class="nav-item" style="color:var(--accent-pink); border:1px solid rgba(255,42,109,0.15);">
+                    <span>🚪</span> ${t.nav_logout}
+                </button>`}
     `;
 
     // 1. Inject Desktop Sidebar
@@ -51,7 +57,8 @@ export function injectLayout() {
             </div>
         `;
 
-        document.getElementById('logout-btn').onclick = signOut;
+        const logoutBtn = document.getElementById('logout-btn');
+        if (logoutBtn) logoutBtn.onclick = signOut;
         document.getElementById('theme-toggle').onclick = toggleTheme;
         document.getElementById('lang-select').onchange = (e) => { setLanguage(e.target.value); window.location.reload(); };
     }

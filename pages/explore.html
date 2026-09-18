@@ -149,7 +149,7 @@
         }
 
         async function init() {
-            const auth = await requireAuth();
+            const auth = await requireAuth({ guests: true });
             if (!auth) return;
             injectLayout();
 

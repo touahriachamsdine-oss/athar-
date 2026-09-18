@@ -34,7 +34,7 @@
         import { injectLayout } from '../src/js/layout.js';
 
         async function init() {
-            await requireAuth();
+            await requireAuth({ guests: true });
             injectLayout();
 
             const id = new URLSearchParams(window.location.search).get('id');

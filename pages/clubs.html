@@ -114,7 +114,7 @@
     </main>
 
     <script type="module">
-        import { requireAuth } from '../src/js/auth.js';
+        import { requireAuth, requireUser } from '../src/js/auth.js';
         import { neon } from '../src/js/neon.js';
         import { setLanguage, getCurrentLang } from '../src/js/i18n.js';
         import { injectLayout } from '../src/js/layout.js';
@@ -159,7 +159,7 @@
         let lang = 'ar';
 
         async function init() {
-            authSession = await requireAuth();
+            authSession = await requireAuth({ guests: true });
             if (!authSession) return;
 
             lang = getCurrentLang();
@@ -183,8 +183,10 @@
             document.getElementById('lbl-filter-by').innerText = d.filter_by;
 
             // Fetch user memberships to highlight joined clubs
-            const memRes = await neon.from('club_members').select().eq('user_id', authSession.user.id);
-            memberClubIds = (memRes.data || []).map(m => m.club_id);
+            if (authSession.user) {
+                const memRes = await neon.from('club_members').select().eq('user_id', authSession.user.id);
+                memberClubIds = (memRes.data || []).map(m => m.club_id);
+            }
 
             // Fetch all clubs
             const clubsRes = await neon.from('clubs').select();
@@ -252,6 +254,7 @@
         }
 
         async function joinClub(clubId, element) {
+            if (!requireUser(authSession)) return;
             const d = DICT[lang] || DICT.ar;
             element.disabled = true;
             element.innerText = '...';

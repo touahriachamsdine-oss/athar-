@@ -144,6 +144,20 @@
             border: none !important;
             box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.25);
         }
+
+        .hero-logo {
+            width: clamp(220px, 30vw, 340px);
+            height: auto;
+            display: block;
+            margin: 0 auto 32px;
+            filter: drop-shadow(0 0 28px rgba(255, 42, 109, 0.35)) drop-shadow(0 0 60px rgba(5, 217, 232, 0.18));
+            animation: heroLogoFloat 6s ease-in-out infinite;
+        }
+
+        @keyframes heroLogoFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-9px); }
+        }
     </style>
 </head>
 
@@ -152,11 +166,7 @@
     <div class="hero-glow"></div>
 
     <!-- NAVBAR -->
-    <nav class="glass navbar flex-center" style="justify-content: space-between; border-radius: 24px; padding: 15px 30px;">
-        <div style="display:flex; align-items:center; gap:12px; height:38px; overflow:visible;">
-            <img src="../public/logo.png" alt="Athar Logo"
-                style="width:266px; height:266px; margin: -114px 0; filter: drop-shadow(0 0 15px rgba(255, 42, 109, 0.4)); object-fit: contain;">
-        </div>
+    <nav class="glass navbar flex-center" style="justify-content: flex-end; border-radius: 24px; padding: 15px 30px;">
         <div class="nav-links flex-center" style="gap:15px; align-items:center;">
             <!-- Language Selector Segmented Control -->
             <div class="lang-selector control-container">
@@ -179,17 +189,18 @@
 
     <main class="container" style="max-width:1200px; margin:0 auto; padding:0 20px;">
         <!-- HERO SECTION -->
-        <section class="hero text-center" style="padding: 100px 10px 60px; position:relative;">
+        <section class="hero text-center" style="padding: 70px 10px 40px; position:relative;">
+            <img src="../public/logo_clean.png" alt="Athar Logo" class="hero-logo">
             <div class="badge mb-20 reveal active"
-                style="background:rgba(255, 42, 109, 0.08); color:var(--accent-pink); padding:8px 24px; border-radius:100px; font-weight:700; font-size:14px; display:inline-block; box-shadow: 2px 2px 0px rgba(0,0,0,0.15);"
+                style="background:rgba(255, 42, 109, 0.08); color:var(--accent-pink); padding:7px 20px; border-radius:100px; font-weight:700; font-size:12px; display:inline-block; box-shadow: 2px 2px 0px rgba(0,0,0,0.15);"
                 data-i18n="badge_title">
                 🇩🇿 بوابة بيوت الشباب للتنمية والوقاية المبتكرة
             </div>
             <h1 class="reveal active gradient-text syne"
-                style="font-size: clamp(38px, 8vw, 85px); line-height:1.1; margin-bottom:25px; font-weight:800;"
+                style="font-size: clamp(24px, 4.5vw, 46px); line-height:1.15; margin-bottom:20px; font-weight:800;"
                 data-i18n="hero_title">أثر — المنصة الرقمية لبيوت الشباب</h1>
             <p class="reveal active mb-40"
-                style="font-size: 19px; opacity:0.75; max-width: 750px; margin-inline:auto; line-height:1.7;"
+                style="font-size: 15px; opacity:0.75; max-width: 650px; margin-inline:auto; line-height:1.7;"
                 data-i18n="hero_subtitle">تمكين، توعية، ابتكار، ووقاية من أجل غد أفضل للشباب الجزائري.</p>
 
             <div class="flex-center reveal active" style="gap:20px; justify-content:center; flex-wrap:wrap;">
@@ -263,6 +274,14 @@
                     <div class="pillar-icon" style="filter: drop-shadow(0 0 10px rgba(163, 0, 255, 0.4));">🩺</div>
                     <h3 class="syne mb-15" style="font-size:22px; font-weight:700; color:var(--text-primary);" data-i18n="pillar_5_title">الاستشارات والتوجيه الآمن</h3>
                     <p style="opacity:0.65; line-height:1.7; font-size:15px;" data-i18n="pillar_5_desc">تواصل بسرية وخصوصية مطلقة مع مستشارين وأخصائيين نفسيين واجتماعيين لحل مشاكلك والحصول على الدعم والإرشاد الفردي.</p>
+                </div>
+
+                <!-- PILLAR 6: VOLUNTEERING -->
+                <div class="glass floating-card reveal active" style="padding:40px; border-radius:32px;">
+                    <div class="pillar-icon" style="filter: drop-shadow(0 0 10px rgba(255, 42, 109, 0.4));">🤝</div>
+                    <h3 class="syne mb-15" style="font-size:22px; font-weight:700; color:var(--text-primary);" data-i18n="pillar_6_title">العمل التطوعي والأنشطة الخيرية</h3>
+                    <p style="opacity:0.65; line-height:1.7; font-size:15px; margin-bottom:25px;" data-i18n="pillar_6_desc">انخرط في أنشطة تطوعية منظمة داخل المبادرات، اكسب نقاط أثر، واحصل على شهادة تأهيل تقدّر عطاءك للمجتمع.</p>
+                    <a href="volunteers.html" class="btn btn-outline" style="width:100%; justify-content:center; padding:12px 0;" data-i18n="pillar_6_btn">استكشف الأنشطة</a>
                 </div>
 
                 <!-- CALL TO ACTION CARD -->

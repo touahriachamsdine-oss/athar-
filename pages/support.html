@@ -137,7 +137,7 @@
     </main>
 
     <script type="module">
-        import { requireAuth } from '../src/js/auth.js';
+        import { requireAuth, requireUser } from '../src/js/auth.js';
         import { neon } from '../src/js/neon.js';
         import { setLanguage, getCurrentLang } from '../src/js/i18n.js';
         import { injectLayout } from '../src/js/layout.js';
@@ -197,7 +197,7 @@
         let lang = 'ar';
 
         async function init() {
-            authSession = await requireAuth();
+            authSession = await requireAuth({ guests: true });
             if (!authSession) return;
 
             lang = getCurrentLang();
@@ -232,6 +232,7 @@
             if (tabName === 'public') {
                 await loadPublicConsultations();
             } else if (tabName === 'mine') {
+                if (!requireUser(authSession)) return;
                 await loadMyConsultations();
             }
         };
@@ -304,6 +305,7 @@
 
         window.submitConsultation = async function(event) {
             event.preventDefault();
+            if (!requireUser(authSession)) return;
             const d = DICT[lang] || DICT.ar;
             const btn = document.getElementById('btn-submit');
             btn.disabled = true;

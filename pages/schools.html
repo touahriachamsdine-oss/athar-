@@ -130,7 +130,7 @@
     </main>
 
     <script type="module">
-        import { requireAuth } from '../src/js/auth.js';
+        import { requireAuth, requireUser } from '../src/js/auth.js';
         import { neon } from '../src/js/neon.js';
         import { setLanguage, getCurrentLang } from '../src/js/i18n.js';
         import { injectLayout } from '../src/js/layout.js';
@@ -210,7 +210,7 @@
         let visits = [];
 
         async function init() {
-            authSession = await requireAuth();
+            authSession = await requireAuth({ guests: true });
             if (!authSession) return;
 
             lang = getCurrentLang();
@@ -284,6 +284,7 @@
 
         async function handleFormSubmit(e) {
             e.preventDefault();
+            if (!requireUser(authSession)) return;
             const d = DICT[lang] || DICT.ar;
 
             const name = document.getElementById('school-name').value;

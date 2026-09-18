@@ -69,7 +69,7 @@ export async function signUp(email, password, fullName, phone, wilaya, neighborh
         localStorage.setItem('athar_user_role', newProfile.role);
         neon.setToken(mockSession.token);
 
-        window.location.href = '/pages/dashboard.html';
+        redirectAfterAuth();
         return { session: mockSession };
     }
 
@@ -92,7 +92,7 @@ export async function signUp(email, password, fullName, phone, wilaya, neighborh
         const session = normalizeSession(data);
         persistSession(session);
         localStorage.setItem('athar_user_role', 'member');
-        window.location.href = '/pages/dashboard.html';
+        redirectAfterAuth();
     } catch (e) {
         return { error: e.message };
     }
@@ -141,11 +141,7 @@ export async function signIn(email, password) {
         localStorage.setItem('athar_user_role', profile.role);
         neon.setToken(mockSession.token);
 
-        if (profile.role === 'admin' || profile.role === 'superadmin') {
-            window.location.href = '/pages/admin.html';
-        } else {
-            window.location.href = '/pages/dashboard.html';
-        }
+        redirectAfterAuth();
         return { session: mockSession };
     }
 
@@ -169,11 +165,7 @@ export async function signIn(email, password) {
         const role = profile && profile[0] ? profile[0].role : 'member';
         localStorage.setItem('athar_user_role', role);
         
-        if (role === 'admin' || role === 'superadmin') {
-            window.location.href = '/pages/admin.html';
-        } else {
-            window.location.href = '/pages/dashboard.html';
-        }
+        redirectAfterAuth();
         return { session };
     } catch (e) {
         return { error: e.message };
@@ -201,11 +193,17 @@ export async function signInDemo(role = 'superadmin') {
     localStorage.setItem('athar_user_role', profile.role);
     neon.setToken(mockSession.token);
     
-    if (role === 'admin' || role === 'superadmin') {
-        window.location.href = '/pages/admin.html';
-    } else {
-        window.location.href = '/pages/dashboard.html';
+    redirectAfterAuth();
+}
+
+function redirectAfterAuth() {
+    const next = new URLSearchParams(window.location.search).get('next');
+    if (next && next.startsWith('/') && !next.startsWith('//')) {
+        window.location.href = next;
+        return;
     }
+    const role = localStorage.getItem('athar_user_role');
+    window.location.href = (role === 'admin' || role === 'superadmin') ? '/pages/admin.html' : '/pages/dashboard.html';
 }
 
 export async function signOut() {
@@ -264,10 +262,14 @@ export async function getSession() {
     return session;
 }
 
-export async function requireAuth() {
+export async function requireAuth(opts = {}) {
     const session = await getSession();
     if (!session) {
-        window.location.href = '/pages/auth.html';
+        if (opts.guests) {
+            return { guest: true, user: null, profile: null };
+        }
+        const next = encodeURIComponent(window.location.pathname + window.location.search);
+        window.location.href = `/pages/auth.html?next=${next}`;
         return null;
     }
 
@@ -277,6 +279,15 @@ export async function requireAuth() {
         localStorage.setItem('athar_user_role', profileRow.role || 'member');
     }
     return { user: session.user, profile: profileRow };
+}
+
+export function requireUser(auth) {
+    if (auth && auth.guest) {
+        const next = encodeURIComponent(window.location.pathname + window.location.search);
+        window.location.href = `/pages/auth.html?next=${next}`;
+        return false;
+    }
+    return !!auth;
 }
 
 export async function requireAdmin() {

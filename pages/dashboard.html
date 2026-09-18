@@ -193,6 +193,10 @@
             ar: {
                 welcome: 'مرحباً بك، ',
                 subtitle: 'تتبع أثرك ومشاركتك الفعالة ببيت الشباب',
+                welcome_guest: 'مرحباً بك في منصة أثر',
+                guest_cta: 'أنشئ حسابك واستفد من كل المنصة',
+                guest_desc: 'النوادي، الدورات، العمل التطوعي، ونقاط الأثر بانتظارك — التسجيل مجاني وسريع.',
+                guest_btn: 'تسجيل الدخول / إنشاء حساب',
                 my_clubs: 'النوادي المشترك بها',
                 my_training: 'الدورات التكوينية',
                 my_counseling: 'الاستشارات النفسية',
@@ -214,6 +218,10 @@
             fr: {
                 welcome: 'Bienvenue, ',
                 subtitle: 'Suivez votre impact et vos activités au foyer de jeunes',
+                welcome_guest: 'Bienvenue sur la plateforme Athar',
+                guest_cta: 'Créez votre compte et profitez de tout',
+                guest_desc: 'Clubs, formations, bénévolat et points d\'impact vous attendent — inscription gratuite.',
+                guest_btn: 'Se connecter / Créer un compte',
                 my_clubs: 'Clubs Rejoints',
                 my_training: 'Formations Suivies',
                 my_counseling: 'Consultations Privées',
@@ -235,6 +243,10 @@
             en: {
                 welcome: 'Welcome, ',
                 subtitle: 'Track your impact and active engagements in youth hostels',
+                welcome_guest: 'Welcome to the Athar platform',
+                guest_cta: 'Create your account and use the whole platform',
+                guest_desc: 'Clubs, training, volunteering and impact points await you — free and fast sign-up.',
+                guest_btn: 'Log in / Create account',
                 my_clubs: 'Joined Clubs',
                 my_training: 'Training Courses',
                 my_counseling: 'Private Support',
@@ -256,7 +268,7 @@
         };
 
         async function init() {
-            const auth = await requireAuth();
+            const auth = await requireAuth({ guests: true });
             if (!auth) return;
 
             const lang = getCurrentLang();
@@ -264,6 +276,21 @@
 
             setLanguage(lang);
             injectLayout();
+
+            if (auth.guest) {
+                document.getElementById('welcome-title').innerText = d.welcome_guest;
+                document.getElementById('welcome-subtitle').innerText = d.subtitle;
+                document.getElementById('user-points').innerText = '0';
+                ['cnt-clubs', 'cnt-courses', 'cnt-support'].forEach(id => { document.getElementById(id).innerText = '0'; });
+                document.getElementById('joined-clubs-list').innerHTML = `
+                    <div class="stat-card flex-center" style="flex-direction:column; gap:14px; padding:34px; background:rgba(5,217,232,0.04); border-radius:18px; text-align:center;">
+                        <div style="font-size:30px;">🔑</div>
+                        <div style="font-size:15px; font-weight:700;">${d.guest_cta}</div>
+                        <div style="font-size:12px; opacity:0.6; line-height:1.6;">${d.guest_desc}</div>
+                        <a class="btn btn-primary" href="/pages/auth.html" style="justify-content:center; margin-top:6px;">${d.guest_btn}</a>
+                    </div>`;
+                return;
+            }
 
             // Localize Dashboard Strings
             document.getElementById('welcome-title').innerText = `${d.welcome}${auth.profile.full_name || 'مستخدم جديد'}`;

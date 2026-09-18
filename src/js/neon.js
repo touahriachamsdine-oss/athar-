@@ -571,6 +571,62 @@ export function seedMockDB() {
         ];
         localStorage.setItem('athar_mock_db_invites', JSON.stringify(initialInvites));
     }
+
+    if (!localStorage.getItem('athar_mock_db_volunteer_sessions')) {
+        const now = Date.now();
+        const initialSessions = [
+            {
+                id: 'vs_demo',
+                initiative_id: 'init_1',
+                title_ar: 'حملة توزيع الدعم الغذائي بالحي',
+                title_fr: 'Campagne de Distribution Alimentaire',
+                title_en: 'Neighborhood Food Drive',
+                description_ar: 'مساعدة العائلات في توزيع المساعدات الغذائية وتنظيم السلال خلال شهر رمضان.',
+                description_fr: 'Aider les familles à distribuer des aides alimentaires pendant le Ramadan.',
+                description_en: 'Help families distribute food aid packages during Ramadan.',
+                location: 'Didouche Mourad, Alger',
+                start_at: new Date(now + 172800000).toISOString(),
+                end_at: new Date(now + 172800000 + 6 * 3600000).toISOString(),
+                capacity: 6,
+                status: 'approved',
+                created_by: 'admin_user_id',
+                reviewed_by: 'admin_user_id',
+                reviewed_at: new Date().toISOString(),
+                reject_reason: null,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            },
+            {
+                id: 'vs_pending',
+                initiative_id: 'init_2',
+                title_ar: 'أكاديمية التوعية ضد إدمان الشاشات',
+                title_fr: 'Académie de Sensibilisation aux Écrans',
+                title_en: 'Screen Awareness Academy',
+                description_ar: 'ورشة تفاعلية بمواد تعليمية للوقاية من إدمان الألعاب الرقمية.',
+                description_fr: 'Atelier interactif pour prévenir l\'addiction aux jeux numériques.',
+                description_en: 'Interactive prevention workshop on digital gaming addiction.',
+                location: 'Akid Lotfi, Oran',
+                start_at: new Date(now + 345600000).toISOString(),
+                end_at: new Date(now + 345600000 + 4 * 3600000).toISOString(),
+                capacity: 12,
+                status: 'pending',
+                created_by: 'member_user_1',
+                reviewed_by: null,
+                reviewed_at: null,
+                reject_reason: null,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            }
+        ];
+        localStorage.setItem('athar_mock_db_volunteer_sessions', JSON.stringify(initialSessions));
+    }
+
+    if (!localStorage.getItem('athar_mock_db_volunteer_signups')) {
+        const initialSignups = [
+            { id: 'vsg_demo', session_id: 'vs_demo', volunteer_id: 'member_user_2', status: 'registered', attended_at: null, hours: null, points_awarded: 0, created_at: new Date().toISOString() }
+        ];
+        localStorage.setItem('athar_mock_db_volunteer_signups', JSON.stringify(initialSignups));
+    }
 }
 
 class NeonClient {

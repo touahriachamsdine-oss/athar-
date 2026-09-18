@@ -80,7 +80,7 @@
     </main>
 
     <script type="module">
-        import { requireAuth } from '../src/js/auth.js';
+        import { requireAuth, requireUser } from '../src/js/auth.js';
         import { neon } from '../src/js/neon.js';
         import { setLanguage, getCurrentLang } from '../src/js/i18n.js';
         import { injectLayout } from '../src/js/layout.js';
@@ -133,7 +133,7 @@
         let lang = 'ar';
 
         async function init() {
-            authSession = await requireAuth();
+            authSession = await requireAuth({ guests: true });
             if (!authSession) return;
 
             lang = getCurrentLang();
@@ -148,8 +148,10 @@
             document.getElementById('search-input').placeholder = d.search_placeholder;
 
             // Fetch user enrollments
-            const enrollRes = await neon.from('training_enrollments').select().eq('user_id', authSession.user.id);
-            enrolledList = enrollRes.data || [];
+            if (authSession.user) {
+                const enrollRes = await neon.from('training_enrollments').select().eq('user_id', authSession.user.id);
+                enrolledList = enrollRes.data || [];
+            }
 
             // Fetch all courses
             const coursesRes = await neon.from('training_courses').select();
@@ -233,6 +235,7 @@
         }
 
         async function enrollCourse(courseId, element) {
+            if (!requireUser(authSession)) return;
             const d = DICT[lang] || DICT.ar;
             element.disabled = true;
             element.innerText = '...';
@@ -263,6 +266,7 @@
         }
 
         async function completeCourse(enrollId, element) {
+            if (!requireUser(authSession)) return;
             const d = DICT[lang] || DICT.ar;
             element.disabled = true;
             element.innerText = '...';

@@ -220,7 +220,7 @@
         let articles = [];
 
         async function init() {
-            authSession = await requireAuth();
+            authSession = await requireAuth({ guests: true });
             if (!authSession) return;
 
             lang = getCurrentLang();
@@ -300,9 +300,11 @@
             document.getElementById('result-title').innerText = d.result_title;
             document.getElementById('result-desc').innerText = d.result_desc;
 
-            // Award 50 impact points
-            const currentPoints = authSession.profile.impact_points || 0;
-            await neon.from('profiles').update({ impact_points: currentPoints + 50 }, authSession.user.id);
+            // Award 50 impact points (members only)
+            if (authSession && authSession.user && authSession.profile) {
+                const currentPoints = authSession.profile.impact_points || 0;
+                await neon.from('profiles').update({ impact_points: currentPoints + 50 }, authSession.user.id);
+            }
         }
 
         function restartQuiz() {
