@@ -290,6 +290,9 @@ async function runSuite() {
                 await neon.rpc('record_quiz_attempt', { p_content_id: art.id, p_passed: true, p_score: 2 });
                 assert(getPoints(member.id) === before + 50, 'quiz re-attempt does not re-award');
             }
+
+            const platformStats = await neon.rpc('get_platform_stats');
+            assert(platformStats.data && platformStats.data.clubs === 4, 'get_platform_stats returns the seeded club count (4)');
         }
 
         store['athar_mock_mode'] = 'false';

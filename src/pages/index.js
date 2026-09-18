@@ -3,8 +3,9 @@ import { setLanguage, getCurrentLang } from '../js/i18n.js';
 import { initTheme, toggleTheme } from '../js/theme.js';
 import { initScrollReveals } from '../js/animations.js';
 import { initPWA } from '../js/pwa.js';
+import { neon } from '../js/neon.js';
 
-window.onload = () => {
+window.onload = async () => {
     // Theme setup
     initTheme();
     const themeToggleBtn = document.getElementById('theme-toggle-nav');
@@ -53,6 +54,17 @@ window.onload = () => {
     });
 
     injectLayout();
+    const stats = await neon.rpc('get_platform_stats');
+    const s = stats && stats.data;
+    if (s) {
+        const nums = document.querySelectorAll('.hero-stat-num');
+        if (nums.length === 4 && document.querySelector('[data-i18n="stat_volunteer_hours"]')) {
+            nums[0].textContent = s.clubs ?? '0';
+            nums[1].textContent = s.members ?? '0';
+            nums[2].textContent = s.school_visits ?? '0';
+            nums[3].textContent = s.volunteer_hours ?? '0';
+        }
+    }
     initScrollReveals();
     initPWA();
 };
