@@ -101,21 +101,21 @@ git -c user.name=anouar -c user.email=anouar@local commit -m "feat(security): es
 - [ ] **Step 1: Write the failing schema tests** — extend `tests/run_tests.js` Phase 6 with these assertions (place after the existing `Schema defines table ...` block)
 
 ```js
-assert(SCHEMA.includes('create table public.points_ledger'), 'Schema defines table points_ledger');
-assert(SCHEMA.includes('create table public.awareness_quiz_attempts'), 'Schema defines table awareness_quiz_attempts');
-assert(SCHEMA.includes('function public.try_award_points'), 'Schema defines function try_award_points');
-assert(SCHEMA.includes('function public.record_quiz_attempt'), 'Schema defines function record_quiz_attempt');
-assert(SCHEMA.includes('function public.get_impact_summary'), 'Schema defines function get_impact_summary');
-assert(SCHEMA.includes('function public.get_platform_stats'), 'Schema defines function get_platform_stats');
-assert(SCHEMA.includes('function public.award_points_admin'), 'Schema defines function award_points_admin');
-assert(SCHEMA.includes("school_type in ('public','private')"), 'school_visits accepts public/private school types');
-assert(SCHEMA.includes("activity_type in ('awareness_day','hostel_visit','competition','partnership')"), 'school_visits accepts product activity types');
-assert(SCHEMA.includes('create trigger trg_club_join_points'), 'Schema defines club-join points trigger');
-assert(SCHEMA.includes('create trigger trg_training_complete_points'), 'Schema defines training-complete points trigger');
-assert(SCHEMA.includes('create trigger trg_school_visit_points'), 'Schema defines school-visit points trigger');
+assert(schemaSql.includes('create table public.points_ledger'), 'Schema defines table points_ledger');
+assert(schemaSql.includes('create table public.awareness_quiz_attempts'), 'Schema defines table awareness_quiz_attempts');
+assert(schemaSql.includes('function public.try_award_points'), 'Schema defines function try_award_points');
+assert(schemaSql.includes('function public.record_quiz_attempt'), 'Schema defines function record_quiz_attempt');
+assert(schemaSql.includes('function public.get_impact_summary'), 'Schema defines function get_impact_summary');
+assert(schemaSql.includes('function public.get_platform_stats'), 'Schema defines function get_platform_stats');
+assert(schemaSql.includes('function public.award_points_admin'), 'Schema defines function award_points_admin');
+assert(schemaSql.includes("school_type in ('public','private')"), 'school_visits accepts public/private school types');
+assert(schemaSql.includes("activity_type in ('awareness_day','hostel_visit','competition','partnership')"), 'school_visits accepts product activity types');
+assert(schemaSql.includes('create trigger trg_club_join_points'), 'Schema defines club-join points trigger');
+assert(schemaSql.includes('create trigger trg_training_complete_points'), 'Schema defines training-complete points trigger');
+assert(schemaSql.includes('create trigger trg_school_visit_points'), 'Schema defines school-visit points trigger');
 ```
 
-(`SCHEMA` is the variable already read from `sql/schema.sql` in Phase 6 — reuse it.)
+(`schemaSql` is the variable already read from `sql/schema.sql` in Phase 6 — reuse it.)
 
 - [ ] **Step 2: Write the failing mock-parity tests** — append a Phase 4C block to `tests/run_tests.js` (the mock env is bootstrapped in Phase 1 with a seeded DB)
 
@@ -124,7 +124,6 @@ console.log(`\n${BOLD}${CYAN}[Phase 4C: Mock Points Parity]${RESET}`);
 {
     const { seedMockDB } = await import('../src/js/neon.js?mockpoints-' + Date.now());
     seedMockDB();
-    const sessions = JSON.parse(localStorage.getItem('athar_mock_db_sessions') || '{}');
     const profiles = JSON.parse(localStorage.getItem('athar_mock_db_profiles') || '[]');
     const getPoints = (id) => (profiles.find(p => p.id === id) || {}).impact_points || 0;
 
@@ -311,7 +310,7 @@ $$;
   end loop;
 ```
 
-Add to the function's `declare` block: `r_row record;` and rename the loop variable accordingly (the function must keep its exact signature and the `return jsonb_build_object('status','completed','per_volunteer',v_points,'attended',v_attended);`).
+Add to the function's `declare` block: `v_row record;` (the loop already names it `v_row`; the function must keep its exact signature and its final `return jsonb_build_object('status','completed','per_volunteer',v_points,'attended',v_attended);`).
 
 - [ ] **Step 6: Mirror in the mock** — `src/js/neon.js`
   - In `rpc()` (the mock `rpc` dispatch that currently returns `{error:{code:'unknown_rpc'}}` at neon.js:184 for unknown fns), add handlers *before* the unknown fallback:
@@ -371,12 +370,15 @@ async function mockImpactSummary(userId) {
     return { data: { total_points: total, breakdown, badge_tier: tier }, error: null };
 }
 async function mockPlatformStats() {
-    const db = JSON.parse(localStorage.getItem('athar_mock_db_sessions') || '{}');
+    const clubs = JSON.parse(localStorage.getItem('athar_mock_db_clubs') || '[]');
+    const profilesCount = JSON.parse(localStorage.getItem('athar_mock_db_profiles') || '[]').length;
+    const schoolVisits = JSON.parse(localStorage.getItem('athar_mock_db_school_visits') || '[]');
+    const signups = JSON.parse(localStorage.getItem('athar_mock_db_volunteer_signups') || '[]');
     return { data: {
-        clubs: (db.clubs || []).length,
-        members: (db.profiles || []).length,
-        school_visits: (db.school_visits || []).length,
-        volunteer_hours: (db.volunteer_signups || []).reduce((s, v) => s + (v.hours || 0), 0)
+        clubs: clubs.length,
+        members: profilesCount,
+        school_visits: schoolVisits.length,
+        volunteer_hours: signups.reduce((s, v) => s + (v.hours || 0), 0)
     }, error: null };
 }
 async function mockAwardAdmin(userId, amount, reason) {
@@ -725,14 +727,16 @@ git -c user.name=anouar -c user.email=anouar@local commit -m "feat(csp): externa
 
 - [ ] **Step 7: Seed notifications in demo** — in `seedMockDB` (neon.js) add two `notifications` rows for a member (types `invite` and `volunteer_approved`) so the demo inbox is non-empty and the empty-state code path is only exercised in real mode.
 
-- [ ] **Step 8: Verify**
+- [ ] **Step 8: `admin.js` point controls → `award_points_admin` RPC** — `src/pages/admin.js` contains a "points" control that today writes target users' `profiles` (blocked by the Task 3 gateway lock). Change `addPoints` (and any remove/`adjustPoints` that uses `neon.from('profiles').update`) to call `neon.rpc('award_points_admin', { p_user_id, p_amount: <signed int, e.g. -10 for removal or withdraw>, p_reason: 'admin_adjustment' })` and refresh the target's points from the returned payload. The control keeps working against the server RPC, never the profiles table. (Role-change controls remain Phase B.)
+
+- [ ] **Step 9: Verify**
 
 Run: `node build.js`; then `node tests/run_tests.js`; `node tests/api_test.js`; `node tests/auth_contract_test.js`. Spot-check on http://localhost:8080 that joining a club as the demo member yields a +100 toast-style success without any profiles write error (watch the network tab: no `POST /api/action` with `table:profiles` in mock; in mock there is no network, in real mode the insert succeeds and the trigger awards).
 
-- [ ] **Step 9: Commit**
+- [ ] **Step 10: Commit**
 
 ```bash
-git add src/pages/clubs.js src/pages/training.js src/pages/awareness.js src/pages/schools.js src/pages/notifications.js src/js/neon.js tests/run_tests.js
+git add src/pages/clubs.js src/pages/training.js src/pages/awareness.js src/pages/schools.js src/pages/notifications.js src/pages/admin.js src/js/neon.js tests/run_tests.js
 git -c user.name=anouar -c user.email=anouar@local commit -m "feat(points): pages award through ledger rpc/triggers; real notifications empty-state"
 ```
 
