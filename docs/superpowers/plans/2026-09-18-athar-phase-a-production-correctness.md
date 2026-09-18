@@ -126,7 +126,7 @@ console.log(`\n${BOLD}${CYAN}[Phase 4C: Mock Points Parity]${RESET}`);
     const { seedMockDB } = await import('../src/js/neon.js?mockpoints-' + Date.now());
     seedMockDB();
     const profiles = JSON.parse(localStorage.getItem('athar_mock_db_profiles') || '[]');
-    const getPoints = (id) => (profiles.find(p => p.id === id) || {}).impact_points || 0;
+    const getPoints = (id) => (JSON.parse(localStorage.getItem('athar_mock_db_profiles') || '[]').find(p => p.id === id) || {}).impact_points || 0;
 
     // pick a member and a club they do NOT belong to
     const member = profiles.find(p => p.role === 'member');
