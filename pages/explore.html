@@ -77,13 +77,9 @@
             <input type="text" id="search-input" class="input-field" placeholder="🔍 ابحث..." style="max-width:260px; margin-bottom:0; padding:12px 20px;">
         </header>
 
-        <!-- Category filters -->
+        <!-- Category filters (per-category chips rendered from APP_CONFIG.categories in explore.js) -->
         <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:35px;" id="filters">
             <button class="filter-btn active" data-cat="all" id="filter-all">الكل</button>
-            <button class="filter-btn" data-cat="clubs">🤖 النوادي</button>
-            <button class="filter-btn" data-cat="awareness">🛡️ التوعية</button>
-            <button class="filter-btn" data-cat="training">🎓 التدريب</button>
-            <button class="filter-btn" data-cat="schools">🏫 المدارس</button>
         </div>
 
         <div id="explore-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px,1fr)); gap:25px;">
