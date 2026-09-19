@@ -54,6 +54,21 @@ async function run() {
     out = await processAction({ action: 'signout' }, meta);
     assert(out.status === 200 && out.body.data.status === 'signed_out', 'signout is client-side only');
 
+    console.log('\n[Phase 2B] Password recovery (proxied to GoTrue)');
+    calls.length = 0;
+    out = await processAction({ action: 'recover', email: 'a@b.c' }, meta);
+    const recCall = calls.find((c) => c.url.endsWith('/recover'));
+    assert(out.status === 200 && recCall && recCall.opts.method === 'POST', 'recover POSTs to /v1/recover');
+    assert(recCall && JSON.parse(recCall.opts.body).email === 'a@b.c', 'recover carries the email');
+    assert(recCall && recCall.opts.headers.apikey === 'anon-key', 'recover uses the anon apikey');
+
+    calls.length = 0;
+    out = await processAction({ action: 'update_password', token: 'reset-tok', password: 'NewPass1!' }, meta);
+    const upCall = calls.find((c) => c.url.endsWith('/user'));
+    assert(out.status === 200 && upCall && upCall.opts.method === 'PUT', 'update_password PUTs to /v1/user');
+    assert(upCall && upCall.opts.headers.Authorization === 'Bearer reset-tok', 'update_password carries the reset token');
+    assert(upCall && JSON.parse(upCall.opts.body).password === 'NewPass1!', 'update_password carries the new password');
+
     console.log('\n[Phase 3] Mutations (RLS-protected proxy)');
     calls.length = 0;
     out = await processAction({ action: 'insert', token: 'abc.eyJzdWIiOiJ1c2VyLTEifQ.xyz', table: 'initiatives', payload: { title: 'T' } }, meta);

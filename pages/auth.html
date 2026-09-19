@@ -41,6 +41,10 @@
             <input type="email" id="email" placeholder="البريد الإلكتروني" class="input-field" required>
             <input type="password" id="password" placeholder="كلمة المرور" class="input-field" required>
 
+            <div id="forgot-row" style="display:flex; justify-content:flex-end; margin-top:2px;">
+                <button type="button" id="forgot-btn" style="background:none; border:none; color:var(--accent-pink); cursor:pointer; font-size:13px; opacity:0.85; font-weight:600;">نسيت كلمة المرور؟</button>
+            </div>
+
             <button type="submit" id="submit-btn" class="btn btn-primary mt-20" style="width:100%; justify-content:center;">دخول</button>
 
             <div style="display:flex; align-items:center; margin: 15px 0;">
@@ -59,6 +63,19 @@
                 style="background:none; border:none; color:var(--accent-pink); cursor:pointer; font-size:14px; opacity:0.8; font-weight:600;">
                 ليس لديك حساب؟ إنشاء حساب جديد
             </button>
+        </div>
+    </div>
+
+    <div id="forgot-overlay" style="display:none; position:fixed; inset:0; z-index:2000; background:rgba(6,5,15,0.7); backdrop-filter:blur(6px); align-items:center; justify-content:center; padding:20px;">
+        <div class="glass" style="width:100%; max-width:420px; padding:35px; border-radius:30px;">
+            <h2 class="syne" id="forgot-title" style="font-size:22px; font-weight:800; margin-bottom:8px;">استعادة كلمة المرور</h2>
+            <p id="forgot-sub" style="font-size:13px; opacity:0.8; margin-bottom:24px; line-height:1.6;">أدخل بريدك الإلكتروني وسنرسل لك رابط إعادة التعيين</p>
+            <form id="forgot-form" style="display:flex; flex-direction:column; gap:16px;">
+                <input type="email" id="forgot-email" class="input-field" required placeholder="البريد الإلكتروني" style="width:100%;">
+                <button type="submit" id="forgot-send" class="btn btn-primary" style="width:100%; justify-content:center;">إرسال رابط الاستعادة</button>
+            </form>
+            <div id="forgot-msg" style="margin-top:16px; font-size:13px; text-align:center; min-height:18px; line-height:1.5;"></div>
+            <button id="forgot-cancel" style="margin-top:10px; background:none; border:none; color:var(--text-dim); cursor:pointer; width:100%; font-size:13px;">إغلاق</button>
         </div>
     </div>
 
