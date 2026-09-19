@@ -3,6 +3,7 @@ import { neon } from '../js/neon.js';
 import { injectLayout } from '../js/layout.js';
 import { getCurrentLang } from '../js/i18n.js';
 import { timeAgo } from '../js/utils.js';
+import { ic } from '../js/icons.js';
 
 const DICT = {
     ar: { page: 'التنبيهات', subtitle: 'آخر الأخبار والتحديثات', mark_all: '✓ تحديد الكل كمقروء', empty_state: 'لا توجد إشعارات بعد' },
@@ -19,7 +20,7 @@ const MOCK_NOTIFS = [
 ];
 
 const TYPE_COLORS = { success: 'var(--accent-cyan)', info: 'var(--accent-purple)', warning: 'var(--accent-amber)', error: 'var(--accent-pink)' };
-const TYPE_ICONS  = { success: '✅', info: '💡', warning: '⚠️', error: '❌' };
+const TYPE_ICONS  = { success: 'checkRound', info: 'bulb', warning: 'alert', error: 'x' };
 
 async function init() {
     const auth = await requireAuth();
@@ -49,19 +50,19 @@ async function init() {
     const list = document.getElementById('notif-list');
 
     if (!notifs.length) {
-        list.innerHTML = `<div class="empty-state"><div>🔔</div><p>${t.empty_state}</p></div>`;
+        list.innerHTML = `<div class="empty-state"><div>${ic('bell', 26)}</div><p>${t.empty_state}</p></div>`;
         return;
     }
 
     list.innerHTML = notifs.map(n => `
         <div class="notif-card ${!n.is_read ? 'unread' : ''}" data-id="${n.id}">
             <div style="display:flex; align-items:flex-start; gap:15px;">
-                <div style="font-size:22px; margin-top:2px;">${TYPE_ICONS[n.type] || '🔔'}</div>
+                <div style="display:flex; margin-top:2px;">${ic(TYPE_ICONS[n.type] || 'bell', 22)}</div>
                 <div style="flex:1;">
                     <div style="font-size:15px; font-weight:${n.is_read ? '500' : '700'}; line-height:1.5;">
                         ${n[titleKey] || n.title_ar}
                     </div>
-                    <div class="mono" style="font-size:11px; opacity:0.4; margin-top:6px;">
+                    <div class="mono" style="font-size:11px; opacity:0.75; margin-top:6px;">
                         ${timeAgo(n.created_at, lang)}
                     </div>
                 </div>

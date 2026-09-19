@@ -2,6 +2,7 @@ import { neon } from '../js/neon.js';
 import { requireAuth } from '../js/auth.js';
 import { injectLayout } from '../js/layout.js';
 import { esc } from '../js/utils.js';
+import { ic } from '../js/icons.js';
 
 async function init() {
     await requireAuth({ guests: true });
@@ -17,7 +18,7 @@ async function init() {
                 <div style="flex:1; min-width:300px;">
                     <div class="badge mb-20" style="background:var(--neon-teal); color:black;">${esc(initia.category.toUpperCase())}</div>
                     <h1 class="gradient-text reveal active" style="font-size:clamp(32px, 5vw, 64px);">${esc(initia.title_ar)}</h1>
-                    <p class="mt-40 mono" style="font-size:18px; opacity:0.7;">📍 ${esc(initia.wilaya)} — ${esc(initia.neighborhood)}</p>
+                    <p class="mt-40 mono" style="font-size:18px; opacity:0.85;">${ic('pin', 17)} ${esc(initia.wilaya)} — ${esc(initia.neighborhood)}</p>
                     <p class="mt-40" style="font-size:20px; line-height:1.6; opacity:0.9;">${esc(initia.description_ar)}</p>
                     <div class="mt-40" style="display:flex; gap:20px;">
                         <button class="btn btn-primary" id="join-init-btn">انضم الآن</button>
@@ -39,7 +40,7 @@ async function init() {
                  <div class="glass" style="padding:40px; border-radius:30px;">
                     <h3 class="syne mb-20">PROPOSED MILESTONES</h3>
                     <div style="padding-left:20px; border-left:1px solid var(--glass-border);">
-                        <p style="opacity:0.6;">No milestones updated yet by the organizer.</p>
+                        <p style="opacity:0.8;">No milestones updated yet by the organizer.</p>
                     </div>
                  </div>
                   

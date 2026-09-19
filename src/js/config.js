@@ -39,12 +39,12 @@ export const APP_CONFIG = {
         [24.553, 9.486], [33.95, 5.923], [30.581, 2.882]
     ],
     categories: [
-        { id: 'robotics', icon: '🤖', ar: 'الروبوتيك الذكي', fr: 'Robotique', en: 'Robotics' },
-        { id: 'programming', icon: '💻', ar: 'البرمجة والتطوير', fr: 'Programmation', en: 'Programming' },
-        { id: 'theater', icon: '🎭', ar: 'المسرح والفنون', fr: 'Théâtre', en: 'Theater' },
-        { id: 'music', icon: '🎵', ar: 'الموسيقى والأنشطة', fr: 'Musique', en: 'Music' },
-        { id: 'reading', icon: '📚', ar: 'المطالعة والنقاش', fr: 'Lecture', en: 'Reading' },
-        { id: 'other', icon: '✨', ar: 'أخرى', fr: 'Autre', en: 'Other' }
+{ id: 'robotics', icon: 'robot', ar: 'الروبوتيك الذكي', fr: 'Robotique', en: 'Robotics' },
+    { id: 'programming', icon: 'code', ar: 'البرمجة والتطوير', fr: 'Programmation', en: 'Programming' },
+    { id: 'theater', icon: 'theater', ar: 'المسرح والفنون', fr: 'Théâtre', en: 'Theater' },
+    { id: 'music', icon: 'music', ar: 'الموسيقى والأنشطة', fr: 'Musique', en: 'Music' },
+    { id: 'reading', icon: 'book', ar: 'المطالعة والنقاش', fr: 'Lecture', en: 'Reading' },
+    { id: 'other', icon: 'sparkle', ar: 'أخرى', fr: 'Autre', en: 'Other' }
     ],
     steps: [
         { n: 1, ar: 'التسجيل في النادي', fr: 'Inscription au Club', en: 'Club Registration' },

@@ -168,7 +168,7 @@ function renderApprovalsQueue(pendingList) {
     const container = document.getElementById('pending-list');
     if (pendingList.length === 0) {
         container.innerHTML = `
-            <div style="text-align:center; padding:40px; opacity:0.6;" data-i18n="admin_no_pending">
+            <div style="text-align:center; padding:40px; opacity:0.78;" data-i18n="admin_no_pending">
                 ${dictionary.admin_no_pending}
             </div>
         `;
@@ -182,7 +182,7 @@ function renderApprovalsQueue(pendingList) {
             <div class="glass flex-center" style="padding:24px; justify-content:space-between; border-radius:20px; flex-wrap:wrap; gap:20px;">
                 <div>
                     <div style="font-weight:700; font-size:18px; margin-bottom:4px;">${esc(title)}</div>
-                    <div style="font-size:13px; opacity:0.6; margin-bottom:10px;">${esc(desc)}</div>
+                    <div style="font-size:13px; opacity:0.78; margin-bottom:10px;">${esc(desc)}</div>
                     <div style="display:flex; gap:10px; font-size:11px;">
                         <span class="badge" style="background:rgba(255, 42, 109, 0.08); color:var(--accent-pink);">${esc(i.category)}</span>
                         <span class="badge" style="background:rgba(5, 217, 232, 0.08); color:var(--accent-cyan);">Wilaya ${esc(i.wilaya)}</span>
@@ -216,7 +216,7 @@ function renderUsersTable(users) {
                 return `<span class="badge" style="background:rgba(5, 217, 232, 0.08); color:var(--accent-cyan); font-size:11px; padding:4px 8px; border-radius:6px; margin:2px; display:inline-block;">${esc(name)}</span>`;
             }).join('');
         } else {
-            clubsHtml = `<span style="opacity:0.45; font-size:12px;">${dictionary.admin_no_club || '—'}</span>`;
+            clubsHtml = `<span style="opacity:0.7; font-size:12px;">${dictionary.admin_no_club || '—'}</span>`;
         }
 
         // Get User Initiatives
@@ -230,7 +230,7 @@ function renderUsersTable(users) {
                 return `<span class="badge" style="background:rgba(163, 0, 255, 0.08); color:var(--accent-purple); font-size:11px; padding:4px 8px; border-radius:6px; margin:2px; display:inline-block;">${esc(title)}</span>`;
             }).join('');
         } else {
-            initsHtml = `<span style="opacity:0.45; font-size:12px;">${dictionary.admin_no_initiative || '—'}</span>`;
+            initsHtml = `<span style="opacity:0.7; font-size:12px;">${dictionary.admin_no_initiative || '—'}</span>`;
         }
 
         return `

@@ -4,6 +4,7 @@ import { setLanguage, getCurrentLang } from '../js/i18n.js';
 import { injectLayout } from '../js/layout.js';
 import { esc } from '../js/utils.js';
 import { APP_CONFIG } from '../js/config.js';
+import { ic } from '../js/icons.js';
 
 const DICT = {
     ar: {
@@ -212,7 +213,10 @@ const STORY_PALETTES = [
     ['#8ac926', '#2a9d8f']
 ];
 const STORY_TTL = 24 * 3600000;
-const STICKERS = ['🧤', '🌱', '🚰', '🌊', '🎨', '📦', '🏥', '🤝'];
+const STICKERS = ['hands', 'sprout', 'drop', 'wave', 'palette', 'box', 'cross'];
+const STICKER_SVG = { hands: 'hands', sprout: 'sprout', drop: 'drop', wave: 'wave', palette: 'palette', box: 'box', cross: 'cross', gloves: 'hands' };
+const stickerHtml = key => key ? (STICKER_SVG[key] ? ic(STICKER_SVG[key], 22) : key) : ic('camera', 22);
+const liveHeart = (liked) => ic(liked ? 'heartFill' : 'heart', 15);
 const GEO = { lonMin: -8.7, lonMax: 10.2, latMin: 18.9, latMax: 37.4 };
 const MAP_W = 620;
 const MAP_H = 620;
@@ -308,7 +312,7 @@ function renderHeatmap() {
         <div class="heat-cell"><span class="heat-swatch" style="background:#3a4060"></span> ${t('heat_low')}</div>
         <div class="heat-cell"><span class="heat-swatch" style="background:#05d9e8"></span> ${t('heat_mid')}</div>
         <div class="heat-cell"><span class="heat-swatch" style="background:#ffbe0b"></span> ${t('heat_high')}</div>
-        <div class="heat-cell"><span class="heat-swatch" style="background:#ff2a6d"></span> ${t('heat_high')} 🔥</div>`;
+        <div class="heat-cell"><span class="heat-swatch" style="background:#ff2a6d"></span> ${t('heat_high')} ${ic('sparkle', 13)}</div>`;
 }
 
 function renderStories() {
@@ -321,13 +325,13 @@ function renderStories() {
             const liked = (s.likes || []).includes(meId);
             return `
             <button class="story-card" data-story="${s.id}" style="background:linear-gradient(150deg,${c1},${c2});" data-lang="story">
-                <span class="story-sticker">${s.sticker || '📸'}</span>
-                <span class="story-wilaya">📍 ${esc(s.wilaya || '')}</span>
-                <span class="story-time">⏳ ${storyHoursLeft(s)}h</span>
-                <span class="story-likes">${liked ? '❤️' : '🤍'} ${(s.likes || []).length}</span>
+                <span class="story-sticker">${stickerHtml(s.sticker)}</span>
+                <span class="story-wilaya">${ic('pin', 13)} ${esc(s.wilaya || '')}</span>
+                <span class="story-time">${ic('hourglass', 13)} ${storyHoursLeft(s)}h</span>
+                <span class="story-likes">${liveHeart(liked)} ${(s.likes || []).length}</span>
             </button>`;
         }).join('')
-        : `<div style="grid-column:1/-1; text-align:center; opacity:0.5; padding:40px;">${t('lb_empty')}</div>`;
+        : `<div style="grid-column:1/-1; text-align:center; opacity:0.78; padding:40px;">${t('lb_empty')}</div>`;
 
     grid.querySelectorAll('.story-card').forEach(btn => {
         btn.onclick = () => openStoryViewer(alive.find(s => s.id === btn.getAttribute('data-story')));
@@ -344,13 +348,13 @@ function openStoryViewer(story) {
     overlay.innerHTML = `
         <div class="story-view" style="background:linear-gradient(160deg,${c1},${c2});">
             <div class="story-view-head">
-                <div class="story-view-author"><strong>${esc(story.author || '')}</strong> · 📍 ${esc(story.wilaya || '')}</div>
-                <div class="story-view-time">⏳ ${storyHoursLeft(story)}h — ${t('live')}</div>
+                <div class="story-view-author"><strong>${esc(story.author || '')}</strong> · ${ic('pin', 13)} ${esc(story.wilaya || '')}</div>
+                <div class="story-view-time">${ic('hourglass', 13)} ${storyHoursLeft(story)}h — ${t('live')}</div>
             </div>
-            <div class="story-view-art">${story.sticker || '📸'}</div>
+            <div class="story-view-art">${stickerHtml(story.sticker)}</div>
             <div class="story-view-cap">${esc(lang === 'ar' ? story.caption_ar : lang === 'fr' ? story.caption_fr : story.caption_en)}</div>
             <div class="story-view-actions">
-                ${meId ? `<button class="btn btn-primary" id="sv-like">${liked ? '❤️' : '🤍'} ${t('story_likes')} (${(story.likes || []).length})</button>` : ''}
+                ${meId ? `<button class="btn btn-primary" id="sv-like">${liveHeart(liked)} ${t('story_likes')} (${(story.likes || []).length})</button>` : ''}
                 <button class="btn btn-outline" id="sv-close">${t('close')}</button>
             </div>
         </div>`;
@@ -377,9 +381,9 @@ function renderSquads() {
             const sq = upcoming.filter(s => (s.location || '').toLowerCase().includes(w.toLowerCase()));
             const members = sq.reduce((n, s) => n + signups.filter(x => x.session_id === s.id && ['registered', 'attended'].includes(x.status)).length, 0);
             const hours = sq.reduce((n, s) => n + (new Date(s.end_at) - new Date(s.start_at)) / 3600000, 0);
-            return `<button class="squad-chip" data-wilaya="${esc(w)}"><span>${i % 2 ? '🤝' : '⚡'}</span><strong>${esc(w)}</strong><small>${sq.length} ${t('missions')} · ${members} 👥 · ${hours}h</small></button>`;
+            return `<button class="squad-chip" data-wilaya="${esc(w)}"><span>${i % 2 ? ic('hands', 17) : ic('zap', 17)}</span><strong>${esc(w)}</strong><small>${sq.length} ${t('missions')} · ${members} ${ic('users', 12)} · ${hours}h</small></button>`;
         }).join('')
-        : `<div style="grid-column:1/-1; text-align:center; opacity:0.5; padding:30px;">${t('no_sessions')}</div>`;
+        : `<div style="grid-column:1/-1; text-align:center; opacity:0.78; padding:30px;">${t('no_sessions')}</div>`;
 
     grid.querySelectorAll('.squad-chip').forEach(chip => {
         chip.onclick = () => {
@@ -397,8 +401,8 @@ function renderSquads() {
         const minutesLeft = Math.max(0, Math.ceil((new Date(emS.end_at) - new Date()) / 60000));
         em.innerHTML = `
             <div style="flex:1">
-                <strong>🚨 ${t('emergency_title')} — ${esc(lang === 'ar' ? emS.title_ar : lang === 'fr' ? emS.title_fr : emS.title_en)}</strong>
-                <div style="opacity:0.75; font-size:13px; margin-top:4px;">${t('emergency_sub')} · ${esc(emS.location || '')} · ⏳ ${minutesLeft} min · 👥 ${seated}/${emS.capacity}</div>
+                <strong>${ic('alert', 15)} ${t('emergency_title')} — ${esc(lang === 'ar' ? emS.title_ar : lang === 'fr' ? emS.title_fr : emS.title_en)}</strong>
+                <div style="opacity:0.88; font-size:13px; margin-top:4px;">${t('emergency_sub')} · ${esc(emS.location || '')} · ${ic('hourglass', 12)} ${minutesLeft} min · ${ic('users', 12)} ${seated}/${emS.capacity}</div>
             </div>
             <button class="btn btn-primary act" data-act="signup" data-id="${emS.id}" style="padding:10px 24px;">${t('join_now')}</button>`;
         em.querySelector('.act').onclick = () => act('signup', emS.id, em.querySelector('.act'));
@@ -420,7 +424,12 @@ function renderLeaderboard() {
         .filter(r => (r.rsvps + r.posts + r.likesReceived + (r.p.impact_points || 0)) > 0)
         .sort((a, b) => b.score - a.score);
     const meId = uid();
-    const medals = ['🥇', '🥈', '🥉'];
+    const RANK_ICONS = [
+    { k: 'crown', c: '#FFBE0B' },
+    { k: 'trophy', c: '#C9CDDA' },
+    { k: 'award', c: '#B06B39' }
+];
+const rankMedal = (i) => RANK_ICONS[i] ? ic(RANK_ICONS[i].k, 16, { stroke: RANK_ICONS[i].c }) : (i + 1);
     const list = rows.slice(0, 5);
     if (meId && !list.some(r => String(r.p.id) === String(meId))) {
         const mine = rows.find(r => String(r.p.id) === String(meId));
@@ -431,9 +440,9 @@ function renderLeaderboard() {
             const isMe = String(r.p.id) === String(meId);
             return `
             <div class="lb-row ${isMe ? 'lb-me' : ''}">
-                <span class="lb-medal">${medals[i] || (i + 1)}</span>
-                <span class="lb-name">${esc(r.p.full_name || '…')} ${isMe ? '<small style="opacity:0.5">(' + t('lb_you') + ')</small>' : ''}</span>
-                <span class="lb-stats">${t('rank_label')} ${i + 1} · RSVP ${r.rsvps} · 📸 ${r.posts} · ❤️ ${r.likesReceived}</span>
+                <span class="lb-medal">${rankMedal(i)}</span>
+                <span class="lb-name">${esc(r.p.full_name || '…')} ${isMe ? '<small style="opacity:0.75">(' + t('lb_you') + ')</small>' : ''}</span>
+                <span class="lb-stats">${t('rank_label')} ${i + 1} · RSVP ${r.rsvps} · ${ic('camera', 12)} ${r.posts} · ${ic('heart', 12)} ${r.likesReceived}</span>
                 <strong class="lb-score">${r.score} ${t('lb_points')}</strong>
             </div>`;
         }).join('')
@@ -478,7 +487,7 @@ function renderCard(s) {
     } else if (s.status === 'approved' && past && canManage(s.id) && s.status !== 'completed') {
         action = `<button class="btn btn-primary act" data-act="complete" data-id="${s.id}" style="width:100%; justify-content:center;">${t('complete')}</button>`;
     } else {
-        action = `<div style="text-align:center; font-size:12px; font-weight:800; opacity:0.5;">${
+        action = `<div style="text-align:center; font-size:12px; font-weight:800; opacity:0.7;">${
             s.status === 'completed' ? t('completed') : s.status === 'rejected' ? t('rejected') : t('past')
         }</div>`;
     }
@@ -489,10 +498,10 @@ function renderCard(s) {
                 <span class="status-pill ${statusClass}">${statusLabel}</span>${mineTxt}
             </div>
             <h3 class="syne mb-10" style="font-size:19px; font-weight:800;">${titleOf(s)}</h3>
-            <p style="font-size:13px; opacity:0.65; line-height:1.6; margin-bottom:18px; flex:1;">${descOf(s) || ''}</p>
-            <div class="vs-row" style="margin-bottom:6px;">📍 ${esc(s.location || '')}</div>
-            <div class="vs-row" style="margin-bottom:18px;">📅 ${fmt(s.start_at)}</div>
-            <div class="vs-row" style="margin-bottom:20px;">🪑 ${t('seats')}${s.capacity} ${s.status === 'approved' ? '— ' + seatsLeft + ' ' + t('seats_left') : ''}</div>
+            <p style="font-size:13px; opacity:0.78; line-height:1.6; margin-bottom:18px; flex:1;">${descOf(s) || ''}</p>
+            <div class="vs-row" style="margin-bottom:6px;">${ic('pin', 13)} ${esc(s.location || '')}</div>
+            <div class="vs-row" style="margin-bottom:18px;">${ic('calendar', 13)} ${fmt(s.start_at)}</div>
+            <div class="vs-row" style="margin-bottom:20px;">${ic('chair', 13)} ${t('seats')}${s.capacity} ${s.status === 'approved' ? '— ' + seatsLeft + ' ' + t('seats_left') : ''}</div>
             ${action}
         </div>`;
 }
@@ -504,8 +513,8 @@ function renderQueue(s) {
                 <span class="status-pill pending">PENDING</span>
             </div>
             <h3 class="syne mb-10" style="font-size:19px; font-weight:800;">${titleOf(s)}</h3>
-            <p style="font-size:13px; opacity:0.65; line-height:1.6; margin-bottom:18px; flex:1;">${descOf(s) || ''}</p>
-            <div class="vs-row" style="margin-bottom:18px;">📅 ${fmt(s.start_at)} — 📍 ${esc(s.location || '')}</div>
+            <p style="font-size:13px; opacity:0.78; line-height:1.6; margin-bottom:18px; flex:1;">${descOf(s) || ''}</p>
+            <div class="vs-row" style="margin-bottom:18px;">${ic('calendar', 13)} ${fmt(s.start_at)} — ${ic('pin', 13)} ${esc(s.location || '')}</div>
             ${isAdmin ? `
             <div style="display:flex; gap:12px;">
                 <button class="btn btn-primary act" data-act="approve" data-id="${s.id}" style="flex:1; justify-content:center;">${t('approve')}</button>
@@ -565,7 +574,7 @@ async function load() {
     const available = sessions.filter(s => s.status === 'approved');
     document.getElementById('sessions-grid').innerHTML = available.length
         ? available.map(renderCard).join('')
-        : `<div style="grid-column:1/-1; text-align:center; opacity:0.5; padding:50px;">${t('no_sessions')}</div>`;
+        : `<div style="grid-column:1/-1; text-align:center; opacity:0.78; padding:50px;">${t('no_sessions')}</div>`;
 
     document.querySelectorAll('.act').forEach(btn => {
         btn.onclick = () => act(btn.getAttribute('data-act'), btn.getAttribute('data-id'), btn);
@@ -641,7 +650,7 @@ async function init() {
     document.getElementById('lb-sub').innerText = d.lb_sub;
     document.getElementById('guest-msg').innerText = d.guest_banner;
     document.getElementById('guest-btn').innerText = d.guest_btn;
-    document.getElementById('btn-post-story').innerText = '📸 ' + d.post_story;
+    document.getElementById('btn-post-story').innerHTML = `${ic('camera', 16)} ${d.post_story}`;
     document.getElementById('story-caption').placeholder = d.story_ph;
     document.getElementById('story-submit').innerText = d.share;
     document.getElementById('story-close').innerText = d.close;
@@ -665,8 +674,8 @@ async function init() {
     wilSel.innerHTML = APP_CONFIG.wilayas.map(w => `<option value="${esc(w)}">${esc(w)}</option>`).join('') || '<option value="">—</option>';
 
     const stickerWrap = document.getElementById('sticker-pick');
-    stickerWrap.innerHTML = STICKERS.map((s, i) =>
-        `<button type="button" class="sticker-btn" data-i="${i}">${s}</button>`).join('');
+    stickerWrap.innerHTML = STICKERS.map((k, i) =>
+        `<button type="button" class="sticker-btn" data-i="${i}">${ic(STICKER_SVG[k], 20)}</button>`).join('');
     stickerWrap.querySelectorAll('.sticker-btn').forEach(b => {
         b.onclick = () => {
             stickerWrap.querySelectorAll('.sticker-btn').forEach(x => x.classList.remove('on'));
@@ -682,7 +691,7 @@ async function init() {
         if (!wilaya || !caption) { alert(t('err_rpc')); return; }
         const res = await neon.rpc('post_volunteer_story', {
             p_wilaya: wilaya,
-            p_sticker: sticker ? sticker.textContent : '📸',
+            p_sticker: sticker ? STICKERS[sticker.dataset.i] || 'camera' : 'camera',
             p_palette: Math.floor(Math.random() * STORY_PALETTES.length),
             p_caption_ar: caption,
             p_caption_fr: caption,

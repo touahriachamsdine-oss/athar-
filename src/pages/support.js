@@ -2,6 +2,7 @@ import { requireAuth, requireUser } from '../js/auth.js';
 import { neon } from '../js/neon.js';
 import { setLanguage, getCurrentLang } from '../js/i18n.js';
 import { injectLayout } from '../js/layout.js';
+import { ic } from '../js/icons.js';
 
 const DICT = {
     ar: {
@@ -101,7 +102,7 @@ window.switchTab = async function(tabName) {
 async function loadPublicConsultations() {
     const d = DICT[lang] || DICT.ar;
     const sec = document.getElementById('sec-public');
-    sec.innerHTML = '<div style="text-align:center; opacity:0.5; padding:40px;">...</div>';
+    sec.innerHTML = '<div style="text-align:center; opacity:0.78; padding:40px;">...</div>';
 
     const { data, error } = await neon.from('consultations')
         .select()
@@ -110,7 +111,7 @@ async function loadPublicConsultations() {
     const answered = (data || []).filter(c => c.answer && c.answer.trim());
 
     if (error || answered.length === 0) {
-        sec.innerHTML = `<div class="glass" style="text-align:center; opacity:0.5; padding:40px; border-radius:24px;">${d.no_public}</div>`;
+        sec.innerHTML = `<div class="glass" style="text-align:center; opacity:0.78; padding:40px; border-radius:24px;">${d.no_public}</div>`;
         return;
     }
 
@@ -118,13 +119,13 @@ async function loadPublicConsultations() {
         <div class="consult-card spring-in">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
                 <span class="badge" style="background:rgba(163, 0, 255, 0.1); color:var(--accent-purple);">استشارة مجابة</span>
-                <span class="mono" style="font-size:11px; opacity:0.5;">${new Date(c.created_at).toLocaleDateString()}</span>
+                <span class="mono" style="font-size:11px; opacity:0.75;">${new Date(c.created_at).toLocaleDateString()}</span>
             </div>
             <div style="font-weight:600; font-size:16px; margin-bottom:20px; color:var(--text-primary);">
-                ❓ ${c.subject}
+                ${ic('question', 17)} ${c.subject}
             </div>
             <div style="background:rgba(16, 14, 37, 0.6); padding:20px; border-radius:14px; font-size:15px; opacity:0.95; line-height:1.6; border-right: 4px solid var(--accent-purple); box-shadow: inset 2px 2px 5px rgba(0,0,0,0.3);">
-                💡 ${c.answer}
+                ${ic('bulb', 17)} ${c.answer}
             </div>
         </div>
     `).join('');
@@ -133,14 +134,14 @@ async function loadPublicConsultations() {
 async function loadMyConsultations() {
     const d = DICT[lang] || DICT.ar;
     const sec = document.getElementById('sec-mine');
-    sec.innerHTML = '<div style="text-align:center; opacity:0.5; padding:40px;">...</div>';
+    sec.innerHTML = '<div style="text-align:center; opacity:0.78; padding:40px;">...</div>';
 
     const { data, error } = await neon.from('consultations')
         .select()
         .eq('user_id', authSession.user.id);
 
     if (error || !data || data.length === 0) {
-        sec.innerHTML = `<div class="glass" style="text-align:center; opacity:0.5; padding:40px; border-radius:24px;">${d.no_mine}</div>`;
+        sec.innerHTML = `<div class="glass" style="text-align:center; opacity:0.78; padding:40px; border-radius:24px;">${d.no_mine}</div>`;
         return;
     }
 
@@ -150,14 +151,14 @@ async function loadMyConsultations() {
                 <span class="badge" style="${c.answer ? 'background:rgba(163, 0, 255, 0.1); color:var(--accent-purple);' : 'background:rgba(255, 190, 11, 0.1); color:var(--accent-amber);'}">
                     ${c.answer ? 'تمت الإجابة' : d.waiting_answer}
                 </span>
-                <span class="mono" style="font-size:11px; opacity:0.5;">${new Date(c.created_at).toLocaleDateString()}</span>
+                <span class="mono" style="font-size:11px; opacity:0.75;">${new Date(c.created_at).toLocaleDateString()}</span>
             </div>
             <div style="font-weight:600; font-size:15px; margin-bottom:15px; opacity:0.9;">
-                ❓ ${c.subject}
+                ${ic('question', 16)} ${c.subject}
             </div>
             ${c.answer ? `
                 <div style="background:rgba(16, 14, 37, 0.6); padding:15px; border-radius:12px; font-size:14px; opacity:0.95; border-right: 4px solid var(--accent-purple); box-shadow: inset 2px 2px 5px rgba(0,0,0,0.3);">
-                    💡 ${c.answer}
+                    ${ic('bulb', 16)} ${c.answer}
                 </div>
             ` : ''}
         </div>

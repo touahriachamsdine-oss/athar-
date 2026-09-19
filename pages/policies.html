@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أثر — السياسات</title>
+    <link rel="stylesheet" href="../src/css/reset.css">
+    <link rel="stylesheet" href="../src/css/variables.css">
+    <link rel="stylesheet" href="../src/css/typography.css">
+    <link rel="stylesheet" href="../src/css/glass.css">
+    <link rel="stylesheet" href="../src/css/components.css">
+    <link rel="stylesheet" href="../src/css/animations.css">
+    <link rel="stylesheet" href="../src/css/layout.css">
+    <link rel="stylesheet" href="../src/css/utilities.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', 'Outfit', sans-serif;
+        }
+
+        .policies-grid {
+            display: grid;
+            grid-template-columns: var(--sidebar-w) 1fr;
+            min-height: 100vh;
+        }
+
+        @media (max-width: 992px) {
+            .policies-grid {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                display: none;
+            }
+        }
+
+        .policy-tabs {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 28px;
+        }
+
+        .policy-tab {
+            padding: 10px 20px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            background: rgba(255, 255, 255, 0.04);
+            color: #fff;
+            font-weight: 700;
+            font-size: 13px;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .policy-tab:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .policy-tab.on {
+            background: var(--accent-pink, #FF2A6D);
+            border-color: var(--accent-pink, #FF2A6D);
+            color: #fff;
+        }
+
+        .policy-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            padding: 26px 30px;
+            margin-bottom: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .policy-card h2 {
+            font-size: 18px;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .policy-card p {
+            font-size: 14px;
+            line-height: 1.9;
+            color: rgba(255, 255, 255, 0.88);
+        }
+
+        #p-intro {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 15px;
+            line-height: 1.8;
+        }
+
+        .p-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            opacity: 0.85;
+            flex-wrap: wrap;
+        }
+
+        .p-meta .lang-pill {
+            background: rgba(0, 255, 178, 0.12);
+            color: var(--neon-green);
+            border: 1px solid rgba(0, 255, 178, 0.35);
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 800;
+        }
+    </style>
+</head>
+
+<body class="policies-grid">
+    <!-- SIDEBAR -->
+    <aside class="sidebar glass" style="margin:20px; border-radius:30px;"></aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="container" style="padding: 40px; max-width: 1000px; width: 100%; box-sizing: border-box;">
+        <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:16px;">
+            <div>
+                <h1 class="gradient-text syne" style="font-size:34px; font-weight:800;" id="p-title">السياسات</h1>
+                <p class="p-meta" style="margin-top:8px;">
+                    <span class="lang-pill" id="p-lang">AR</span>
+                    <span id="p-updated">آخر تحديث</span>
+                </p>
+            </div>
+        </header>
+
+        <nav class="policy-tabs" id="p-nav" aria-label="Policy sections"></nav>
+
+        <p id="p-intro" style="margin-bottom:24px;"></p>
+        <div id="p-body"></div>
+    </main>
+
+    <script type="module" src="../src/pages/policies.js"></script>
+  <script type="module" src="../src/js/cookieconsent.js"></script>
+  <script type="module" src="../src/js/icons.js"></script>
+</body>
+
+</html>

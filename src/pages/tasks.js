@@ -3,11 +3,12 @@ import { neon } from '../js/neon.js';
 import { injectLayout } from '../js/layout.js';
 import { getCurrentLang } from '../js/i18n.js';
 import { showToast } from '../js/utils.js';
+import { ic } from '../js/icons.js';
 
 const DICT = {
-    ar: { page: 'مهامي اليومية', subtitle: 'المهام والتحديات المسندة إليك', empty: 'لا توجد مهام مسندة إليك حالياً 🎉', completed: 'مكتمل', pending: 'قيد التنفيذ', mark_done: 'تحديد كمكتمل', done_msg: '✅ تم تحديد المهمة كمكتملة!' },
-    fr: { page: 'Mes Tâches', subtitle: 'Tâches et défis qui vous sont assignés', empty: 'Aucune tâche assignée pour l\'instant 🎉', completed: 'Complété', pending: 'En cours', mark_done: 'Marquer terminé', done_msg: '✅ Tâche marquée comme terminée !' },
-    en: { page: 'My Tasks', subtitle: 'Tasks and challenges assigned to you', empty: 'No tasks assigned to you right now 🎉', completed: 'Completed', pending: 'In Progress', mark_done: 'Mark Done', done_msg: '✅ Task marked as complete!' }
+    ar: { page: 'مهامي اليومية', subtitle: 'المهام والتحديات المسندة إليك', empty: 'لا توجد مهام مسندة إليك حالياً', completed: 'مكتمل', pending: 'قيد التنفيذ', mark_done: 'تحديد كمكتمل', done_msg: 'تم تحديد المهمة كمكتملة!' },
+    fr: { page: 'Mes Tâches', subtitle: 'Tâches et défis qui vous sont assignés', empty: 'Aucune tâche assignée pour l\'instant', completed: 'Complété', pending: 'En cours', mark_done: 'Marquer terminé', done_msg: 'Tâche marquée comme terminée !' },
+    en: { page: 'My Tasks', subtitle: 'Tasks and challenges assigned to you', empty: 'No tasks assigned to you right now', completed: 'Completed', pending: 'In Progress', mark_done: 'Mark Done', done_msg: 'Task marked as complete!' }
 };
 
 async function init() {
@@ -33,7 +34,7 @@ async function init() {
     const list = document.getElementById('task-list');
 
     if (!myTasks.length) {
-        list.innerHTML = `<div class="empty-state"><div>✅</div><p>${t.empty}</p></div>`;
+        list.innerHTML = `<div class="empty-state"><div>${ic('check', 24)}</div><p>${t.empty}</p></div>`;
         document.getElementById('progress-label').textContent = '0 / 0';
         return;
     }
@@ -70,7 +71,7 @@ async function init() {
     list.addEventListener('click', async e => {
         const btn = e.target.closest('.mark-done-btn');
         if (!btn) return;
-        btn.disabled = true; btn.textContent = '⏳';
+        btn.disabled = true; btn.textContent = '…';
         await neon.from('tasks').update({ is_completed: true }, btn.dataset.id);
         showToast(t.done_msg, 'success');
         setTimeout(() => init(), 500);

@@ -22,7 +22,7 @@ export const TRANSLATIONS = {
         msg_success: 'تمت العملية بنجاح',
         login_title: 'دخول',
         signup_title: 'إنشاء حساب',
-        badge_title: '🇩🇿 بوابة بيوت الشباب للتنمية والوقاية المبتكرة',
+        badge_title: 'بوابة بيوت الشباب للتنمية والوقاية المبتكرة',
         btn_enter: 'الولوج للمنصة',
         stat_clubs: 'نادي علمي وتطبيقي',
         stat_youth: 'شاب مستفيد',
@@ -81,7 +81,10 @@ export const TRANSLATIONS = {
         admin_filter_club: 'تصفية حسب النادي',
         admin_filter_initiative: 'تصفية حسب المبادرة',
         admin_no_club: 'لا يوجد',
-        admin_no_initiative: 'لا يوجد'
+        admin_no_initiative: 'لا يوجد',
+        f_policy: 'الخصوصية',
+        f_terms: 'شروط الاستخدام',
+        f_cookies: 'ملفات الارتباط'
     },
     fr: {
         nav_dashboard: 'Tableau de bord',
@@ -102,7 +105,7 @@ export const TRANSLATIONS = {
         msg_success: 'Opération réussie',
         login_title: 'Connexion',
         signup_title: 'Inscription',
-        badge_title: '🇩🇿 Portail des Maisons de Jeunes pour le Développement & la Prévention',
+        badge_title: 'Portail des Maisons de Jeunes pour le Développement & la Prévention',
         btn_enter: 'Accéder à la Plateforme',
         stat_clubs: 'Clubs Scientifiques & Pratiques',
         stat_youth: 'Jeunes Bénéficiaires',
@@ -161,7 +164,10 @@ export const TRANSLATIONS = {
         admin_filter_club: 'Filtrer par Club',
         admin_filter_initiative: 'Filtrer par Initiative',
         admin_no_club: 'Aucun',
-        admin_no_initiative: 'Aucune'
+        admin_no_initiative: 'Aucune',
+        f_policy: 'Confidentialité',
+        f_terms: 'Conditions',
+        f_cookies: 'Cookies'
     },
     en: {
         nav_dashboard: 'Dashboard',
@@ -182,7 +188,7 @@ export const TRANSLATIONS = {
         msg_success: 'Success',
         login_title: 'Sign In',
         signup_title: 'Sign Up',
-        badge_title: '🇩🇿 Youth Hostels Portal for Development & Innovation',
+        badge_title: 'Youth Hostels Portal for Development & Innovation',
         btn_enter: 'Enter Platform',
         stat_clubs: 'Scientific & Applied Clubs',
         stat_youth: 'Beneficiary Youth',
@@ -241,7 +247,10 @@ export const TRANSLATIONS = {
         admin_filter_club: 'Filter by Club',
         admin_filter_initiative: 'Filter by Initiative',
         admin_no_club: 'None',
-        admin_no_initiative: 'None'
+        admin_no_initiative: 'None',
+        f_policy: 'Privacy',
+        f_terms: 'Terms',
+        f_cookies: 'Cookies'
     }
 };
 

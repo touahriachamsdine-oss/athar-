@@ -1,5 +1,6 @@
 // PWA Support & Service Worker Registration
 import { showToast } from './notifications.js';
+import { ic } from './icons.js';
 
 export function initPWA() {
     if ('serviceWorker' in navigator) {
@@ -35,7 +36,7 @@ function showInstallBanner(onInstall) {
     banner.className = 'glass pwa-banner reveal active';
     banner.innerHTML = `
         <div style="display:flex; align-items:center; gap:20px; padding:15px;">
-            <div style="font-size:24px;">📱</div>
+            <div style="display:flex;">${ic('phone', 22)}</div>
             <div style="flex:1;">ثبّت التطبيق على هاتفك</div>
             <button class="btn btn-primary" id="pwa-install-btn">تثبيت</button>
             <button style="background:none; border:none; color:white; cursor:pointer;" id="pwa-close">×</button>

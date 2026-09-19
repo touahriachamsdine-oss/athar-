@@ -3,6 +3,7 @@ import { neon } from '../js/neon.js';
 import { setLanguage, getCurrentLang } from '../js/i18n.js';
 import { injectLayout } from '../js/layout.js';
 import { esc } from '../js/utils.js';
+import { ic } from '../js/icons.js';
 
 const DICT = {
     ar: {
@@ -12,7 +13,7 @@ const DICT = {
         found: 'عدد الدورات المتاحة: ',
         btn_enroll: 'تسجيل في الدورة',
         btn_complete: 'إكمال الدورة والاختبار',
-        btn_certificate: '🎓 تحميل الشهادة الرقمية',
+        btn_certificate: 'تحميل الشهادة الرقمية',
         completed: 'مكتمل ✓',
         enrolled: 'مسجل بالفعل',
         success_enroll: 'تم التسجيل في الدورة بنجاح وزادت نقاط أثرك بمقدار 50 نقطة!',
@@ -25,7 +26,7 @@ const DICT = {
         found: 'Formations disponibles : ',
         btn_enroll: 'S\'inscrire',
         btn_complete: 'Valider et Passer le Test',
-        btn_certificate: '🎓 Télécharger le Certificat',
+        btn_certificate: 'Télécharger le Certificat',
         completed: 'Complété ✓',
         enrolled: 'Déjà inscrit',
         success_enroll: 'Inscription réussie ! +50 points d\'impact gagnés !',
@@ -38,7 +39,7 @@ const DICT = {
         found: 'Available courses: ',
         btn_enroll: 'Enroll in Course',
         btn_complete: 'Complete Course & Test',
-        btn_certificate: '🎓 Download Digital Certificate',
+        btn_certificate: 'Download Digital Certificate',
         completed: 'Completed ✓',
         enrolled: 'Enrolled',
         success_enroll: 'Successfully enrolled! +50 impact points gained!',
@@ -98,7 +99,7 @@ function renderCourses() {
     document.getElementById('lbl-total-courses').innerText = `${d.found}${filtered.length}`;
 
     if (filtered.length === 0) {
-        grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; opacity:0.5; padding:40px;">لا يوجد دورات مطابقة للبحث حالياً.</div>`;
+        grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; opacity:0.78; padding:40px;">لا يوجد دورات مطابقة للبحث حالياً.</div>`;
         return;
     }
 
@@ -125,11 +126,11 @@ function renderCourses() {
             <div class="course-card">
                 <div>
                     <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:20px;">
-                        <div style="font-size:38px;">🎓</div>
-                        <span class="badge" style="background:rgba(255,255,255,0.03); color:rgba(255,255,255,0.6); font-size:10px;">${esc(c.duration || '')} • ${esc(c.instructor || '')}</span>
+                        <div>${ic('grad', 32)}</div>
+                        <span class="badge" style="background:rgba(255,255,255,0.03); color:rgba(255,255,255,0.8); font-size:10px;">${esc(c.duration || '')} • ${esc(c.instructor || '')}</span>
                     </div>
                     <h3 class="syne mb-10" style="font-size:22px; font-weight:700;">${title}</h3>
-                    <p style="font-size:14px; opacity:0.65; line-height:1.6; margin-bottom:25px;">${desc || ''}</p>
+                    <p style="font-size:14px; opacity:0.78; line-height:1.6; margin-bottom:25px;">${desc || ''}</p>
                 </div>
                 
                 ${actionBtnHTML}

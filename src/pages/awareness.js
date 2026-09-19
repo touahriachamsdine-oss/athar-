@@ -2,6 +2,7 @@ import { requireAuth } from '../js/auth.js';
 import { neon } from '../js/neon.js';
 import { setLanguage, getCurrentLang } from '../js/i18n.js';
 import { injectLayout } from '../js/layout.js';
+import { ic } from '../js/icons.js';
 
 const DICT = {
     ar: {
@@ -15,7 +16,7 @@ const DICT = {
         btn_search: 'بحث',
         articles_title: 'المحتوى التوعوي والوقائي',
         start_quiz: 'ابدأ الاختبار',
-        sec_tip_title: '💡 نصيحة اليوم للوقاية',
+        sec_tip_title: 'نصيحة اليوم للوقاية',
         sec_tip_desc: '"الاستثمار في نوادي بيوت الشباب العلمية والرياضية هو الدرع الأقوى لحماية العقل من الملهيات والوقوع في شرك الإدمان. بادر بالانضمام والمشاركة!"'
     },
     fr: {
@@ -29,7 +30,7 @@ const DICT = {
         btn_search: 'Chercher',
         articles_title: 'Ressources de Prévention',
         start_quiz: 'Démarrer le quiz',
-        sec_tip_title: '💡 Conseil de prévention',
+        sec_tip_title: 'Conseil de prévention',
         sec_tip_desc: '"S\'engager dans les clubs scientifiques et sportifs est le bouclier le plus fort pour protéger l\'esprit de l\'addiction. Rejoignez-nous !"'
     },
     en: {
@@ -43,7 +44,7 @@ const DICT = {
         btn_search: 'Search',
         articles_title: 'Awareness Materials',
         start_quiz: 'Start quiz',
-        sec_tip_title: '💡 Today\'s Prevention Tip',
+        sec_tip_title: 'Today\'s Prevention Tip',
         sec_tip_desc: '"Investing time in youth hostels\' scientific and sports clubs is the strongest shield against distractions and addiction. Take the lead!"'
     }
 };
@@ -97,7 +98,7 @@ async function init() {
     document.getElementById('search-input').placeholder = d.search_placeholder;
     document.getElementById('btn-search').innerText = d.btn_search;
     document.getElementById('articles-title').innerText = d.articles_title;
-    document.getElementById('sec-tip-title').innerText = d.sec_tip_title;
+    document.getElementById('sec-tip-title').innerHTML = `${ic('bulb', 18)} ${d.sec_tip_title}`;
     document.getElementById('sec-tip-desc').innerText = d.sec_tip_desc;
 
     // Fetch dynamic articles/materials from Neon
@@ -191,7 +192,7 @@ function renderArticles() {
     }
 
     if (filtered.length === 0) {
-        grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; opacity:0.5; padding:40px;">لا يوجد محتوى متوفر حالياً.</div>`;
+        grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; opacity:0.78; padding:40px;">لا يوجد محتوى متوفر حالياً.</div>`;
         return;
     }
 
@@ -199,7 +200,7 @@ function renderArticles() {
     grid.innerHTML = filtered.map(a => {
         const title = lang === 'ar' ? a.title_ar : (lang === 'fr' ? a.title_fr : a.title_en);
         const desc = lang === 'ar' ? a.description_ar : (lang === 'fr' ? a.description_fr : a.description_en);
-        const tag = a.content_type === 'video' ? '📺 VIDEO' : '📄 ARTICLE';
+        const tag = a.content_type === 'video' ? `${ic('video', 14)} VIDEO` : `${ic('doc', 14)} ARTICLE`;
         const tagColor = a.content_type === 'video' ? 'var(--neon-green)' : '#ffb300';
 
         return `
@@ -207,7 +208,7 @@ function renderArticles() {
                 <div>
                     <span class="badge" style="background:rgba(255,255,255,0.03); color:${tagColor}; font-size:10px; margin-bottom:15px; display:inline-block;">${tag}</span>
                     <h3 style="font-size:18px; font-weight:700; margin-bottom:12px; line-height:1.4;">${title}</h3>
-                    <p style="font-size:14px; opacity:0.65; line-height:1.6; margin-bottom:20px;">${desc || ''}</p>
+                    <p style="font-size:14px; opacity:0.78; line-height:1.6; margin-bottom:20px;">${desc || ''}</p>
                 </div>
                 <div style="display:flex; flex-direction:column; gap:10px;">
                     <a href="${a.media_url || '#'}" target="_blank" class="btn btn-secondary" style="width:100%; font-size:12px; justify-content:center;">

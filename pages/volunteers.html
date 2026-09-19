@@ -111,16 +111,16 @@
         <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom:40px; flex-wrap:wrap; gap:20px;">
             <div>
                 <h1 class="gradient-text syne" style="font-size:36px; font-weight:800;" id="page-title">العمل التطوعي والأنشطة</h1>
-                <p style="opacity:0.65; margin-top:5px;" id="page-subtitle">انخرط في أنشطة تطوعية منظمة واكسب نقاط الأثر</p>
+                <p style="opacity:0.8; margin-top:5px;" id="page-subtitle">انخرط في أنشطة تطوعية منظمة واكسب نقاط الأثر</p>
             </div>
             <button id="btn-create" class="btn btn-primary" style="display:none; padding:12px 28px;">
-                ➕ <span data-i18n="vs_create_btn">إنشاء نشاط تطوعي</span>
+                <span data-icon="plus" data-size="18"></span> <span data-i18n="vs_create_btn">إنشاء نشاط تطوعي</span>
             </button>
         </header>
 
         <!-- GUEST MODE (examples visible, engagement gated) -->
         <div id="guest-banner" class="glass" style="display:none; align-items:center; gap:16px; padding:18px 24px; border-radius:20px; margin-bottom:30px; border:1px solid rgba(5,217,232,0.25);">
-            <span style="font-size:26px;">👋</span>
+            <span style="display:flex;"><span data-icon="smile" data-size="26" style="color:var(--accent-cyan);"></span></span>
             <span id="guest-msg" style="flex:1; font-weight:700;"></span>
             <button id="guest-btn" class="btn btn-primary" style="padding:10px 22px;"></button>
         </div>
@@ -128,7 +128,7 @@
         <!-- ALGERIA ACTIVITY HEATMAP -->
         <section style="margin-bottom:40px;">
             <h2 class="syne mb-10" style="font-size:22px; font-weight:800;" id="lbl-heat-title">خريطة النشاط في الجزائر</h2>
-            <p style="opacity:0.6; margin-bottom:20px; font-size:13px;" id="heat-sub"></p>
+            <p style="opacity:0.78; margin-bottom:20px; font-size:13px;" id="heat-sub"></p>
             <div class="glass" style="padding:30px; border-radius:24px;">
                 <div id="heat-map" style="max-width:640px; margin:0 auto;">صفحة التحميل...</div>
                 <div id="heat-legend" class="heat-legend" style="display:flex; gap:18px; justify-content:center; flex-wrap:wrap; margin-top:18px;"></div>
@@ -139,18 +139,18 @@
         <section style="margin-bottom:40px;">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; margin-bottom:6px;">
                 <h2 class="syne mb-0" style="font-size:22px; font-weight:800;" id="lbl-stories-title">لقطات الأثر</h2>
-                <span class="story-live-tag">● LIVE 24h</span>
+                <span class="story-live-tag"><span data-icon="zap" data-size="12" style="display:inline-block; vertical-align:middle; color:var(--accent-pink);"></span> LIVE 24h</span>
             </div>
-            <p style="opacity:0.6; margin-bottom:20px; font-size:13px;" id="stories-sub"></p>
-            <button id="btn-post-story" class="btn btn-outline" style="margin-bottom:18px; padding:10px 22px;">📸 شارك لقطة</button>
+            <p style="opacity:0.78; margin-bottom:20px; font-size:13px;" id="stories-sub"></p>
+            <button id="btn-post-story" class="btn btn-outline" style="margin-bottom:18px; padding:10px 22px;">شارك لقطة</button>
             <div id="story-composer" class="glass" style="display:none; padding:24px; border-radius:20px; margin-bottom:20px;">
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
                     <div>
-                        <label style="font-size:12px; font-weight:700; opacity:0.7; display:block; margin-bottom:6px;">الولاية / Wilaya</label>
+                        <label style="font-size:12px; font-weight:700; opacity:0.85; display:block; margin-bottom:6px;">الولاية / Wilaya</label>
                         <select id="story-wilaya" style="width:100%; background:rgba(16,14,37,0.85); border:none; color:var(--text-primary); padding:12px 16px; border-radius:14px; font-family:inherit; font-weight:700;"></select>
                     </div>
                     <div>
-                        <label style="font-size:12px; font-weight:700; opacity:0.7; display:block; margin-bottom:6px;">ملصق / Sticker</label>
+                        <label style="font-size:12px; font-weight:700; opacity:0.85; display:block; margin-bottom:6px;">ملصق / Sticker</label>
                         <div id="sticker-pick" style="display:flex; gap:10px; flex-wrap:wrap;"></div>
                     </div>
                 </div>
@@ -169,7 +169,7 @@
         <!-- RESPONSE SQUADS -->
         <section style="margin-bottom:40px;">
             <h2 class="syne mb-10" style="font-size:22px; font-weight:800;" id="lbl-squad-title">فرق الاستجابة</h2>
-            <p style="opacity:0.6; margin-bottom:20px; font-size:13px;" id="squad-sub"></p>
+            <p style="opacity:0.78; margin-bottom:20px; font-size:13px;" id="squad-sub"></p>
             <div id="emergency-strip" class="glass" style="display:none; align-items:center; gap:20px; padding:18px 24px; border-radius:20px; margin-bottom:20px; border:1px solid rgba(255,42,109,0.5); background:linear-gradient(120deg,rgba(255,42,109,0.16),rgba(163,0,255,0.12));"></div>
             <div id="squads-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:16px;"></div>
         </section>
@@ -223,12 +223,14 @@
         <!-- IMPACT LEADERBOARD -->
         <section style="margin-top:50px;">
             <h2 class="syne mb-10" style="font-size:22px; font-weight:800;" id="lbl-lb-title">لوحة الأثر والتفاعل</h2>
-            <p style="opacity:0.6; margin-bottom:20px; font-size:13px;" id="lb-sub"></p>
+            <p style="opacity:0.78; margin-bottom:20px; font-size:13px;" id="lb-sub"></p>
             <div id="lb-grid" class="glass" style="padding:24px; border-radius:24px; display:grid; gap:10px; max-width:720px;"></div>
         </section>
     </main>
 
     <script type="module" src="../src/pages/volunteers.js"></script>
+  <script type="module" src="../src/js/cookieconsent.js"></script>
+  <script type="module" src="../src/js/icons.js"></script>
 </body>
 
 </html>

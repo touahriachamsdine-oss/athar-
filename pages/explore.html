@@ -72,9 +72,9 @@
         <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom:40px; flex-wrap:wrap; gap:20px;">
             <div>
                 <h1 class="gradient-text syne" style="font-size:34px; font-weight:800;" id="page-title">استكشف المبادرات</h1>
-                <p style="opacity:0.5; margin-top:6px; font-size:14px;" id="page-subtitle">اكتشف المبادرات والنشاطات المعتمدة ببيوت الشباب</p>
+                <p style="opacity:0.75; margin-top:6px; font-size:14px;" id="page-subtitle">اكتشف المبادرات والنشاطات المعتمدة ببيوت الشباب</p>
             </div>
-            <input type="text" id="search-input" class="input-field" placeholder="🔍 ابحث..." style="max-width:260px; margin-bottom:0; padding:12px 20px;">
+            <input type="text" id="search-input" class="input-field" placeholder="ابحث..." style="max-width:260px; margin-bottom:0; padding:12px 20px;">
         </header>
 
         <!-- Category filters (per-category chips rendered from APP_CONFIG.categories in explore.js) -->
@@ -84,13 +84,15 @@
 
         <div id="explore-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px,1fr)); gap:25px;">
             <div class="empty-state" id="loading-state">
-                <div>⏳</div>
+                <div><span data-icon="hourglass" data-size="24"></span></div>
                 <p>جاري التحميل...</p>
             </div>
         </div>
     </main>
 
     <script type="module" src="../src/pages/explore.js"></script>
+  <script type="module" src="../src/js/cookieconsent.js"></script>
+  <script type="module" src="../src/js/icons.js"></script>
 </body>
 
 </html>

@@ -132,7 +132,7 @@ function mockRpcDispatch(fn, p) {
             user_id: id,
             author: me ? me.full_name : id,
             wilaya: p.p_wilaya || '',
-            sticker: p.p_sticker || '📸',
+            sticker: p.p_sticker || 'camera',
             palette: p.p_palette || 0,
             caption_ar: p.p_caption_ar || '',
             caption_fr: p.p_caption_fr || '',
@@ -867,31 +867,31 @@ export function seedMockDB() {
         const initialStories = [
             {
                 id: 'story_1', user_id: 'member_user_2', author: 'كريم قسنطيني / Karim Constantini',
-                wilaya: 'Alger', sticker: '🧤', palette: 0,
+wilaya: 'Alger', sticker: 'hands', palette: 0,
                 caption_ar: 'سلال رمضان جاهزة للتوزيع في الحي', caption_fr: 'Les colis du Ramadan prêts à être distribués', caption_en: 'Ramadan packages ready in the neighborhood',
                 likes: ['member_user_1', 'member_user_3'], created_at: new Date(now - 1000 * 60 * 60 * 5).toISOString()
             },
             {
                 id: 'story_2', user_id: 'member_user_1', author: 'ياسمين بلعيدي / Yasmine Belaidi',
-                wilaya: 'Oran', sticker: '🌱', palette: 1,
+wilaya: 'Oran', sticker: 'sprout', palette: 1,
                 caption_ar: 'الفرز البيئي عند التحبين في أكيد لطفي', caption_fr: 'Tri des déchets à Akid Lotfi', caption_en: 'Waste sorting at Akid Lotfi Oran',
                 likes: ['admin_user_id'], created_at: new Date(now - 1000 * 60 * 60 * 9).toISOString()
             },
             {
                 id: 'story_3', user_id: 'admin_user_id', author: 'أمين المشرف / Amin Admin',
-                wilaya: 'Blida', sticker: '🚰', palette: 2,
+wilaya: 'Blida', sticker: 'drop', palette: 2,
                 caption_ar: 'كلاب الماء وصل إلى شريعة', caption_fr: 'Les points d\'eau arrivent à Chréa', caption_en: 'Water points delivered to Chréa',
                 likes: ['member_user_2'], created_at: new Date(now - 1000 * 60 * 60 * 3).toISOString()
             },
             {
                 id: 'story_4', user_id: 'member_user_3', author: 'فاطمة الزهراء / Fatima Zohra',
-                wilaya: 'Annaba', sticker: '🌊', palette: 3,
+wilaya: 'Annaba', sticker: 'wave', palette: 3,
                 caption_ar: 'الفرز قبل التنظيف على الشاطئ', caption_fr: 'Séparer avant de nettoyer la plage', caption_en: 'Sorting before the beach cleanup',
                 likes: [], created_at: new Date(now - 1000 * 60 * 25).toISOString()
             },
             {
                 id: 'story_5', user_id: 'member_user_2', author: 'كريم قسنطيني / Karim Constantini',
-                wilaya: 'Constantine', sticker: '🎨', palette: 4,
+wilaya: 'Constantine', sticker: 'palette', palette: 4,
                 caption_ar: 'جدارية سيدي مْسيد قبل الطلاء', caption_fr: 'La fresque de Sidi M\'Cid avant peinture', caption_en: 'Sidi M\'Cid mural before paint',
                 likes: [], created_at: new Date(now - 1000 * 60 * 60 * 40).toISOString()
             }
@@ -975,11 +975,11 @@ export function seedMockDB() {
         saveMockTable('volunteer_signups', sgRows);
 
         const extraStories = [
-            { id: 'story_1', user_id: 'member_user_2', author: 'كريم قسنطيني / Karim Constantini', wilaya: 'Alger', sticker: '🧤', palette: 0, caption_ar: 'سلال رمضان جاهزة للتوزيع في الحي', caption_fr: 'Les colis du Ramadan prêts à être distribués', caption_en: 'Ramadan packages ready in the neighborhood', likes: ['member_user_1', 'member_user_3'], created_at: new Date(nowV - 1000 * 60 * 60 * 5).toISOString() },
-            { id: 'story_2', user_id: 'member_user_1', author: 'ياسمين بلعيدي / Yasmine Belaidi', wilaya: 'Oran', sticker: '🌱', palette: 1, caption_ar: 'الفرز البيئي عند التحبين في أكيد لطفي', caption_fr: 'Tri des déchets à Akid Lotfi', caption_en: 'Waste sorting at Akid Lotfi Oran', likes: ['admin_user_id'], created_at: new Date(nowV - 1000 * 60 * 60 * 9).toISOString() },
-            { id: 'story_3', user_id: 'admin_user_id', author: 'أمين المشرف / Amin Admin', wilaya: 'Blida', sticker: '🚰', palette: 2, caption_ar: 'كلاب الماء وصل إلى شريعة', caption_fr: 'Les points d\'eau arrivent à Chréa', caption_en: 'Water points delivered to Chréa', likes: ['member_user_2'], created_at: new Date(nowV - 1000 * 60 * 60 * 3).toISOString() },
-            { id: 'story_4', user_id: 'member_user_3', author: 'فاطمة الزهراء / Fatima Zohra', wilaya: 'Annaba', sticker: '🌊', palette: 3, caption_ar: 'الفرز قبل التنظيف على الشاطئ', caption_fr: 'Séparer avant de nettoyer la plage', caption_en: 'Sorting before the beach cleanup', likes: [], created_at: new Date(nowV - 1000 * 60 * 25).toISOString() },
-            { id: 'story_5', user_id: 'member_user_2', author: 'كريم قسنطيني / Karim Constantini', wilaya: 'Constantine', sticker: '🎨', palette: 4, caption_ar: 'جدارية سيدي مْسيد قبل الطلاء', caption_fr: 'La fresque de Sidi M\'Cid avant peinture', caption_en: 'Sidi M\'Cid mural before paint', likes: [], created_at: new Date(nowV - 1000 * 60 * 60 * 40).toISOString() }
+            { id: 'story_1', user_id: 'member_user_2', author: 'كريم قسنطيني / Karim Constantini', wilaya: 'Alger', sticker: 'hands', palette: 0, caption_ar: 'سلال رمضان جاهزة للتوزيع في الحي', caption_fr: 'Les colis du Ramadan prêts à être distribués', caption_en: 'Ramadan packages ready in the neighborhood', likes: ['member_user_1', 'member_user_3'], created_at: new Date(nowV - 1000 * 60 * 60 * 5).toISOString() },
+            { id: 'story_2', user_id: 'member_user_1', author: 'ياسمين بلعيدي / Yasmine Belaidi', wilaya: 'Oran', sticker: 'sprout', palette: 1, caption_ar: 'الفرز البيئي عند التحبين في أكيد لطفي', caption_fr: 'Tri des déchets à Akid Lotfi', caption_en: 'Waste sorting at Akid Lotfi Oran', likes: ['admin_user_id'], created_at: new Date(nowV - 1000 * 60 * 60 * 9).toISOString() },
+            { id: 'story_3', user_id: 'admin_user_id', author: 'أمين المشرف / Amin Admin', wilaya: 'Blida', sticker: 'drop', palette: 2, caption_ar: 'كلاب الماء وصل إلى شريعة', caption_fr: 'Les points d\'eau arrivent à Chréa', caption_en: 'Water points delivered to Chréa', likes: ['member_user_2'], created_at: new Date(nowV - 1000 * 60 * 60 * 3).toISOString() },
+            { id: 'story_4', user_id: 'member_user_3', author: 'فاطمة الزهراء / Fatima Zohra', wilaya: 'Annaba', sticker: 'wave', palette: 3, caption_ar: 'الفرز قبل التنظيف على الشاطئ', caption_fr: 'Séparer avant de nettoyer la plage', caption_en: 'Sorting before the beach cleanup', likes: [], created_at: new Date(nowV - 1000 * 60 * 25).toISOString() },
+            { id: 'story_5', user_id: 'member_user_2', author: 'كريم قسنطيني / Karim Constantini', wilaya: 'Constantine', sticker: 'palette', palette: 4, caption_ar: 'جدارية سيدي مْسيد قبل الطلاء', caption_fr: 'La fresque de Sidi M\'Cid avant peinture', caption_en: 'Sidi M\'Cid mural before paint', likes: [], created_at: new Date(nowV - 1000 * 60 * 60 * 40).toISOString() }
         ];
         const stRows = getMockTable('volunteer_stories');
         extraStories.forEach(row => { if (!stRows.find(x => x.id === row.id)) stRows.push(row); });

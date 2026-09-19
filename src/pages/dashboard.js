@@ -2,6 +2,9 @@ import { requireAuth } from '../js/auth.js';
 import { neon } from '../js/neon.js';
 import { setLanguage, getCurrentLang } from '../js/i18n.js';
 import { injectLayout } from '../js/layout.js';
+import { ic } from '../js/icons.js';
+
+const CAT_ICONS = { robotics: 'robot', programming: 'code', theater: 'theater', music: 'music', reading: 'book', other: 'sparkle' };
 
 const DICT = {
     ar: {
@@ -98,9 +101,9 @@ async function init() {
         ['cnt-clubs', 'cnt-courses', 'cnt-support'].forEach(id => { document.getElementById(id).innerText = '0'; });
         document.getElementById('joined-clubs-list').innerHTML = `
             <div class="stat-card flex-center" style="flex-direction:column; gap:14px; padding:34px; background:rgba(5,217,232,0.04); border-radius:18px; text-align:center;">
-                <div style="font-size:30px;">🔑</div>
+                <div style="display:flex;">${ic('key', 28)}</div>
                 <div style="font-size:15px; font-weight:700;">${d.guest_cta}</div>
-                <div style="font-size:12px; opacity:0.6; line-height:1.6;">${d.guest_desc}</div>
+                <div style="font-size:12px; opacity:0.8; line-height:1.6;">${d.guest_desc}</div>
                 <a class="btn btn-primary" href="/pages/auth.html" style="justify-content:center; margin-top:6px;">${d.guest_btn}</a>
             </div>`;
         return;
@@ -138,14 +141,14 @@ async function init() {
             const club = cRes.data ? cRes.data[0] : null;
             if (club) {
                 const name = lang === 'ar' ? club.name_ar : (lang === 'fr' ? club.name_fr : club.name_en);
-                const catIcon = club.category === 'robotics' ? '🤖' : (club.category === 'programming' ? '💻' : '✨');
+                const catIcon = ic(CAT_ICONS[club.category] || 'sparkle', 22);
                 clubsListContainer.innerHTML += `
                     <div class="stat-card flex-center" style="justify-content:space-between; padding:15px 20px; background:rgba(255,255,255,0.01); border-radius:18px;">
                         <div style="display:flex; align-items:center; gap:12px;">
                             <span style="font-size:22px;">${catIcon}</span>
                             <div>
                                 <div style="font-size:14px; font-weight:700;">${name}</div>
-                                <div style="font-size:11px; opacity:0.5;">${club.wilaya}</div>
+                                <div style="font-size:11px; opacity:0.75;">${club.wilaya}</div>
                             </div>
                         </div>
                         <span class="badge" style="background:rgba(0,255,178,0.08); color:var(--neon-green); font-size:10px;">${d.active}</span>
@@ -204,7 +207,7 @@ async function init() {
                         <span class="badge" style="${isAnswered ? 'background:rgba(0,255,178,0.08); color:var(--neon-green);' : 'background:rgba(255,75,75,0.08); color:var(--neon-red);'} font-size:10px;">
                             ${isAnswered ? d.answered : d.pending}
                         </span>
-                        <span class="mono" style="font-size:10px; opacity:0.4;">${new Date(q.created_at).toLocaleDateString()}</span>
+                        <span class="mono" style="font-size:10px; opacity:0.75;">${new Date(q.created_at).toLocaleDateString()}</span>
                     </div>
                 </div>
             `;

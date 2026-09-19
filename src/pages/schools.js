@@ -3,6 +3,9 @@ import { neon } from '../js/neon.js';
 import { setLanguage, getCurrentLang } from '../js/i18n.js';
 import { injectLayout } from '../js/layout.js';
 import { APP_CONFIG } from '../js/config.js';
+import { ic } from '../js/icons.js';
+
+const ACTIVITY_ICONS = { awareness_day: 'health', hostel_visit: 'robot', competition: 'code', partnership: 'hands' };
 
 const DICT = {
     ar: {
@@ -21,10 +24,10 @@ const DICT = {
         completed: 'مكتملة',
         empty: 'لا يوجد زيارات مجدولة في هذه الولاية حالياً.',
         activities: {
-            awareness_day: 'يوم توعوي وقائي 🩺',
-            hostel_visit: 'زيارة لبيت الشباب 🤖',
-            competition: 'مسابقة علمية 💻',
-            partnership: 'اتفاقية شراكة 🤝'
+            awareness_day: 'يوم توعوي وقائي',
+            hostel_visit: 'زيارة لبيت الشباب',
+            competition: 'مسابقة علمية',
+            partnership: 'اتفاقية شراكة'
         }
     },
     fr: {
@@ -43,10 +46,10 @@ const DICT = {
         completed: 'Complété',
         empty: 'Aucune visite planifiée pour le moment.',
         activities: {
-            awareness_day: 'Sensibilisation 🩺',
-            hostel_visit: 'Visite Foyer 🤖',
-            competition: 'Compétition 💻',
-            partnership: 'Partenariat 🤝'
+            awareness_day: 'Sensibilisation',
+            hostel_visit: 'Visite Foyer',
+            competition: 'Compétition',
+            partnership: 'Partenariat'
         }
     },
     en: {
@@ -65,10 +68,10 @@ const DICT = {
         completed: 'Completed',
         empty: 'No scheduled campaigns currently.',
         activities: {
-            awareness_day: 'Awareness Campaign 🩺',
-            hostel_visit: 'Hostel Visit 🤖',
-            competition: 'Scientific Contest 💻',
-            partnership: 'Partnership Agreement 🤝'
+            awareness_day: 'Awareness Campaign',
+            hostel_visit: 'Hostel Visit',
+            competition: 'Scientific Contest',
+            partnership: 'Partnership Agreement'
         }
     }
 };
@@ -123,7 +126,7 @@ function renderVisits() {
     const container = document.getElementById('visits-list');
 
     if (visits.length === 0) {
-        container.innerHTML = `<p style="opacity:0.5; font-size:14px;">${d.empty}</p>`;
+        container.innerHTML = `<p style="opacity:0.78; font-size:14px;">${d.empty}</p>`;
         return;
     }
 
@@ -138,10 +141,10 @@ function renderVisits() {
                 <div>
                     <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
                         <h3 style="font-size:18px; font-weight:700;">${v.school_name}</h3>
-                        <span class="badge" style="background:rgba(255,255,255,0.03); color:rgba(255,255,255,0.6); font-size:9px;">${instType}</span>
+                        <span class="badge" style="background:rgba(255,255,255,0.03); color:rgba(255,255,255,0.78); font-size:9px;">${instType}</span>
                     </div>
-                    <div style="font-size:14px; opacity:0.7; margin-bottom:10px;">${actName}</div>
-                    <div style="font-size:12px; opacity:0.5;" class="mono">${v.wilaya} • ${new Date(v.visit_date).toLocaleDateString()}</div>
+                    <div style="font-size:14px; opacity:0.85; margin-bottom:10px;">${ic(ACTIVITY_ICONS[v.activity_type] || 'sparkle', 15)} ${actName}</div>
+                    <div style="font-size:12px; opacity:0.75;" class="mono">${v.wilaya} • ${new Date(v.visit_date).toLocaleDateString()}</div>
                 </div>
                 
                 <span class="badge" style="background:rgba(255,255,255,0.02); color:${badgeColor}; font-size:10px;">${statusName}</span>

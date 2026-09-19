@@ -3,6 +3,7 @@ import { signOut } from './auth.js';
 import { getCurrentLang, setLanguage, TRANSLATIONS } from './i18n.js';
 import { toggleTheme, initTheme } from './theme.js';
 import { ParticleField } from './particles.js';
+import { ic } from './icons.js';
 
 export function injectLayout() {
     initTheme();
@@ -13,35 +14,45 @@ export function injectLayout() {
     const isGuest = !localStorage.getItem('neon_session');
 
     const navLinks = `
-        <a href="dashboard.html" class="nav-item ${isActive('dashboard')}"><span>🏠</span> ${t.nav_dashboard}</a>
-        <a href="clubs.html" class="nav-item ${isActive('clubs')}"><span>🤖</span> ${t.nav_clubs}</a>
-        <a href="explore.html" class="nav-item ${isActive('explore')}"><span>🔭</span> ${t.nav_explore || 'استكشف'}</a>
-        <a href="awareness.html" class="nav-item ${isActive('awareness')}"><span>🛡️</span> ${t.nav_awareness}</a>
-        <a href="training.html" class="nav-item ${isActive('training')}"><span>🎓</span> ${t.nav_training}</a>
-        <a href="support.html" class="nav-item ${isActive('support')}"><span>🩺</span> ${t.nav_support}</a>
-        <a href="volunteers.html" class="nav-item ${isActive('volunteers')}"><span>🤝</span> ${t.nav_volunteers}</a>
-        <hr style="border:none; border-top:1px solid var(--glass-border); margin:5px 0;">
-        ${isAdmin ? `<a href="admin.html" class="nav-item ${isActive('admin')}"><span>🔑</span> ${t.nav_admin}</a>` : ''}
-        ${isGuest ? '' : `<a href="profile.html" class="nav-item ${isActive('profile')}"><span>👤</span> ${t.nav_profile}</a>`}
+        <a href="dashboard.html" class="nav-item ${isActive('dashboard')}"><span>${ic('home')}</span> ${t.nav_dashboard}</a>
+        <a href="clubs.html" class="nav-item ${isActive('clubs')}"><span>${ic('robot')}</span> ${t.nav_clubs}</a>
+        <a href="explore.html" class="nav-item ${isActive('explore')}"><span>${ic('explore')}</span> ${t.nav_explore || 'استكشف'}</a>
+        <a href="awareness.html" class="nav-item ${isActive('awareness')}"><span>${ic('shield')}</span> ${t.nav_awareness}</a>
+        <a href="training.html" class="nav-item ${isActive('training')}"><span>${ic('grad')}</span> ${t.nav_training}</a>
+        <a href="support.html" class="nav-item ${isActive('support')}"><span>${ic('heart')}</span> ${t.nav_support}</a>
+        <a href="volunteers.html" class="nav-item ${isActive('volunteers')}"><span>${ic('hands')}</span> ${t.nav_volunteers}</a>
+        <hr style="border:none; border-top:1px solid rgba(255,255,255,0.06); margin:5px 0;">
+        ${isAdmin ? `<a href="admin.html" class="nav-item ${isActive('admin')}"><span>${ic('key')}</span> ${t.nav_admin}</a>` : ''}
+        ${isGuest ? '' : `<a href="profile.html" class="nav-item ${isActive('profile')}"><span>${ic('user')}</span> ${t.nav_profile}</a>`}
     `;
+
+    const footerLinks = `
+        <div style="margin-top:6px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.05); display:flex; gap:8px; flex-wrap:wrap; justify-content:center;">
+            <a href="policies.html?p=privacy" class="nav-item" style="font-size:11px; padding:4px 8px; opacity:0.75;">${t.f_policy || 'Privacy'}</a>
+            <span style="opacity:0.3;">·</span>
+            <a href="policies.html?p=terms" class="nav-item" style="font-size:11px; padding:4px 8px; opacity:0.75;">${t.f_terms || 'Terms'}</a>
+            <span style="opacity:0.3;">·</span>
+            <a href="policies.html?p=cookies" class="nav-item" style="font-size:11px; padding:4px 8px; opacity:0.75;">${t.f_cookies || 'Cookies'}</a>
+        </div>`;
 
     const bottomControls = `
         <div class="glass" style="padding:15px; border-radius:20px; display:flex; justify-content:space-around; align-items:center;">
-            <button id="theme-toggle" class="icon-btn" title="Toggle Theme">🌓</button>
-            <div style="width:1px; height:20px; background:var(--glass-border);"></div>
+            <button id="theme-toggle" class="icon-btn" title="Toggle Theme">${ic('sun', 18)}</button>
+            <div style="width:1px; height:20px; background:rgba(255,255,255,0.08);"></div>
             <select id="lang-select" style="background:none; border:none; color:inherit; font-size:12px; cursor:pointer; outline:none; font-weight:bold;">
-                <option value="ar" ${lang === 'ar' ? 'selected' : ''}>🇩🇿 عربية</option>
-                <option value="fr" ${lang === 'fr' ? 'selected' : ''}>🇫🇷 FR</option>
-                <option value="en" ${lang === 'en' ? 'selected' : ''}>🇬🇧 EN</option>
+                <option value="ar" ${lang === 'ar' ? 'selected' : ''}>عربية</option>
+                <option value="fr" ${lang === 'fr' ? 'selected' : ''}>FR</option>
+                <option value="en" ${lang === 'en' ? 'selected' : ''}>EN</option>
             </select>
         </div>
         ${isGuest
             ? `<a class="nav-item" href="../pages/auth.html" style="color:var(--accent-cyan); border:1px solid rgba(5,217,232,0.2);">
-                    <span>🔑</span> ${t.nav_login}
+                    <span>${ic('userCheck', 18)}</span> ${t.nav_login}
                 </a>`
             : `<button id="logout-btn" class="nav-item" style="color:var(--accent-pink); border:1px solid rgba(255,42,109,0.15);">
-                    <span>🚪</span> ${t.nav_logout}
+                    <span>${ic('logout', 18)}</span> ${t.nav_logout}
                 </button>`}
+        ${footerLinks}
     `;
 
     // 1. Inject Desktop Sidebar
@@ -78,7 +89,7 @@ export function injectLayout() {
             <div style="display:flex; align-items:center; height:40px; width:40px; overflow:visible;">
                 <img src="../public/logo.png" alt="Athar Logo" style="width:280px; height:280px; max-width:none; margin:-120px 0; filter:drop-shadow(0 0 8px var(--neon-green)); object-fit:contain;">
             </div>
-            <button id="mobile-menu-btn" style="background:rgba(255,255,255,0.05); border:none; outline:none; width:40px; height:40px; border-radius:12px; font-size:20px; cursor:pointer; color:var(--text-primary); display:flex; align-items:center; justify-content:center;">☰</button>
+            <button id="mobile-menu-btn" aria-label="Menu" style="background:rgba(255,255,255,0.05); border:none; outline:none; width:40px; height:40px; border-radius:12px; cursor:pointer; color:var(--text-primary); display:flex; align-items:center; justify-content:center;">${ic('menu', 20)}</button>
         `;
         document.body.appendChild(topbar);
 
@@ -100,7 +111,7 @@ export function injectLayout() {
                     <div style="display:flex; align-items:center; height:44px; width:44px; overflow:visible;">
                         <img src="../public/logo.png" alt="Athar Logo" style="width:308px; height:308px; max-width:none; margin:-132px 0; filter:drop-shadow(0 0 8px var(--neon-green)); object-fit:contain;">
                     </div>
-                    <button id="drawer-close" style="background:rgba(255,255,255,0.05); border:none; outline:none; width:38px; height:38px; border-radius:10px; font-size:18px; cursor:pointer; color:var(--text-primary);">✕</button>
+                    <button id="drawer-close" aria-label="Close" style="background:rgba(255,255,255,0.05); border:none; outline:none; width:38px; height:38px; border-radius:10px; cursor:pointer; color:var(--text-primary); display:flex; align-items:center; justify-content:center;">${ic('x', 18)}</button>
                 </div>
                 <nav style="display:flex; flex-direction:column; gap:6px; flex:1;">${navLinks}</nav>
                 <div style="display:flex; flex-direction:column; gap:12px; padding-top:20px; border-top:1px solid rgba(255,255,255,0.05);">${bottomControls}</div>

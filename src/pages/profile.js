@@ -2,6 +2,7 @@ import { requireAuth } from '../js/auth.js';
 import { neon } from '../js/neon.js';
 import { injectLayout } from '../js/layout.js';
 import { getCurrentLang, setLanguage } from '../js/i18n.js';
+import { ic } from '../js/icons.js';
 
 function toast(msg, type = 'success') {
     const c = document.getElementById('toast-container');
@@ -13,9 +14,9 @@ function toast(msg, type = 'success') {
 }
 
 const DICT = {
-    ar: { page: 'الملف الشخصي', form_title: 'تعديل المعلومات', lbl_name: 'الاسم الكامل', lbl_phone: 'رقم الهاتف', lbl_wilaya: 'الولاية', lbl_neighborhood: 'الحي', lbl_lang: 'اللغة المفضلة', btn_save: '💾 حفظ التغييرات', saved: '✅ تم حفظ التغييرات بنجاح!', error: '❌ حدث خطأ، حاول مرة أخرى', lbl_clubs: 'النوادي', lbl_courses: 'الدورات' },
-    fr: { page: 'Mon Profil', form_title: 'Modifier le profil', lbl_name: 'Nom complet', lbl_phone: 'Téléphone', lbl_wilaya: 'Wilaya', lbl_neighborhood: 'Quartier', lbl_lang: 'Langue préférée', btn_save: '💾 Sauvegarder', saved: '✅ Profil mis à jour !', error: '❌ Erreur, réessayez.', lbl_clubs: 'Clubs', lbl_courses: 'Formations' },
-    en: { page: 'My Profile', form_title: 'Edit Profile', lbl_name: 'Full Name', lbl_phone: 'Phone', lbl_wilaya: 'Wilaya', lbl_neighborhood: 'Neighborhood', lbl_lang: 'Preferred Language', btn_save: '💾 Save Changes', saved: '✅ Profile saved!', error: '❌ Error, please retry.', lbl_clubs: 'Clubs', lbl_courses: 'Courses' }
+    ar: { page: 'الملف الشخصي', form_title: 'تعديل المعلومات', lbl_name: 'الاسم الكامل', lbl_phone: 'رقم الهاتف', lbl_wilaya: 'الولاية', lbl_neighborhood: 'الحي', lbl_lang: 'اللغة المفضلة', btn_save: 'حفظ التغييرات', saved: 'تم حفظ التغييرات بنجاح!', error: 'حدث خطأ، حاول مرة أخرى', lbl_clubs: 'النوادي', lbl_courses: 'الدورات' },
+    fr: { page: 'Mon Profil', form_title: 'Modifier le profil', lbl_name: 'Nom complet', lbl_phone: 'Téléphone', lbl_wilaya: 'Wilaya', lbl_neighborhood: 'Quartier', lbl_lang: 'Langue préférée', btn_save: 'Sauvegarder', saved: 'Profil mis à jour !', error: 'Erreur, réessayez.', lbl_clubs: 'Clubs', lbl_courses: 'Formations' },
+    en: { page: 'My Profile', form_title: 'Edit Profile', lbl_name: 'Full Name', lbl_phone: 'Phone', lbl_wilaya: 'Wilaya', lbl_neighborhood: 'Neighborhood', lbl_lang: 'Preferred Language', btn_save: 'Save Changes', saved: 'Profile saved!', error: 'Error, please retry.', lbl_clubs: 'Clubs', lbl_courses: 'Courses' }
 };
 
 async function init() {
@@ -34,7 +35,7 @@ async function init() {
     document.getElementById('lbl-wilaya').textContent = t.lbl_wilaya;
     document.getElementById('lbl-neighborhood').textContent = t.lbl_neighborhood;
     document.getElementById('lbl-lang').textContent = t.lbl_lang;
-    document.getElementById('btn-save').textContent = t.btn_save;
+    document.getElementById('btn-save').innerHTML = ic('save', 18) + ' ' + t.btn_save;
     document.getElementById('lbl-clubs').textContent = t.lbl_clubs;
     document.getElementById('lbl-courses').textContent = t.lbl_courses;
 
@@ -65,7 +66,7 @@ async function init() {
         e.preventDefault();
         const btn = document.getElementById('btn-save');
         btn.disabled = true;
-        btn.textContent = '⏳ ...';
+        btn.textContent = '…';
 
         const { error } = await neon.rpc('update_profile_settings', {
             p_full_name: document.getElementById('full_name').value,
@@ -75,7 +76,7 @@ async function init() {
         });
 
         btn.disabled = false;
-        btn.textContent = t.btn_save;
+        btn.innerHTML = ic('save', 18) + ' ' + t.btn_save;
         toast(error ? t.error : t.saved, error ? 'error' : 'success');
     };
 

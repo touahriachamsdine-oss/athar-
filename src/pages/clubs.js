@@ -3,6 +3,9 @@ import { neon } from '../js/neon.js';
 import { setLanguage, getCurrentLang } from '../js/i18n.js';
 import { injectLayout } from '../js/layout.js';
 import { APP_CONFIG } from '../js/config.js';
+import { ic } from '../js/icons.js';
+
+const CAT_ICONS = { robotics: 'robot', programming: 'code', theater: 'theater', music: 'music', reading: 'book', other: 'sparkle' };
 
 const DICT = {
     ar: {
@@ -100,7 +103,7 @@ function renderClubs() {
     document.getElementById('lbl-total-clubs').innerText = `${d.found}${filtered.length}`;
 
     if (filtered.length === 0) {
-        grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; opacity:0.5; padding:60px;">لا يوجد نوادي مطابقة لخيارات البحث حالياً.</div>`;
+        grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; opacity:0.78; padding:60px;">لا يوجد نوادي مطابقة لخيارات البحث حالياً.</div>`;
         return;
     }
 
@@ -108,7 +111,7 @@ function renderClubs() {
         const isJoined = memberClubIds.includes(c.id);
         const name = lang === 'ar' ? c.name_ar : (lang === 'fr' ? c.name_fr : c.name_en);
         const desc = lang === 'ar' ? c.description_ar : (lang === 'fr' ? c.description_fr : c.description_en);
-        const catIcon = c.category === 'robotics' ? '🤖' : (c.category === 'programming' ? '💻' : (c.category === 'theater' ? '🎭' : (c.category === 'music' ? '🎵' : '📚')));
+        const catIcon = ic(CAT_ICONS[c.category] || 'sparkle', 34);
 
         return `
             <div class="club-card">
@@ -118,7 +121,7 @@ function renderClubs() {
                         <span class="badge" style="background:rgba(0, 255, 178, 0.08); color:var(--neon-green); font-size:10px;">${c.wilaya}</span>
                     </div>
                     <h3 class="syne mb-10" style="font-size:22px; font-weight:700;">${name}</h3>
-                    <p style="font-size:14px; opacity:0.65; line-height:1.6; margin-bottom:25px;">${desc || ''}</p>
+                    <p style="font-size:14px; opacity:0.78; line-height:1.6; margin-bottom:25px;">${desc || ''}</p>
                 </div>
                 
                 <button class="btn ${isJoined ? 'btn-outline' : 'btn-primary'} join-btn" data-id="${c.id}" style="width:100%; justify-content:center;" ${isJoined ? 'disabled' : ''}>

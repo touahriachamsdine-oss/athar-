@@ -2,6 +2,7 @@
 import { APP_CONFIG } from './config.js';
 import { getCurrentLang } from './i18n.js';
 import { esc } from './utils.js';
+import { ic } from './icons.js';
 
 export function showToast(notif) {
     const lang = getCurrentLang();
@@ -10,8 +11,8 @@ export function showToast(notif) {
     const toast = document.createElement('div');
     toast.className = 'glass toast reveal active';
 
-    const icons = { join: '👥', step: '✅', risk: '⚠️', rotate: '🔄' };
-    const icon = icons[notif.type] || '✨';
+    const icons = { join: 'users', step: 'checkRound', risk: 'alert', rotate: 'refresh' };
+    const icon = ic(icons[notif.type] || 'sparkle', 24);
 
     toast.innerHTML = `
         <div style="display:flex; gap:15px; align-items:center;">

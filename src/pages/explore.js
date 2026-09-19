@@ -4,6 +4,7 @@ import { injectLayout } from '../js/layout.js';
 import { getCurrentLang } from '../js/i18n.js';
 import { APP_CONFIG } from '../js/config.js';
 import { esc } from '../js/utils.js';
+import { ic } from '../js/icons.js';
 
 const CAT_COLORS_BG = ['rgba(5,217,232,0.1)', 'rgba(255,42,109,0.1)', 'rgba(255,190,11,0.1)', 'rgba(163,0,255,0.1)'];
 const CAT_COLORS_FG = ['var(--accent-cyan)', 'var(--accent-pink)', 'var(--accent-amber)', 'var(--accent-purple)'];
@@ -14,7 +15,7 @@ function catInfo(id, lang) {
     const slot = has ? idx : 0;
     return {
         label: has ? (APP_CONFIG.categories[idx][lang] || APP_CONFIG.categories[idx].ar) : (id || 'other'),
-        icon: has ? APP_CONFIG.categories[idx].icon : '✨',
+        icon: has ? APP_CONFIG.categories[idx].icon : 'sparkle',
         bg: CAT_COLORS_BG[slot % CAT_COLORS_BG.length],
         color: CAT_COLORS_FG[slot % CAT_COLORS_FG.length]
     };
@@ -33,7 +34,7 @@ function renderCards(data, lang, emptyMsg) {
     const t = DICT[lang] || DICT.ar;
     const grid = document.getElementById('explore-grid');
     if (!data.length) {
-        grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div>🔭</div><p>${emptyMsg || t.empty}</p></div>`;
+        grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div>${ic('explore', 26)}</div><p>${emptyMsg || t.empty}</p></div>`;
         return;
     }
     const titleKey = lang === 'fr' ? 'title_fr' : (lang === 'en' ? 'title_en' : 'title_ar');
@@ -47,11 +48,11 @@ function renderCards(data, lang, emptyMsg) {
         const fill = score > 70 ? '#00d4b4' : score > 40 ? '#FFBE0B' : '#FF2A6D';
         return `
         <div class="explore-card glass" onclick="location.href='initiative.html?id=${i.id}'">
-            <div class="category-chip" style="background:${ci.bg}; color:${ci.color};">${ci.icon} ${esc(ci.label)}</div>
+            <div class="category-chip" style="background:${ci.bg}; color:${ci.color};">${ic(ci.icon, 14)} ${esc(ci.label)}</div>
             <h2 class="syne" style="font-size:20px; font-weight:800; line-height:1.3; margin-bottom:10px;">${esc(i[titleKey] || i.title_ar)}</h2>
-            <p style="font-size:13px; opacity:0.55; line-height:1.6; margin-bottom:20px;">${esc((i[descKey] || i.description_ar || '').substring(0,90))}...</p>
+            <p style="font-size:13px; opacity:0.75; line-height:1.6; margin-bottom:20px;">${esc((i[descKey] || i.description_ar || '').substring(0,90))}...</p>
             <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px;">
-                <span style="opacity:0.45; font-family:var(--mono);">📍 ${esc(i.wilaya || '—')}</span>
+                <span style="opacity:0.78; font-family:var(--mono);">${ic('pin', 13)} ${esc(i.wilaya || '—')}</span>
                 <span style="color:${fill}; font-family:var(--mono); font-weight:800;">${score}% ${t.health}</span>
             </div>
             <div class="health-bar">
@@ -73,7 +74,7 @@ async function init() {
     document.getElementById('filter-all').textContent = t.filter_all;
 
     document.getElementById('filters').insertAdjacentHTML('beforeend',
-        APP_CONFIG.categories.map(c => `<button class="filter-btn" data-cat="${c.id}">${c.icon} ${c[lang] || c.ar}</button>`).join(''));
+        APP_CONFIG.categories.map(c => `<button class="filter-btn" data-cat="${c.id}">${ic(c.icon, 13)} ${c[lang] || c.ar}</button>`).join(''));
 
     const { data } = await neon.from('initiatives').select().eq('is_approved', true);
     allData = data || [];

@@ -3,9 +3,9 @@ import { neon } from '../js/neon.js';
 import { injectLayout } from '../js/layout.js';
 
 const DICT = {
-    ar: { pending: 'لا توجد دعوات قيد الانتظار', accept: 'قبول الدعوة', accepted: 'تم القبول', ok_msg: '✅ تم قبول الدعوة بنجاح', err_msg: '❌ حدث خطأ أثناء قبول الدعوة' },
-    fr: { pending: 'Aucune invitation en attente', accept: 'Accepter', accepted: 'Accepté', ok_msg: '✅ Invitation acceptée !', err_msg: '❌ Erreur lors de l\'acceptation' },
-    en: { pending: 'No pending invitations', accept: 'Accept Invite', accepted: 'Accepted', ok_msg: '✅ Invitation accepted!', err_msg: '❌ Error accepting invitation' }
+    ar: { pending: 'لا توجد دعوات قيد الانتظار', accept: 'قبول الدعوة', accepted: 'تم القبول', ok_msg: 'تم قبول الدعوة بنجاح', err_msg: 'حدث خطأ أثناء قبول الدعوة' },
+    fr: { pending: 'Aucune invitation en attente', accept: 'Accepter', accepted: 'Accepté', ok_msg: 'Invitation acceptée !', err_msg: 'Erreur lors de l\'acceptation' },
+    en: { pending: 'No pending invitations', accept: 'Accept Invite', accepted: 'Accepted', ok_msg: 'Invitation accepted!', err_msg: 'Error accepting invitation' }
 };
 
 async function init() {
@@ -24,7 +24,7 @@ async function init() {
 
     const list = document.getElementById('invite-list');
     if (!invites.length) {
-        list.innerHTML = `<div class="glass" style="padding:40px; border-radius:30px; text-align:center; opacity:0.5;">${d.pending}</div>`;
+        list.innerHTML = `<div class="glass" style="padding:40px; border-radius:30px; text-align:center; opacity:0.78;">${d.pending}</div>`;
         return;
     }
 
@@ -35,7 +35,7 @@ async function init() {
         <div class="glass" style="padding:30px; border-radius:30px;">
             <div class="badge mb-20" style="background:var(--neon-gold); color:black;">دعوة جديدة</div>
             <h3 class="syne">${title}</h3>
-            <p style="opacity:0.6; margin-top:10px;">تمت دعوتك للانضمام كـ ${inv.role || 'عضو'}</p>
+            <p style="opacity:0.78; margin-top:10px;">تمت دعوتك للانضمام كـ ${inv.role || 'عضو'}</p>
             <button class="btn btn-primary mt-40" data-id="${inv.id}" data-initiative="${inv.initiative_id}">${d.accept}</button>
         </div>`;
     }).join('');
@@ -43,7 +43,7 @@ async function init() {
     list.querySelectorAll('button[data-id]').forEach(btn => {
         btn.onclick = async () => {
             btn.disabled = true;
-            btn.textContent = '⏳';
+            btn.textContent = '…';
             const { error } = await neon.from('invites').update({ is_accepted: true }, btn.dataset.id);
             if (error) {
                 alert(d.err_msg);

@@ -3,12 +3,13 @@ import { neon } from '../js/neon.js';
 import { getCurrentLang, setLanguage } from '../js/i18n.js';
 import { injectLayout } from '../js/layout.js';
 import { formatDate } from '../js/utils.js';
+import { ic } from '../js/icons.js';
 
 const DICT = {
     ar: {
         label: 'شهادة تأهيل',
         issuer: 'أثر — المنصة الرقمية لبيوت الشباب',
-        btn_print: '🖨️ طباعة الشهادة',
+        btn_print: 'طباعة الشهادة',
         msg_missing: 'لم يتم العثور على الشهادة.',
         msg_not_yours: 'هذه الشهادة ليست لك.',
         name_fallback: '—'
@@ -16,7 +17,7 @@ const DICT = {
     fr: {
         label: 'Certificat de Qualification',
         issuer: 'Athar — Plateforme des Maisons de Jeunes',
-        btn_print: '🖨️ Imprimer le Certificat',
+        btn_print: 'Imprimer le Certificat',
         msg_missing: 'Certificat introuvable.',
         msg_not_yours: 'Ce certificat ne vous appartient pas.',
         name_fallback: '—'
@@ -24,7 +25,7 @@ const DICT = {
     en: {
         label: 'Certificate of Qualification',
         issuer: 'Athar — Youth Hostels Digital Platform',
-        btn_print: '🖨️ Print Certificate',
+        btn_print: 'Print Certificate',
         msg_missing: 'Certificate not found.',
         msg_not_yours: 'This certificate does not belong to you.',
         name_fallback: '—'
@@ -72,7 +73,7 @@ async function init() {
 
     document.getElementById('cert-label').textContent = d.label;
     document.getElementById('cert-issuer').textContent = d.issuer;
-    document.getElementById('btn-print').textContent = d.btn_print;
+    document.getElementById('btn-print').innerHTML = `${ic('print', 16)} ${d.btn_print}`;
 
     const courseRes = await neon.from('training_courses').select().id(enroll.course_id);
     const course = courseRes.data ? courseRes.data[0] : null;
