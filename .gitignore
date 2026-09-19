@@ -3,5 +3,4 @@ public/
 .env*
 *.log
 .vercel/
-mobile/node_modules/
 /.superpowers/

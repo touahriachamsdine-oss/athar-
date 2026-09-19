@@ -11,7 +11,6 @@ Futuristic Premium Digital Platform for Youth Hostels, Scientific/Cultural Club 
 ## ⚡ Technical Stack & Architecture
 - **Design Paradigm**: **Neo-Flat Borderless Glassmorphic** UI system. Curated color palette (Crimson Pink `#FF2A6D`, Cyber Cyan `#05D9E8`, Amethyst Purple `#A300FF`, and Solar Amber `#FFBE0B`) with physical spring motion animations (`cubic-bezier` curves) and zero-border aesthetics.
 - **Backend Infrastructure**: Custom serverless RESTful **Neon PostgreSQL Client** (`neon.js`) executing dynamic PostgREST operations directly without bloated vendor libraries.
-- **Real-time Engine**: Long-polling serverless heartbeat system (`realtime.js`) built directly on top of the Neon client for robust sync.
 - **PWA Capabilities**: Full service-worker offline caching capability, standard web manifest support, and responsive layouts.
 - **Development & Routing**: Integrated Node.js local dev server (`server.js`) simulating Vercel's edge routing rewrites for frictionless SPA-like navigation.
 
@@ -44,7 +43,7 @@ Open your browser and navigate to [http://localhost:3000](http://localhost:3000)
 ## 📁 Directory Structure
 - `pages/`: Clean SPA views (index, dashboard, explore, initiative, admin, profiles, tasks, etc.).
 - `src/css/`: Advanced Neo-Flat borderless token systems (`variables.css`, `glass.css`, `components.css`, `animations.css`).
-- `src/js/`: Modular ES modules (`neon.js`, `auth.js`, `i18n.js`, `realtime.js`, `layout.js`).
+- `src/js/`: Modular ES modules (`neon.js`, `auth.js`, `i18n.js`, `layout.js`).
 - `sql/`: PostgreSQL database schema source code.
 - `public/`: Output build folder targeted by Vercel deployments.
 
