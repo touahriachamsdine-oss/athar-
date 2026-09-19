@@ -89,7 +89,19 @@ export const TRANSLATIONS = {
         admin_no_initiative: 'لا يوجد',
         f_policy: 'الخصوصية',
         f_terms: 'شروط الاستخدام',
-        f_cookies: 'ملفات الارتباط'
+        f_cookies: 'ملفات الارتباط',
+        nav_chat: 'المساعد الذكي',
+        chat_title: 'مساعد أثر الذكي',
+        chat_subtitle: 'أجب عن النشاطات، التسجيل، التطوع، المواعيد والبرامج — بالعربية، الفرنسية أو الأمازيغية',
+        chat_placeholder: 'اكتب سؤالك هنا...',
+        chat_send: 'إرسال',
+        chat_offline: 'المساعد الذكي غير متاح حالياً — حاول مجدداً لاحقاً',
+        chat_lang: 'لغة المساعد',
+        chat_greeting: 'أهلاً! أنا مساعد أثر. اسألني عن أي شيء في دار الشباب: النوادي، التطوع، النقاط أو التسجيل',
+        chat_suggest_club: 'كيف أنضم إلى نادي الروبوتيك؟',
+        chat_suggest_volunteer: 'ما هي الأنشطة التطوعية المتوفرة؟',
+        chat_suggest_points: 'كيف أكسب نقاط الأثر؟',
+        chat_suggest_register: 'كيف أسجل في منصة أثر؟'
     },
     fr: {
         nav_dashboard: 'Tableau de bord',
@@ -177,7 +189,19 @@ export const TRANSLATIONS = {
         admin_no_initiative: 'Aucune',
         f_policy: 'Confidentialité',
         f_terms: 'Conditions',
-        f_cookies: 'Cookies'
+        f_cookies: 'Cookies',
+        nav_chat: 'Assistant IA',
+        chat_title: 'Assistant Athar',
+        chat_subtitle: 'Renseignez-vous sur les activités, inscriptions, bénévolat, horaires et programmes — en arabe, français ou amazighe',
+        chat_placeholder: 'Écrivez votre question ici...',
+        chat_send: 'Envoyer',
+        chat_offline: 'L\'assistant est indisponible pour le moment — réessayez plus tard',
+        chat_lang: 'Langue de l\'assistant',
+        chat_greeting: 'Bonjour ! Je suis l\'assistant Athar. Posez-moi une question sur la Maison des Jeunes : clubs, bénévolat, points ou inscription',
+        chat_suggest_club: 'Comment rejoindre le club robotique ?',
+        chat_suggest_volunteer: 'Quelles activités de bénévolat sont disponibles ?',
+        chat_suggest_points: 'Comment gagner des points d\'impact ?',
+        chat_suggest_register: 'Comment s\'inscrire sur Athar ?'
     },
     en: {
         nav_dashboard: 'Dashboard',
@@ -265,7 +289,19 @@ export const TRANSLATIONS = {
         admin_no_initiative: 'None',
         f_policy: 'Privacy',
         f_terms: 'Terms',
-        f_cookies: 'Cookies'
+        f_cookies: 'Cookies',
+        nav_chat: 'AI Assistant',
+        chat_title: 'Athar Assistant',
+        chat_subtitle: 'Ask about activities, registration, volunteering, schedules and programs — in Arabic, French or Amazigh',
+        chat_placeholder: 'Type your question here...',
+        chat_send: 'Send',
+        chat_offline: 'The assistant is unavailable right now - try again later',
+        chat_lang: 'Assistant language',
+        chat_greeting: 'Hi! I am the Athar assistant. Ask me anything about the Youth House: clubs, volunteering, points or registration',
+        chat_suggest_club: 'How do I join the robotics club?',
+        chat_suggest_volunteer: 'What volunteering activities are available?',
+        chat_suggest_points: 'How do I earn impact points?',
+        chat_suggest_register: 'How do I register on Athar?'
     }
 };
 

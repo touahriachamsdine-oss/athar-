@@ -57,6 +57,8 @@ Configure the following environment variables in your Vercel project settings (o
   - `NEON_ANON_KEY`: Neon anonymous API key for public read operations
 - **Server-Only (Never exposed to client / static build):**
   - `SERVICE_ROLE_KEY`: Service role key for bypass operations and audit logging
+  - `GROQ_API_KEY`: Groq key powering the AI assistant endpoint (`/api/ai`). Missing key returns `503` (assistant shows a friendly offline message) — the app never breaks without it.
+  - `GROQ_MODEL`: Groq model name (default `openai/gpt-oss-120b`; `allam-2-7b` is the Arabic-only alternative)
   - `UPSTASH_REDIS_REST_URL` & `UPSTASH_REDIS_REST_TOKEN`: Upstash REST Redis for distributed rate limiting (optional; graceful fallback if absent)
   - `APP_ORIGIN`: Allowed application origin for CORS headers (`https://your-domain.vercel.app`)
 
@@ -67,15 +69,17 @@ Configure the following environment variables in your Vercel project settings (o
 
 ### 3. Build Contract & Vercel Security (`vercel.json`)
 - **Build Command:** `node build.js` bundles static assets into `public/`, securely injecting active Neon configuration values.
-- **CSP & Headers (`vercel.json`):** Enforces strict Content Security Policy (`connect-src` restricted to Neon endpoints), X-Content-Type-Options `nosniff`, and `no-referrer` policies. No secrets are ever included in the static build output.
+- **CSP & Headers (`vercel.json`):** Enforces strict Content Security Policy (`connect-src` restricted to Neon endpoints; `script-src`/`style-src` allow the unpkg CDN for the Leaflet map; `img-src` allows OSM tile servers), X-Content-Type-Options `nosniff`, and `no-referrer` policies. No secrets are ever included in the static build output.
+- **AI Assistant:** `POST /api/ai` (serverless `api/ai.js`) streams read-only consultative answers from Groq. Guards: input/turn-size limits, per-IP in-memory rate limiting (20/min), language validation (ar/fr/en/amz), personalized member context (name, role, points, clubs) for signed-in users. Page at `/chat`.
 
 ### 4. Pre-Flight Verification & Live Smoke Ladder
 Before promoting to production, execute the automated test suites and the manual live smoke script:
 ```bash
-# Run the 3 automated test suites (120 + 25 + 18 tests = 163 total assertions)
+# Run the 3 automated test suites (120 + 25 + 18 tests = 163 total assertions) plus the AI assistant suite
 node tests/run_tests.js
 node tests/api_test.js
 node tests/auth_contract_test.js
+node tests/ai_test.js
 
 # Run the project build
 node build.js

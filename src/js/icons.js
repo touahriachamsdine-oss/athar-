@@ -65,7 +65,8 @@ const PATHS = {
     heartFill: '<path fill="currentColor" stroke="none" d="M12 20.5S4.5 15 4.5 9.4A4.4 4.4 0 0 1 12 6a4.4 4.4 0 0 1 7.5 3.4c0 5.6-7.5 11.1-7.5 11.1Z"/>',
     play: '<path d="M7 4.5v15l12-7.5Z"/>',
     video: '<rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m10 9 5 3-5 3Z"/>',
-    award: '<circle cx="12" cy="9" r="5.5"/><path d="m8.5 13-1.5 8 5-2.5 5 2.5-1.5-8"/>'
+    award: '<circle cx="12" cy="9" r="5.5"/><path d="m8.5 13-1.5 8 5-2.5 5 2.5-1.5-8"/>',
+    chat: '<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4.5A2.5 2.5 0 0 1 4 13.5Z"/><path d="M8 8.5h8M8 12h5"/>',
 };
 
 export function ic(name, size = 20, opts = {}) {

@@ -4,6 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import { processAction } from './api/action.js';
+import { processChat } from './api/ai.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -54,6 +55,28 @@ const server = http.createServer((req, res) => {
                     ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '',
                     userAgent: req.headers['user-agent'] || '',
                     requestId: req.headers['x-request-id'] || ('req-' + Date.now())
+                });
+                res.setHeader('Access-Control-Allow-Origin', process.env.APP_ORIGIN || '*');
+                res.setHeader('Content-Type', 'application/json');
+                res.statusCode = out.status;
+                res.end(JSON.stringify(out.body));
+            })
+            .catch((e) => {
+                res.statusCode = 500;
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify({ error: { code: 'server_error', message: e.message } }));
+            });
+        return;
+    }
+
+    // AI assistant parity: mirror /api/ai locally (matches api/ai.js)
+    if (req.method === 'POST' && urlPath === '/api/ai') {
+        readBody(req)
+            .then(async (raw) => {
+                const body = JSON.parse(raw || '{}');
+                const out = await processChat(body, {
+                    ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '',
+                    userAgent: req.headers['user-agent'] || ''
                 });
                 res.setHeader('Access-Control-Allow-Origin', process.env.APP_ORIGIN || '*');
                 res.setHeader('Content-Type', 'application/json');
