@@ -29,7 +29,8 @@
 - Photos/videos in stories (sticker cards stay), replies/DMs, sounds.
 - Per-author grouping in the story player (flat newest-first queue; each author
   typically has one snap).
-- Reward catalog beyond admin CRUD + stock + fulfill (no delivery tracking).
+- Forum/chat media uploads (text only), private 1:1 DMs.
+- Fulfillment/delivery tracking for physical rewards.
 
 ---
 
@@ -124,9 +125,11 @@ create table public.shop_redemptions (
 
 **RLS:**
 - `shop_rewards`: `select` for all authenticated users (UI filters `is_active`);
-  insert/update/delete via `is_platform_admin()`.
-- `shop_redemptions`: `select` own rows; admin can select all, and update status via the
-  RPC only (no direct table writes for users).
+  insert/update/delete via `is_platform_admin()` (admin edits everything, including
+  delete).
+- `shop_redemptions`: `select` own rows; admin can select all, edit any field (status,
+  cost, code), and delete rows. Direct redemption inserts remain RPC-only for ordinary
+  users to keep the ledger atomic.
 
 ### B2. RPCs
 
@@ -172,8 +175,11 @@ Security definer, admin-only (`is_platform_admin()`). Validates status in
 - i18n AR/FR/EN.
 
 **`pages/admin.html` + `src/pages/admin.js`**:
-- New tab "المتجر": rewards management (add/edit/deactivate, cost/kind/stock/icon) and
-  redemptions queue (fulfill/cancel). Uses existing gateway-style writes + new RPC.
+- New tab "المتجر": full control — rewards management (add/edit/delete/deactivate,
+  cost/kind/stock/icon) and redemptions (edit status/cost/code, fulfil/cancel, delete
+  any redemption row).
+- Points adjustment control per user (positive/negative via existing
+  `award_points_admin`) surfaced in the shop tab so admins can fix balances.
 - `setupTabs()` picks up the new `.tab-btn[data-tab="shop"]`.
 
 ### B5. Icons
@@ -196,6 +202,100 @@ store admin tab labels, nav keys.
 
 ---
 
+## Part C — Club forums + global chat
+
+Threads per club + one app-wide global chat. Delivery is client polling (~4s) — no
+websockets/infra; works on serverless + demo/mock mode.
+
+### C1. Schema (`sql/schema.sql`)
+
+Also add a club moderatorship now that forums need one (clubs have no creator today):
+
+```sql
+alter table public.clubs add column created_by uuid references public.profiles(id);
+alter table public.club_members add column role text not null default 'member'
+    check (role in ('member','moderator'));
+-- the first member of a club is auto-promoted to moderator (club "founder")
+-- via a BEFORE INSERT trigger on club_members when the club has no moderator yet.
+```
+
+Content tables:
+
+```sql
+create table public.club_threads (
+    id uuid primary key default gen_random_uuid(),
+    club_id uuid not null references public.clubs(id) on delete cascade,
+    author_id uuid not null references public.profiles(id) on delete cascade,
+    title text not null check (char_length(trim(title)) between 3 and 120),
+    body text not null check (char_length(trim(body)) <= 4000),
+    is_pinned boolean not null default false,
+    created_at timestamptz not null default now(),
+    updated_at timestamptz not null default now()
+);
+
+create table public.thread_replies (
+    id uuid primary key default gen_random_uuid(),
+    thread_id uuid not null references public.club_threads(id) on delete cascade,
+    author_id uuid not null references public.profiles(id) on delete cascade,
+    body text not null check (char_length(trim(body)) <= 2000),
+    created_at timestamptz not null default now(),
+    updated_at timestamptz not null default now()
+);
+
+create table public.chat_messages (
+    id uuid primary key default gen_random_uuid(),
+    user_id uuid not null references public.profiles(id) on delete cascade,
+    body text not null check (char_length(trim(body)) between 1 and 1000),
+    created_at timestamptz not null default now()
+);
+```
+
+**RLS / permissions:**
+
+| Table | Read | Insert | Edit / Delete |
+|---|---|---|---|
+| `club_threads` | all authenticated | club member | own rows; club moderator; admin |
+| `thread_replies` | all authenticated | club member | own rows; club moderator; admin |
+| `chat_messages` | authenticated readers (guests read-only feed) | any authenticated | own rows; admin (no moderation role needed for global) |
+
+Helpers: `is_club_member(bigint)`-style predicate via subquery on `club_members`;
+`is_club_moderator` = own `club_members.role = 'moderator'` or `is_platform_admin()`.
+Admin keeps the "edit anything" guarantee across all forum/chat content via
+`is_platform_admin()`.
+
+### C2. Pages & client
+
+**`pages/forum.html` + `src/pages/forum.js`** (club forums):
+- Club picker list (reuse `clubs` fetch). Selecting a club shows its threads
+  (title, author, reply count, pinned first).
+- Thread detail view: body + replies (newest first), reply composer.
+- Create-thread composer (title + body), only when `is_club_member(user, club)`.
+- Posting via existing gateway (`neon.from('club_threads').insert(...)` /
+  `thread_replies`); RLS enforces membership. Reads poll every ~4s and when opening a
+  thread.
+- Light client-side moderation affordances: edit/delete controls rendered only for
+  owners, club moderators, and admins (enforced server-side by RLS).
+- On a reply to a thread you authored, insert a `notifications` row (reuse existing
+  table/`create_notification` shape) — lightweight, best-effort in demo mode.
+
+**`pages/global.html` + `src/pages/global.js`** (global chat):
+- Full-height live feed, newest at bottom, auto-scroll on new messages, messages show
+  author name + avatar ring + time.
+- Composer posts via `chat_messages` insert; feed polls `chat_messages` (limit ~50,
+  desc) every 4s and dedupes by id.
+- Guests: read-only feed (`requireAuth({ guests: true })`; composer hidden for guests).
+- Client pulls author names from the `profiles` fetch already loaded.
+
+### C3. Navigation & i18n
+
+- Nav: "منتدى الأندية" (forum) and "المحادثة العامة" (global) as top-level links;
+  "الأثر" (impact) and "متجر النقاط" (shop) added as planned in B6. Sidebar stays
+  under the clutter budget by folding impact under "المزيد".
+- i18n keys (AR/FR/EN symmetric): forum nav, thread/reply composers, empty states,
+  member-only guard notice, global chat labels, statuses, admin moderation labels.
+
+---
+
 ## Error handling
 
 | Case | Behavior |
@@ -215,18 +315,24 @@ store admin tab labels, nav keys.
   decrements; digital redemption mints a unique `ATH-` code; duplicate/invalid reward
   rejects; admin fulfill toggles status; non-admin fulfill rejected; ledger write
   function-only invariant holds (no direct profile point edits).
+- Extend with **Phase 4E mock forum/chat parity**: member can post thread/reply,
+  non-member insert rejected; edit/delete own rows; club moderator + admin can edit/delete
+  any row in their club; global chat insert works for authenticated users; guests blocked;
+  author notified on new reply.
 - `node tests/api_test.js`, `node tests/auth_contract_test.js`, `node tests/ai_test.js` —
   keep green; extend ai_test structurally if needed (e.g., shop page CSP: no inline
   handlers, mirrors other pages).
 - `node build.js`, then smoke checks against the detached `:3000` server
-  (`--env-file=.env`): shop.html/stories.html/impact.html/volunteers.html served, new
-  JS/CSS present.
+  (`--env-file=.env`): forum.html/global.html/shop.html/stories.html/impact.html/
+  volunteers.html served, new JS/CSS present.
 - Commit (git -c user.name=anouar -c user.email=anouar@local, Conventional Commits).
 
 ## Sequencing
 
 1. Shop schema + RPCs + mock parity + tests (foundational, independent).
-2. Shop page + admin store tab + nav + i18n.
-3. Volunteers split: new `impact.html`, slim `volunteers.html`, dedicated `stories.html`
+2. Shop page + admin store tab (full edit rights) + nav + i18n.
+3. Forum/chat schema + mock parity + tests (club moderator trigger + RLS).
+4. Forum page + global chat page + nav + i18n.
+5. Volunteers split: new `impact.html`, slim `volunteers.html`, dedicated `stories.html`
    with the Snapchat inbox/player, shared `stories.js`.
-4. Full verification pass + commit.
+6. Full verification pass + commit.
