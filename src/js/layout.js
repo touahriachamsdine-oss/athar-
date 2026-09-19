@@ -13,14 +13,29 @@ export function injectLayout() {
     const isAdmin = userRole === 'admin' || userRole === 'superadmin';
     const isGuest = !localStorage.getItem('neon_session');
 
+    const moreSubmenu = `
+        <button class="more-btn nav-item" style="border:none; background:none; cursor:pointer; text-align:start; width:100%; align-items:center; gap:8px; font-size:inherit; color:var(--text-primary);">
+            <span>${ic('zap', 16)}</span> ${t.nav_more}
+            <span style="margin-left:auto;">${ic('chevronDown', 14)}</span>
+        </button>
+        <div class="more-sub" style="display:none; flex-direction:column; gap:2px; margin:2px 0 2px 14px; padding:4px 4px 4px 10px; border-left:1px solid rgba(255,255,255,0.08);">
+            <a href="notifications.html" class="nav-item ${isActive('notifications')}"><span>${ic('bell', 15)}</span> ${t.nav_notifications}</a>
+            <a href="invites.html" class="nav-item ${isActive('invites')}"><span>${ic('send', 15)}</span> ${t.nav_invites}</a>
+            <a href="tasks.html" class="nav-item ${isActive('tasks')}"><span>${ic('check', 15)}</span> ${t.nav_tasks}</a>
+            <a href="create.html" class="nav-item ${isActive('create')}"><span>${ic('plus', 15)}</span> ${t.nav_create}</a>
+        </div>
+    `;
+
     const navLinks = `
         <a href="dashboard.html" class="nav-item ${isActive('dashboard')}"><span>${ic('home')}</span> ${t.nav_dashboard}</a>
         <a href="clubs.html" class="nav-item ${isActive('clubs')}"><span>${ic('robot')}</span> ${t.nav_clubs}</a>
+        <a href="schools.html" class="nav-item ${isActive('schools')}"><span>${ic('school')}</span> ${t.nav_schools}</a>
         <a href="explore.html" class="nav-item ${isActive('explore')}"><span>${ic('explore')}</span> ${t.nav_explore || 'استكشف'}</a>
         <a href="awareness.html" class="nav-item ${isActive('awareness')}"><span>${ic('shield')}</span> ${t.nav_awareness}</a>
         <a href="training.html" class="nav-item ${isActive('training')}"><span>${ic('grad')}</span> ${t.nav_training}</a>
         <a href="support.html" class="nav-item ${isActive('support')}"><span>${ic('heart')}</span> ${t.nav_support}</a>
         <a href="volunteers.html" class="nav-item ${isActive('volunteers')}"><span>${ic('hands')}</span> ${t.nav_volunteers}</a>
+        ${isGuest ? '' : moreSubmenu}
         <hr style="border:none; border-top:1px solid rgba(255,255,255,0.06); margin:5px 0;">
         ${isAdmin ? `<a href="admin.html" class="nav-item ${isActive('admin')}"><span>${ic('key')}</span> ${t.nav_admin}</a>` : ''}
         ${isGuest ? '' : `<a href="profile.html" class="nav-item ${isActive('profile')}"><span>${ic('user')}</span> ${t.nav_profile}</a>`}
@@ -164,6 +179,20 @@ export function injectLayout() {
         document.body.prepend(bg);
         new ParticleField('living-canvas');
     }
+
+    // 4. Wire "More" dropdown toggles (sidebar + mobile drawer)
+    const closeSubs = () => document.querySelectorAll('.more-sub').forEach(s => { s.style.display = 'none'; });
+    document.querySelectorAll('.more-btn').forEach(btn => {
+        btn.onclick = (e) => {
+            e.stopPropagation();
+            const sub = btn.nextElementSibling;
+            if (!sub) return;
+            const visible = sub.style.display === 'flex';
+            closeSubs();
+            sub.style.display = visible ? 'none' : 'flex';
+        };
+    });
+    document.addEventListener('click', closeSubs);
 }
 
 function isActive(page) {
