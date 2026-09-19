@@ -99,16 +99,16 @@
 
         <!-- TABS -->
         <div class="consult-tabs">
-            <button class="tab-btn active" id="tab-ask" onclick="switchTab('ask')">طرح استشارة جديدة</button>
-            <button class="tab-btn" id="tab-public" onclick="switchTab('public')">استشارات عامة مجابة</button>
-            <button class="tab-btn" id="tab-mine" onclick="switchTab('mine')">استشاراتي الخاصة</button>
+            <button class="tab-btn active" id="tab-ask" data-tab="ask">طرح استشارة جديدة</button>
+            <button class="tab-btn" id="tab-public" data-tab="public">استشارات عامة مجابة</button>
+            <button class="tab-btn" id="tab-mine" data-tab="mine">استشاراتي الخاصة</button>
         </div>
 
         <!-- TAB: ASK -->
         <section id="sec-ask" class="glass spring-in" style="padding:40px; border-radius:28px;">
             <h2 class="syne mb-20" style="font-size:24px; font-weight:700;" id="form-heading">اكتب سؤالك أو مشكلتك هنا بسرية تامة</h2>
             
-            <form id="consultation-form" onsubmit="submitConsultation(event)">
+            <form id="consultation-form">
                 <div class="mb-20">
                     <textarea id="question-textarea" class="input-field" rows="6" required placeholder="اكتب تفاصيل استشارتك هنا... نحن هنا للاستماع إليك ومساعدتك دون أي إحراج." style="resize:none; font-family:inherit; font-size:16px;"></textarea>
                 </div>

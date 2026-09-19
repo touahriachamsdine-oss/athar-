@@ -5,6 +5,7 @@
 #### Task 1: Full i18n & Dictionary Symmetry
 - **Files:** `src/js/i18n.js`, unlocalized pages (`auth.html`, `create.html`, `initiative.html`, `offline.html`).
 - **Action:** Add missing keys for ar/fr/en, ensuring 100% dictionary symmetry and zero untranslated UI strings.
+- **Status: [x] Done** — `auth.js` (login/signup/demo/recovery), `create.js` (header/form/publish), `initiative.js` (join/back/health/milestones/participants + localized title/desc), `offline.js` (new trilingual module). Also removed remaining CSP inline handlers (`support.html` tabs+form, `offline.html` retry, `initiative.js` back button).
 
 #### Task 2: Richer Seed Content & Quiz Bank Expansion
 - **Files:** `src/js/neon.js`.

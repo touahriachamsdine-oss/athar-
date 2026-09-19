@@ -16,10 +16,11 @@
 <body class="flex-center" style="height:100vh;">
     <div class="glass text-center" style="padding:40px; max-width:500px;">
         <div style="font-size:64px; color:var(--neon-red);"><span data-icon="signal" data-size="56"></span></div>
-        <h1 class="gradient-text mt-40">أنت غير متصل</h1>
-        <p style="opacity:0.7;">تعرض هذه الصفحة البيانات المحفوظة محلياً فقط.</p>
-        <button class="btn btn-primary mt-40" onclick="location.reload()">إعادة المحاولة</button>
+        <h1 class="gradient-text mt-40" id="off-title">أنت غير متصل</h1>
+        <p style="opacity:0.8;" id="off-sub">تعرض هذه الصفحة البيانات المحفوظة محلياً فقط.</p>
+        <button id="retry-btn" class="btn btn-primary mt-40">إعادة المحاولة</button>
     </div>
+  <script type="module" src="../src/pages/offline.js"></script>
   <script type="module" src="../src/js/cookieconsent.js"></script>
   <script type="module" src="../src/js/icons.js"></script>
 </body>

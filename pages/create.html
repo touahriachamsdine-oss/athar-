@@ -18,35 +18,35 @@
 
     <main class="container mt-40">
         <header style="margin-bottom:40px;">
-            <h1 class="gradient-text reveal active" style="font-size:36px;">إطلاق مبادرة جديدة</h1>
-            <p style="opacity:0.6;">ابدأ تغييراً إيجابياً في حيك اليوم</p>
+            <h1 class="gradient-text reveal active" style="font-size:36px;" id="page-title">إطلاق مبادرة جديدة</h1>
+            <p style="opacity:0.8;" id="page-subtitle">ابدأ تغييراً إيجابياً في حيك اليوم</p>
         </header>
 
         <div class="glass" style="max-width:800px; padding:40px; border-radius:30px;">
             <form id="create-form" style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
                 <div style="grid-column: span 2;">
-                    <label class="mono mb-10 block" style="font-size:12px; opacity:0.5;">INITIATIVE TITLE</label>
+                    <label class="mono mb-10 block" style="font-size:12px; opacity:0.75;">INITIATIVE TITLE</label>
                     <input type="text" id="title" placeholder="عنوان المبادرة" class="input-field" required>
                 </div>
 
                 <div style="grid-column: span 2;">
-                    <label class="mono mb-10 block" style="font-size:12px; opacity:0.5;">DESCRIPTION</label>
+                    <label class="mono mb-10 block" style="font-size:12px; opacity:0.75;">DESCRIPTION</label>
                     <textarea id="description" placeholder="اشرح هدف المبادرة بالتفصيل..." class="input-field"
                         style="height:150px; resize:none;" required></textarea>
                 </div>
 
                 <div>
-                    <label class="mono mb-10 block" style="font-size:12px; opacity:0.5;">WILAYA</label>
+                    <label class="mono mb-10 block" style="font-size:12px; opacity:0.75;">WILAYA</label>
                     <select id="wilaya" class="input-field" required></select>
                 </div>
 
                 <div>
-                    <label class="mono mb-10 block" style="font-size:12px; opacity:0.5;">CATEGORY</label>
+                    <label class="mono mb-10 block" style="font-size:12px; opacity:0.75;">CATEGORY</label>
                     <select id="category" class="input-field"></select>
                 </div>
 
                 <div style="grid-column: span 2; margin-top:20px;">
-                    <button type="submit" class="btn btn-primary" style="width:100%; padding:15px; font-size:18px;">نشر
+                    <button type="submit" class="btn btn-primary" style="width:100%; padding:15px; font-size:18px;" id="btn-publish">نشر
                         المبادرة</button>
                 </div>
             </form>

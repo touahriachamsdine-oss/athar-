@@ -79,6 +79,9 @@ async function init() {
     document.getElementById('lbl-anon').innerText = d.lbl_anon;
     document.getElementById('lbl-public').innerText = d.lbl_public;
     document.getElementById('btn-submit').innerText = d.btn_submit;
+
+    document.querySelectorAll('.tab-btn').forEach(b => b.onclick = () => switchTab(b.dataset.tab));
+    document.getElementById('consultation-form').onsubmit = (ev) => submitConsultation(ev);
 }
 
 window.switchTab = async function(tabName) {

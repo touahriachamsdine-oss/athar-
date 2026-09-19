@@ -8,8 +8,8 @@
 - Consumes: GoTrue recovery endpoints.
 - Produces: password reset flow.
 
-- [ ] **Step 1: Update `api/action.js`** to handle `recover` (password reset request) and `update_password` (new password submission with access token).
-- [ ] **Step 2: Update `src/js/neon.js`** with `recoverPassword(email)` and `updatePassword(token, newPassword)`.
-- [ ] **Step 3: Create `pages/reset-password.html` and `src/pages/reset-password.js`** to handle the token fragment and update password.
-- [ ] **Step 4: Update `pages/auth.html`** to include a "Forgot password?" link triggering a recovery modal/form.
-- [ ] **Step 5: Verify & Commit**
+- [x] **Step 1: Update `api/action.js`** to handle `recover` (password reset request) and `update_password` (new password submission with access token).
+- [x] **Step 2: Update `src/js/neon.js`** with `recoverPassword(email)` and `updatePassword(token, newPassword)`.
+- [x] **Step 3: Create `pages/reset-password.html` and `src/pages/reset-password.js`** to handle the token fragment and update password.
+- [x] **Step 4: Update `pages/auth.html`** to include a "Forgot password?" link triggering a recovery modal/form.
+- [x] **Step 5: Verify & Commit**
