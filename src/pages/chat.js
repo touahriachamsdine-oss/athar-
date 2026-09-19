@@ -38,9 +38,15 @@ function renderBubble(role, text) {
 
 function showTyping() {
     const box = byId('chat-messages');
-    const el = bubble('assistant', '…');
-    el.dataset.typing = '1';
-    box.appendChild(el);
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'display:flex; justify-content:flex-start;';
+    wrap.dataset.typing = '1';
+    const b = document.createElement('div');
+    b.style.cssText = 'max-width:78%; padding:14px 18px; border-radius:16px; font-size:14px;' +
+        'background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);';
+    b.innerHTML = '<div class="typing-dots" aria-label="typing"><span></span><span></span><span></span></div>';
+    wrap.appendChild(b);
+    box.appendChild(wrap);
     box.scrollTop = box.scrollHeight;
 }
 

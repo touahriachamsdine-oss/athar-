@@ -4,6 +4,7 @@ import { injectLayout } from '../js/layout.js';
 import { getCurrentLang } from '../js/i18n.js';
 import { timeAgo } from '../js/utils.js';
 import { ic } from '../js/icons.js';
+import { mountSkeleton, SKEL_ROWS } from '../js/skeletons.js';
 
 const DICT = {
     ar: { page: 'التنبيهات', subtitle: 'آخر الأخبار والتحديثات', mark_all: '✓ تحديد الكل كمقروء', empty_state: 'لا توجد إشعارات بعد' },
@@ -32,6 +33,8 @@ async function init() {
     document.getElementById('page-title').textContent = t.page;
     document.getElementById('page-subtitle').textContent = t.subtitle;
     document.getElementById('mark-all-btn').textContent = t.mark_all;
+
+    mountSkeleton(document.getElementById('notif-list'), SKEL_ROWS(4));
 
     // Real data in real mode; fall back to mock only in demo mode
     let notifs = [];

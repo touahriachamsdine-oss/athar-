@@ -5,6 +5,8 @@ import { injectLayout } from '../js/layout.js';
 import { esc } from '../js/utils.js';
 import { APP_CONFIG } from '../js/config.js';
 import { ic } from '../js/icons.js';
+import { renderWilayaMap } from '../js/map.js';
+import { mountSkeleton, SKEL_GRID, SKEL_ROWS, SKEL_MAP } from '../js/skeletons.js';
 
 const DICT = {
     ar: {
@@ -217,26 +219,6 @@ const STICKERS = ['hands', 'sprout', 'drop', 'wave', 'palette', 'box', 'cross'];
 const STICKER_SVG = { hands: 'hands', sprout: 'sprout', drop: 'drop', wave: 'wave', palette: 'palette', box: 'box', cross: 'cross', gloves: 'hands' };
 const stickerHtml = key => key ? (STICKER_SVG[key] ? ic(STICKER_SVG[key], 22) : key) : ic('camera', 22);
 const liveHeart = (liked) => ic(liked ? 'heartFill' : 'heart', 15);
-const GEO = { lonMin: -8.7, lonMax: 10.2, latMin: 18.9, latMax: 37.4 };
-const MAP_W = 620;
-const MAP_H = 620;
-const PAD = 46;
-const OUTLINE = [
-    [-2.3, 35.0], [-1.3, 35.35], [-0.5, 35.7], [0.1, 35.95], [0.9, 36.4], [1.9, 36.65],
-    [3.0, 36.7], [3.9, 36.5], [4.9, 36.7], [5.9, 36.9], [6.9, 36.9], [7.7, 36.95],
-    [8.5, 36.85], [8.6, 36.1], [8.1, 35.3], [8.6, 34.9], [8.2, 34.2], [8.4, 33.6],
-    [9.0, 32.6], [9.6, 31.2], [9.8, 29.8], [9.6, 28.2], [9.2, 26.8], [9.5, 25.3],
-    [8.6, 23.8], [7.4, 21.9], [9.0, 19.7], [4.5, 19.6], [2.5, 19.7], [1.0, 20.3],
-    [0.0, 20.8], [-1.2, 21.6], [-2.6, 22.7], [-3.6, 24.1], [-4.6, 25.6], [-5.6, 27.1],
-    [-8.1, 27.2], [-8.2, 26.0], [-6.5, 27.9], [-3.5, 29.6], [-1.5, 30.5], [0.0, 31.0],
-    [-1.0, 32.2], [-1.8, 33.4], [-2.3, 35.0]
-];
-
-const project = (lat, lng) => [
-    PAD + (lng - GEO.lonMin) / (GEO.lonMax - GEO.lonMin) * (MAP_W - 2 * PAD),
-    PAD + (GEO.latMax - lat) / (GEO.latMax - GEO.latMin) * (MAP_H - 2 * PAD)
-];
-
 const storyAge = (s) => new Date().getTime() - new Date(s.created_at).getTime();
 const storyAlive = (s) => storyAge(s) < STORY_TTL;
 const storyHoursLeft = (s) => Math.max(0, Math.ceil((STORY_TTL - storyAge(s)) / 3600000));
@@ -271,48 +253,8 @@ function wilayaHeat() {
     return heat;
 }
 
-function heatColor(r) {
-    if (r <= 0) return '#3a4060';
-    if (r < 0.34) return '#05d9e8';
-    if (r < 0.67) return '#ffbe0b';
-    return '#ff2a6d';
-}
-
 function renderHeatmap() {
-    const heat = wilayaHeat();
-    const max = Math.max(1, ...Object.values(heat));
-    const top = Object.entries(heat).sort((a, b) => b[1] - a[1]).slice(0, 3).filter(x => x[1] > 0).map(x => x[0]);
-    const path = OUTLINE.map(([lat, lng]) => {
-        const [x, y] = project(lat, lng);
-        return x.toFixed(1) + ',' + y.toFixed(1);
-    }).join(' ');
-
-    const dots = APP_CONFIG.wilayas.map((w, i) => {
-        const [lat, lng] = APP_CONFIG.wilayaCoords[i];
-        const [x, y] = project(lat, lng);
-        const count = heat[w];
-        const ratio = count / max;
-        const r = (4.5 + 9 * ratio).toFixed(1);
-        const pulse = top.includes(w) && ratio >= 0.5 ? `<circle class="hot-pulse" cx="${x}" cy="${y}" r="${(r * 2.1).toFixed(1)}" fill="none" stroke="${heatColor(ratio)}"></circle>` : '';
-        const label = count > 0
-            ? `<text x="${x}" y="${(y - r - 5).toFixed(1)}" text-anchor="middle" class="heat-label" fill="#d8d9ef" opacity="0.9">${esc(w)}</text>`
-            : '';
-        return `${pulse}
-            <circle cx="${x}" cy="${y}" r="${r}" fill="${heatColor(ratio)}" opacity="${count > 0 ? 0.95 : 0.28}">
-                <title>${esc(w)} — ${count} ${t('lb_points')}</title>
-            </circle>${label}`;
-    }).join('\n');
-
-    document.getElementById('heat-map').innerHTML = `
-        <svg viewBox="0 0 ${MAP_W} ${MAP_H}" xmlns="http://www.w3.org/2000/svg" class="heat-svg" role="img" aria-label="Algeria activity heatmap">
-            <polygon points="${path}" fill="rgba(20,22,42,0.55)" stroke="rgba(255,255,255,0.14)" stroke-width="1"></polygon>
-            ${dots}
-        </svg>`;
-    document.getElementById('heat-legend').innerHTML = `
-        <div class="heat-cell"><span class="heat-swatch" style="background:#3a4060"></span> ${t('heat_low')}</div>
-        <div class="heat-cell"><span class="heat-swatch" style="background:#05d9e8"></span> ${t('heat_mid')}</div>
-        <div class="heat-cell"><span class="heat-swatch" style="background:#ffbe0b"></span> ${t('heat_high')}</div>
-        <div class="heat-cell"><span class="heat-swatch" style="background:#ff2a6d"></span> ${t('heat_high')} ${ic('sparkle', 13)}</div>`;
+    renderWilayaMap('heat-map', wilayaHeat());
 }
 
 function renderStories() {
@@ -633,6 +575,13 @@ async function init() {
     const d = DICT[lang] || DICT.ar;
     setLanguage(lang);
     injectLayout();
+
+    mountSkeleton(document.getElementById('heat-map'), SKEL_MAP);
+    mountSkeleton(document.getElementById('stories-grid'), SKEL_GRID(4, 150));
+    mountSkeleton(document.getElementById('squads-grid'), SKEL_GRID(4, 120));
+    mountSkeleton(document.getElementById('sessions-grid'), SKEL_GRID(4));
+    mountSkeleton(document.getElementById('lb-grid'), SKEL_ROWS(4));
+    mountSkeleton(document.getElementById('queue-grid'), SKEL_GRID(3, 150));
 
     isAdmin = sess.profile && (sess.profile.role === 'admin' || sess.profile.role === 'superadmin');
 

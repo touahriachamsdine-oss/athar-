@@ -1,6 +1,7 @@
 import { requireAuth } from '../js/auth.js';
 import { neon } from '../js/neon.js';
 import { injectLayout } from '../js/layout.js';
+import { mountSkeleton, SKEL_ROWS } from '../js/skeletons.js';
 
 const DICT = {
     ar: { pending: 'لا توجد دعوات قيد الانتظار', accept: 'قبول الدعوة', accepted: 'تم القبول', ok_msg: 'تم قبول الدعوة بنجاح', err_msg: 'حدث خطأ أثناء قبول الدعوة' },

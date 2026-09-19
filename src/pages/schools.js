@@ -4,6 +4,7 @@ import { setLanguage, getCurrentLang } from '../js/i18n.js';
 import { injectLayout } from '../js/layout.js';
 import { APP_CONFIG } from '../js/config.js';
 import { ic } from '../js/icons.js';
+import { mountSkeleton, SKEL_ROWS } from '../js/skeletons.js';
 
 const ACTIVITY_ICONS = { awareness_day: 'health', hostel_visit: 'robot', competition: 'code', partnership: 'hands' };
 
@@ -89,6 +90,8 @@ async function init() {
 
     setLanguage(lang);
     injectLayout();
+
+    mountSkeleton(document.getElementById('visits-list'), SKEL_ROWS(4));
 
     // Populate Wilayas select
     const wSelect = document.getElementById('wilaya');

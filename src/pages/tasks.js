@@ -4,6 +4,7 @@ import { injectLayout } from '../js/layout.js';
 import { getCurrentLang } from '../js/i18n.js';
 import { showToast } from '../js/utils.js';
 import { ic } from '../js/icons.js';
+import { mountSkeleton, SKEL_ROWS } from '../js/skeletons.js';
 
 const DICT = {
     ar: { page: 'مهامي اليومية', subtitle: 'المهام والتحديات المسندة إليك', empty: 'لا توجد مهام مسندة إليك حالياً', completed: 'مكتمل', pending: 'قيد التنفيذ', mark_done: 'تحديد كمكتمل', done_msg: 'تم تحديد المهمة كمكتملة!' },

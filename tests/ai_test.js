@@ -147,7 +147,8 @@ async function run() {
     assert(chatHtml.includes('icons.js'), 'chat page includes icons');
     assert(!/onclick=|onsubmit=/.test(chatHtml), 'chat page has no inline event handlers (CSP-safe)');
     const layoutSrc = fs.readFileSync(path.join(ROOT, 'src', 'js', 'layout.js'), 'utf8');
-    assert(layoutSrc.includes('chat.html'), 'layout ships the floating chat button');
+    assert(layoutSrc.includes('chatwidget.js') && layoutSrc.includes('toggleChatWidget'), 'layout wires the corner chat widget');
+    assert(layoutSrc.includes('floating-ai-btn'), 'layout ships the floating chat button');
 
     console.log('\n[Phase 6] i18n chat keys (trilingual symmetry)');
     const i18n = await import('../src/js/i18n.js');

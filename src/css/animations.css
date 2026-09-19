@@ -82,3 +82,66 @@
 .pulse-glow {
     animation: pulseGlow 2.5s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
 }
+
+/* ---- AI typing dots (assistant bubble) ---- */
+@keyframes typedot {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.35; }
+    30% { transform: translateY(-4px); opacity: 1; }
+}
+
+.typing-dots {
+    display: inline-flex;
+    gap: 5px;
+    align-items: center;
+}
+.typing-dots span {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #8b8fa8;
+    animation: typedot 1.2s ease-in-out infinite;
+}
+.typing-dots span:nth-child(2) { animation-delay: 0.15s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.3s; }
+
+/* ---- Skeleton shimmer loading placeholders ---- */
+@keyframes skelshift {
+    100% { transform: translateX(100%); }
+}
+
+.skel-block {
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.06);
+}
+.skel-block::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    animation: skelshift 1.4s ease-in-out infinite;
+}
+
+.skel-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 16px;
+}
+.skel-card {
+    height: 180px;
+}
+
+.skel-map {
+    height: 420px;
+    border-radius: 16px;
+}
+
+.skel-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.skel-row {
+    height: 58px;
+    border-radius: 14px;
+}

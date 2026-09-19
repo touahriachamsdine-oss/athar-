@@ -3,6 +3,7 @@ import { neon } from '../js/neon.js';
 import { setLanguage, getCurrentLang } from '../js/i18n.js';
 import { injectLayout } from '../js/layout.js';
 import { ic } from '../js/icons.js';
+import { mountSkeleton, SKEL_ROWS } from '../js/skeletons.js';
 
 const CAT_ICONS = { robotics: 'robot', programming: 'code', theater: 'theater', music: 'music', reading: 'book', other: 'sparkle' };
 
@@ -93,6 +94,12 @@ async function init() {
 
     setLanguage(lang);
     injectLayout();
+
+    if (!auth.guest) {
+        mountSkeleton(document.getElementById('joined-clubs-list'), SKEL_ROWS(3));
+        mountSkeleton(document.getElementById('joined-courses-list'), SKEL_ROWS(3));
+        mountSkeleton(document.getElementById('counseling-list'), SKEL_ROWS(3));
+    }
 
     if (auth.guest) {
         document.getElementById('welcome-title').innerText = d.welcome_guest;

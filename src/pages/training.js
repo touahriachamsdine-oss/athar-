@@ -4,6 +4,7 @@ import { setLanguage, getCurrentLang } from '../js/i18n.js';
 import { injectLayout } from '../js/layout.js';
 import { esc } from '../js/utils.js';
 import { ic } from '../js/icons.js';
+import { mountSkeleton, SKEL_GRID, SKEL_ROWS } from '../js/skeletons.js';
 
 const DICT = {
     ar: {
@@ -61,6 +62,10 @@ async function init() {
 
     setLanguage(lang);
     injectLayout();
+
+    mountSkeleton(document.getElementById('courses-grid'), SKEL_GRID(6));
+    const enrollRows = document.getElementById('enroll-list');
+    if (enrollRows) mountSkeleton(enrollRows, SKEL_ROWS(3));
 
     // Localize Strings
     document.getElementById('page-title').innerText = d.title;

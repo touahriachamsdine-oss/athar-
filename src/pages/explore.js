@@ -5,6 +5,7 @@ import { getCurrentLang } from '../js/i18n.js';
 import { APP_CONFIG } from '../js/config.js';
 import { esc } from '../js/utils.js';
 import { ic } from '../js/icons.js';
+import { mountSkeleton, SKEL_GRID } from '../js/skeletons.js';
 
 const CAT_COLORS_BG = ['rgba(5,217,232,0.1)', 'rgba(255,42,109,0.1)', 'rgba(255,190,11,0.1)', 'rgba(163,0,255,0.1)'];
 const CAT_COLORS_FG = ['var(--accent-cyan)', 'var(--accent-pink)', 'var(--accent-amber)', 'var(--accent-purple)'];
@@ -66,6 +67,8 @@ async function init() {
     const auth = await requireAuth({ guests: true });
     if (!auth) return;
     injectLayout();
+
+    mountSkeleton(document.getElementById('explore-grid'), SKEL_GRID(8));
 
     const lang = getCurrentLang();
     const t = DICT[lang] || DICT.ar;

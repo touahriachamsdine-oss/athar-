@@ -3,6 +3,7 @@ import { neon } from '../js/neon.js';
 import { setLanguage, getCurrentLang } from '../js/i18n.js';
 import { injectLayout } from '../js/layout.js';
 import { ic } from '../js/icons.js';
+import { mountSkeleton, SKEL_GRID } from '../js/skeletons.js';
 
 const DICT = {
     ar: {
@@ -250,6 +251,8 @@ async function init() {
 
     setLanguage(lang);
     injectLayout();
+
+    mountSkeleton(document.getElementById('articles-grid'), SKEL_GRID(6));
 
     // Localize Static UI
     document.getElementById('page-title').innerText = d.title;

@@ -4,6 +4,7 @@ import { getCurrentLang, setLanguage, TRANSLATIONS } from './i18n.js';
 import { toggleTheme, initTheme } from './theme.js';
 import { ParticleField } from './particles.js';
 import { ic } from './icons.js';
+import { toggleChatWidget } from './chatwidget.js';
 
 export function injectLayout() {
     initTheme();
@@ -28,7 +29,7 @@ export function injectLayout() {
 
     const navLinks = `
         <a href="dashboard.html" class="nav-item ${isActive('dashboard')}"><span>${ic('home')}</span> ${t.nav_dashboard}</a>
-        <a href="chat.html" class="nav-item ${isActive('chat')}"><span>${ic('chat')}</span> ${t.nav_chat}</a>
+        <button type="button" class="nav-item ai-nav-btn" style="border:none; background:none; cursor:pointer; color:var(--text-primary); font-family:inherit; font-size:inherit; text-align:start; width:100%;"><span>${ic('chat')}</span> ${t.nav_chat}</button>
         <a href="clubs.html" class="nav-item ${isActive('clubs')}"><span>${ic('robot')}</span> ${t.nav_clubs}</a>
         <a href="schools.html" class="nav-item ${isActive('schools')}"><span>${ic('school')}</span> ${t.nav_schools}</a>
         <a href="explore.html" class="nav-item ${isActive('explore')}"><span>${ic('explore')}</span> ${t.nav_explore || 'استكشف'}</a>
@@ -193,19 +194,24 @@ export function injectLayout() {
             sub.style.display = visible ? 'none' : 'flex';
         };
     });
-    document.addEventListener('click', closeSubs);
+document.addEventListener('click', closeSubs);
 
-    // 5. Floating AI assistant button (hidden on chat/auth pages)
+    // Ai chat nav buttons (sidebar + mobile drawer) open the corner widget
+    document.querySelectorAll('.ai-nav-btn').forEach(btn => {
+        btn.onclick = () => toggleChatWidget();
+    });
+
+    // 5. Floating AI assistant button (hidden on chat/auth pages) — opens the corner widget
     const onChatLike = window.location.pathname.toLowerCase().includes('chat') || window.location.pathname.toLowerCase().includes('auth');
     if (!onChatLike && !document.getElementById('floating-ai-btn')) {
-        const fab = document.createElement('a');
+        const fab = document.createElement('button');
         fab.id = 'floating-ai-btn';
-        fab.href = 'chat.html';
         fab.setAttribute('aria-label', t.nav_chat || 'AI Assistant');
-        fab.style.cssText = 'position:fixed; bottom:22px; right:22px; z-index:400; width:58px; height:58px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg, rgba(255,42,109,0.9), rgba(5,217,232,0.85)); color:#fff; box-shadow:0 8px 24px rgba(19,206,220,0.35); text-decoration:none; transition:transform 0.2s ease;';
+        fab.style.cssText = 'position:fixed; bottom:22px; right:22px; z-index:400; width:58px; height:58px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg, rgba(255,42,109,0.9), rgba(5,217,232,0.85)); color:#fff; box-shadow:0 8px 24px rgba(19,206,220,0.35); border:none; cursor:pointer; text-decoration:none; transition:transform 0.2s ease;';
         fab.innerHTML = ic('chat', 26);
         fab.onmouseenter = () => { fab.style.transform = 'scale(1.08)'; };
         fab.onmouseleave = () => { fab.style.transform = 'scale(1)'; };
+        fab.onclick = () => toggleChatWidget();
         document.body.appendChild(fab);
     }
 }

@@ -4,6 +4,7 @@ import { setLanguage, getCurrentLang } from '../js/i18n.js';
 import { injectLayout } from '../js/layout.js';
 import { APP_CONFIG } from '../js/config.js';
 import { ic } from '../js/icons.js';
+import { mountSkeleton, SKEL_GRID } from '../js/skeletons.js';
 
 const CAT_ICONS = { robotics: 'robot', programming: 'code', theater: 'theater', music: 'music', reading: 'book', other: 'sparkle' };
 
@@ -54,6 +55,8 @@ async function init() {
 
     setLanguage(lang);
     injectLayout();
+
+    mountSkeleton(document.getElementById('clubs-grid'), SKEL_GRID(6));
 
     // Populate Wilaya select
     const wSelect = document.getElementById('filter-wilaya');

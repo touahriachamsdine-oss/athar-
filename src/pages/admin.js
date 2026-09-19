@@ -5,6 +5,7 @@ import { renderWilayaMap } from '../js/map.js';
 import { getCurrentLang, setLanguage, TRANSLATIONS } from '../js/i18n.js';
 import { showToast } from '../js/notifications.js';
 import { esc } from '../js/utils.js';
+import { mountSkeleton, SKEL_MAP, SKEL_ROWS } from '../js/skeletons.js';
 
 let usersCache = [];
 let initiativesCache = [];
@@ -18,6 +19,11 @@ async function init() {
     const auth = await requireAdmin();
     if (!auth) return;
     injectLayout();
+
+    mountSkeleton(document.getElementById('wilaya-map'), SKEL_MAP);
+    mountSkeleton(document.getElementById('pending-list'), SKEL_ROWS(4));
+    mountSkeleton(document.getElementById('user-table-body'), SKEL_ROWS(5));
+    mountSkeleton(document.getElementById('initiative-table-body'), SKEL_ROWS(5));
 
     currentLang = getCurrentLang();
     setLanguage(currentLang);
