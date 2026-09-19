@@ -149,6 +149,8 @@ async function run() {
     const layoutSrc = fs.readFileSync(path.join(ROOT, 'src', 'js', 'layout.js'), 'utf8');
     assert(layoutSrc.includes('chatwidget.js') && layoutSrc.includes('toggleChatWidget'), 'layout wires the corner chat widget');
     assert(layoutSrc.includes('floating-ai-btn'), 'layout ships the floating chat button');
+    const widgetSrc = fs.readFileSync(path.join(ROOT, 'src', 'js', 'chatwidget.js'), 'utf8');
+    assert(widgetSrc.includes("typeof c === 'string'"), 'widget el() accepts ic() SVG strings (no appendChild crash)');
 
     console.log('\n[Phase 6] i18n chat keys (trilingual symmetry)');
     const i18n = await import('../src/js/i18n.js');

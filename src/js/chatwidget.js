@@ -34,7 +34,11 @@ function el(tag, attrs, children) {
             else node.setAttribute(k, v);
         });
     }
-    (children || []).forEach(c => node.appendChild(c));
+    (children || []).forEach(c => {
+        // ic() returns SVG markup (a string), so accept both strings and Nodes.
+        if (typeof c === 'string') node.insertAdjacentHTML('beforeend', c);
+        else node.appendChild(c);
+    });
     return node;
 }
 
