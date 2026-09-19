@@ -8,8 +8,9 @@
 - **Status: [x] Done** — `auth.js` (login/signup/demo/recovery), `create.js` (header/form/publish), `initiative.js` (join/back/health/milestones/participants + localized title/desc), `offline.js` (new trilingual module). Also removed remaining CSP inline handlers (`support.html` tabs+form, `offline.html` retry, `initiative.js` back button).
 
 #### Task 2: Richer Seed Content & Quiz Bank Expansion
-- **Files:** `src/js/neon.js`.
+- **Files:** `src/js/neon.js`, `src/pages/awareness.js`, `tests/run_tests.js`.
 - **Action:** Expand mock seed tables (more clubs, active training courses, consultations, approved initiatives) and broaden the awareness quiz question bank to 5+ questions per article.
+- **Status: [x] Done** — 6 clubs (+music, +sports/health) with new memberships, 5 training courses (+entrepreneurship, +public speaking), 5 initiatives (+2 approved: theater contest, girls mental-health workshop), 5 consultations (+2 answered), per-article quiz bank (aw_1/aw_2/aw_3 × 5 trilingual questions) + fallback, localized empty-state/open-button strings, platform-stats club assertion updated 4→6.
 
 #### Task 3: Navigation Polish & Orphaned Page Links
 - **Files:** `src/js/layout.js`, headers/nav bars.

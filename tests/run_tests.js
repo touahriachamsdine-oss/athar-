@@ -292,7 +292,7 @@ async function runSuite() {
             }
 
             const platformStats = await neon.rpc('get_platform_stats');
-            assert(platformStats.data && platformStats.data.clubs === 4, 'get_platform_stats returns the seeded club count (4)');
+            assert(platformStats.data && platformStats.data.clubs === 6, 'get_platform_stats returns the seeded club count (6)');
         }
 
         store['athar_mock_mode'] = 'false';

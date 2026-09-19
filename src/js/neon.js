@@ -428,6 +428,44 @@ export function seedMockDB() {
                 is_approved: true,
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString()
+            },
+            {
+                id: 'init_4',
+                title_ar: 'مسابقة المواهب الشبابية في المسرح والموسيقى',
+                title_fr: 'Concours des Talents Jeunes : Théâtre & Musique',
+                title_en: 'Youth Talent Contest: Theatre & Music',
+                description_ar: 'مسابقة جهوية لاكتشاف المواهب في التمثيل والغناء والعزف، بإشراف لجنة تحكيم مهنية.',
+                description_fr: 'Concours régional de théâtre, chant et instruments avec un jury professionnel.',
+                description_en: 'Regional contest discovering talent in acting, singing, and instruments.',
+                category: 'theater',
+                wilaya: '19', // Sétif
+                neighborhood: 'El Hidhab',
+                status: 'active',
+                health_score: 88,
+                current_step: 2,
+                created_by: 'member_user_3',
+                is_approved: true,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            },
+            {
+                id: 'init_5',
+                title_ar: 'ورشة الصحة النفسية والوقاية للفتيات',
+                title_fr: 'Atelier Santé Mentale & Prévention Féminin',
+                title_en: 'Mental Health & Prevention Workshop (Girls)',
+                description_ar: 'حلقات نقاش آمنة حول الصحة النفسية، الضغط الاجتماعي، وسبل الوقاية والإبلاغ.',
+                description_fr: 'Cercles de parole sur la santé mentale, le stress social et les mécanismes d\'alerte.',
+                description_en: 'Safe circles on mental health, social pressure, and reporting mechanisms.',
+                category: 'health',
+                wilaya: '31', // Oran
+                neighborhood: 'Maraval',
+                status: 'planning',
+                health_score: 72,
+                current_step: 1,
+                created_by: 'member_user_1',
+                is_approved: true,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
             }
         ];
         localStorage.setItem('athar_mock_db_initiatives', JSON.stringify(initialInitiatives));
@@ -482,6 +520,30 @@ export function seedMockDB() {
                 category: 'reading',
                 wilaya: 'Tlemcen',
                 created_at: new Date().toISOString()
+            },
+            {
+                id: 'club_5',
+                name_ar: 'نادي الموسيقى والكورال الشبابي',
+                name_fr: 'Club de Musique & Chorale',
+                name_en: 'Youth Music & Choir Club',
+                description_ar: 'تعلم العزف على الآلات والغناء الجماعي ضمن فرقة الفوج.',
+                description_fr: 'Apprentissage des instruments et du chant collectif.',
+                description_en: 'Learn instruments and group singing in the musical troupe.',
+                category: 'music',
+                wilaya: 'Sétif',
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 'club_6',
+                name_ar: 'نادي الرياضة والوقاية الصحية',
+                name_fr: 'Club Sport & Santé',
+                name_en: 'Sports & Health Club',
+                description_ar: 'أنشطة رياضية جماعية وفردية لتعزيز اللياقة والوقاية الصحية.',
+                description_fr: 'Activités sportives collectives pour la forme et la prévention.',
+                description_en: 'Group sports and fitness routines to boost health and prevention.',
+                category: 'other',
+                wilaya: 'Annaba',
+                created_at: new Date().toISOString()
             }
         ];
         localStorage.setItem('athar_mock_db_clubs', JSON.stringify(initialClubs));
@@ -492,7 +554,10 @@ export function seedMockDB() {
             { id: 'cm_1', club_id: 'club_1', user_id: 'member_user_1', joined_at: new Date().toISOString() },
             { id: 'cm_2', club_id: 'club_1', user_id: 'member_user_2', joined_at: new Date().toISOString() },
             { id: 'cm_3', club_id: 'club_2', user_id: 'member_user_2', joined_at: new Date().toISOString() },
-            { id: 'cm_4', club_id: 'club_3', user_id: 'member_user_3', joined_at: new Date().toISOString() }
+            { id: 'cm_4', club_id: 'club_3', user_id: 'member_user_3', joined_at: new Date().toISOString() },
+            { id: 'cm_5', club_id: 'club_5', user_id: 'member_user_1', joined_at: new Date().toISOString() },
+            { id: 'cm_6', club_id: 'club_6', user_id: 'member_user_3', joined_at: new Date().toISOString() },
+            { id: 'cm_7', club_id: 'club_6', user_id: 'member_user_1', joined_at: new Date().toISOString() }
         ];
         localStorage.setItem('athar_mock_db_club_members', JSON.stringify(initialMembers));
     }
@@ -501,7 +566,9 @@ export function seedMockDB() {
         const initialInitiativeMembers = [
             { id: 'im_1', initiative_id: 'init_1', user_id: 'member_user_1', role: 'member', joined_at: new Date().toISOString() },
             { id: 'im_2', initiative_id: 'init_1', user_id: 'member_user_2', role: 'leader', joined_at: new Date().toISOString() },
-            { id: 'im_3', initiative_id: 'init_3', user_id: 'member_user_3', role: 'member', joined_at: new Date().toISOString() }
+            { id: 'im_3', initiative_id: 'init_3', user_id: 'member_user_3', role: 'member', joined_at: new Date().toISOString() },
+            { id: 'im_4', initiative_id: 'init_4', user_id: 'member_user_2', role: 'leader', joined_at: new Date().toISOString() },
+            { id: 'im_5', initiative_id: 'init_4', user_id: 'member_user_1', role: 'member', joined_at: new Date().toISOString() }
         ];
         localStorage.setItem('athar_mock_db_initiative_members', JSON.stringify(initialInitiativeMembers));
     }
@@ -542,6 +609,30 @@ export function seedMockDB() {
                 description_en: 'Practical skills for drug prevention, self-protection, and peer support.',
                 instructor: 'Dr. Yacine Rahmani',
                 duration: '8 Hours',
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 'course_4',
+                title_ar: 'الريادة والصناعة المصغرة للشباب',
+                title_fr: 'Entrepreneuriat & Micro-Industrie',
+                title_en: 'Youth Entrepreneurship & Micro-Industry',
+                description_ar: 'من الفكرة إلى المشروع: دراسة السوق، إعداد خطة العمل، ومرافقة الشاب في أول تجربة ريادية.',
+                description_fr: 'De l\'idée au projet : marché, plan d\'affaires et accompagnement de la première expérience.',
+                description_en: 'From idea to project: market study, business plan, and coaching through a first venture.',
+                instructor: 'Mme. Nassima Cherif',
+                duration: '15 Hours',
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 'course_5',
+                title_ar: 'التواصل الفعال وإتقان فن الخطابة',
+                title_fr: 'Communication & Art Oratoire',
+                title_en: 'Effective Communication & Public Speaking',
+                description_ar: 'بناء الثقة في النفس، تقنيات الإلقاء، وإدارة الحوار أمام الجمهور واللجان.',
+                description_fr: 'Confiance, techniques d\'éloquence et gestion du débat public.',
+                description_en: 'Self-confidence, delivery techniques, and managing public dialogue.',
+                instructor: 'Ms. Leila Hamdani',
+                duration: '10 Hours',
                 created_at: new Date().toISOString()
             }
         ];
@@ -592,6 +683,30 @@ export function seedMockDB() {
                 message: 'J\'ai du mal à gérer mon stress avant les examens, avez-vous des conseils ?',
                 status: 'answered',
                 answer: 'Merci pour votre confiance. Organisez votre temps, pratiquez la respiration profonde, dormez suffisamment et rappelez-vous : la réussite est un marathon, pas un sprint. Le psy de votre foyer de jeunes reste à votre écoute.',
+                created_at: new Date().toISOString(),
+                answered_at: new Date().toISOString()
+            },
+            {
+                id: 'consult_4',
+                user_id: 'member_user_2',
+                is_anonymous: false,
+                is_public: true,
+                subject: 'Balancing Study and Club Activities',
+                message: 'Since joining the coding club, I struggle to balance homework and club projects. Any scheduling tips?',
+                status: 'answered',
+                answer: 'Great that you are investing in your skills, Karim! Use a weekly planner, block club work into 45-minute sprints, and protect a fixed study slot every evening. Priorities first, session before play.',
+                created_at: new Date().toISOString(),
+                answered_at: new Date().toISOString()
+            },
+            {
+                id: 'consult_5',
+                user_id: 'member_user_2',
+                is_anonymous: false,
+                is_public: false,
+                subject: 'Public Speaking Anxiety',
+                message: 'I hesitate a lot before presenting my project in front of the club members. How can I reduce this anxiety?',
+                status: 'answered',
+                answer: 'Anxiety often shrinks with preparation. Rehearse alone, then in front of one friend, breathe slowly before starting, and accept that small mistakes are normal. Each presentation makes it easier.',
                 created_at: new Date().toISOString(),
                 answered_at: new Date().toISOString()
             }
