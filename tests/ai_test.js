@@ -151,6 +151,10 @@ async function run() {
     assert(layoutSrc.includes('floating-ai-btn'), 'layout ships the floating chat button');
     const widgetSrc = fs.readFileSync(path.join(ROOT, 'src', 'js', 'chatwidget.js'), 'utf8');
     assert(widgetSrc.includes("typeof c === 'string'"), 'widget el() accepts ic() SVG strings (no appendChild crash)');
+    assert(widgetSrc.includes('ai-panel') && !widgetSrc.includes('1px solid'), 'widget follows the borderless theme');
+    const chatPageSrc = fs.readFileSync(path.join(ROOT, 'src', 'pages', 'chat.js'), 'utf8');
+    assert(chatPageSrc.includes('ai-bubble-user') && chatPageSrc.includes('ai-chip'), 'chat page bubbles/chips use theme classes');
+    assert(!chatHtml.includes('1px solid'), 'chat page is borderless per theme');
 
     console.log('\n[Phase 6] i18n chat keys (trilingual symmetry)');
     const i18n = await import('../src/js/i18n.js');

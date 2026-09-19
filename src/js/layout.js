@@ -207,7 +207,7 @@ document.addEventListener('click', closeSubs);
         const fab = document.createElement('button');
         fab.id = 'floating-ai-btn';
         fab.setAttribute('aria-label', t.nav_chat || 'AI Assistant');
-        fab.style.cssText = 'position:fixed; bottom:22px; right:22px; z-index:400; width:58px; height:58px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg, rgba(255,42,109,0.9), rgba(5,217,232,0.85)); color:#fff; box-shadow:0 8px 24px rgba(19,206,220,0.35); border:none; cursor:pointer; text-decoration:none; transition:transform 0.2s ease;';
+        fab.style.cssText = 'position:fixed; bottom:22px; right:22px; z-index:400; width:58px; height:58px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg, rgba(255,42,109,0.9), rgba(5,217,232,0.85)); color:#fff; box-shadow:6px 6px 0px rgba(0,0,0,0.35); border:none; cursor:pointer; text-decoration:none; transition:transform 0.2s ease;';
         fab.innerHTML = ic('chat', 26);
         fab.onmouseenter = () => { fab.style.transform = 'scale(1.08)'; };
         fab.onmouseleave = () => { fab.style.transform = 'scale(1)'; };

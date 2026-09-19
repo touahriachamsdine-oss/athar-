@@ -45,10 +45,8 @@ function el(tag, attrs, children) {
 function bubble(role, text) {
     const wrap = el('div', { style: 'display:flex;' + (role === 'user' ? 'justify-content:flex-end;' : 'justify-content:flex-start;') });
     const b = el('div', {
-        style: 'max-width:80%; padding:10px 14px; border-radius:14px; font-size:13px; line-height:1.65; white-space:pre-wrap; word-break:break-word;' +
-            (role === 'user'
-                ? 'background:linear-gradient(135deg, rgba(255,42,109,0.18), rgba(5,217,244,0.14)); border:1px solid rgba(255,42,109,0.25);'
-                : 'background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);')
+        class: role === 'user' ? 'ai-bubble-user' : 'ai-bubble-assistant',
+        style: 'padding:10px 14px; border-radius:14px; font-size:13px; line-height:1.65; white-space:pre-wrap; word-break:break-word;'
     });
     b.textContent = text;
     wrap.appendChild(b);
@@ -57,7 +55,7 @@ function bubble(role, text) {
 
 function typingEl() {
     const wrap = el('div', { style: 'display:flex; justify-content:flex-start;' });
-    const dots = el('div', { class: 'typing-dots', style: 'padding:11px 14px; border-radius:14px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);' },
+    const dots = el('div', { class: 'typing-dots', style: 'padding:11px 14px; border-radius:14px; background:rgba(255,255,255,0.05);' },
         [0, 1, 2].map(() => el('span')));
     wrap.appendChild(dots);
     return wrap;
@@ -93,8 +91,7 @@ function renderSuggestions() {
     ['chat_suggest_club', 'chat_suggest_volunteer', 'chat_suggest_points', 'chat_suggest_register'].forEach(key => {
         const chip = el('button', {
             type: 'button',
-            class: 'ai-chip',
-            style: 'border:1px solid rgba(5,217,232,0.25); background:rgba(5,217,232,0.06); color:var(--text-primary); border-radius:999px; padding:6px 12px; font-size:11.5px; cursor:pointer;'
+            class: 'ai-chip'
         });
         chip.textContent = t(key);
         chip.onclick = () => {
@@ -176,7 +173,8 @@ function buildWidget() {
 
     // Widget header: title + language selector + minimize
     const header = el('div', {
-        style: 'display:flex; align-items:center; gap:10px; padding:14px 16px; border-bottom:1px solid rgba(255,255,255,0.06); background:rgba(255,255,255,0.02);'
+        class: 'ai-header',
+        style: 'display:flex; align-items:center; gap:10px; padding:14px 16px;'
     }, [
         el('div', { style: 'display:flex;' }, [el('span', { style: 'display:flex; color:var(--accent-cyan);' }, [ic('chat', 18)])]),
         el('div', { style: 'flex:1; min-width:0;' }, [
@@ -185,7 +183,8 @@ function buildWidget() {
         ]),
         el('select', {
             id: 'ai-lang',
-            style: 'background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:inherit; font-size:11px; padding:5px 6px; border-radius:9px; outline:none; cursor:pointer;'
+            class: 'ai-select',
+            style: 'font-size:11px; padding:5px 6px; border-radius:9px;'
         }, ['ar', 'fr', 'en', 'amz'].map(v => {
             const o = el('option', { value: v });
             o.textContent = v === 'ar' ? 'عربية' : v === 'fr' ? 'FR' : v === 'en' ? 'EN' : 'AMZ';
@@ -213,23 +212,25 @@ function buildWidget() {
         type: 'text',
         id: 'ai-input',
         autocomplete: 'off',
-        style: 'flex:1; height:44px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:inherit; padding:0 14px; border-radius:12px; font-family:inherit; font-size:13px; outline:none;'
+        class: 'ai-input',
+        style: 'flex:1; height:44px; padding:0 14px; border-radius:12px; font-family:inherit; font-size:13px;'
     });
 
     const sendBtn = el('button', {
         type: 'submit',
         id: 'ai-send',
-        style: 'width:46px; height:44px; border:none; cursor:pointer; border-radius:12px; background:linear-gradient(135deg, rgba(255,42,109,0.85), rgba(5,217,232,0.8)); color:#fff; display:flex; align-items:center; justify-content:center;'
+        style: 'width:46px; height:44px; border:none; cursor:pointer; border-radius:12px; background:linear-gradient(135deg, rgba(255,42,109,0.85), rgba(5,217,232,0.8)); color:#fff; display:flex; align-items:center; justify-content:center; box-shadow:3px 3px 0px rgba(0,0,0,0.25);'
     }, [ic('send', 17)]);
 
     const form = el('form', {
         id: 'ai-form',
-        style: 'display:flex; gap:8px; padding:12px 14px; border-top:1px solid rgba(255,255,255,0.06); background:rgba(255,255,255,0.02);'
+        style: 'display:flex; gap:8px; padding:12px 14px;'
     }, [input, sendBtn]);
 
     const panel = el('div', {
         id: 'ai-widget',
-        style: 'position:fixed; bottom:90px; right:22px; z-index:450; width:360px; max-width:calc(100vw - 44px); height:min(62vh, 520px); display:none; flex-direction:column; overflow:hidden; border-radius:20px; box-shadow:0 24px 60px rgba(0,0,0,0.45); background:var(--bg-panel, rgba(12,13,30,0.96)); backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px); border:1px solid rgba(255,255,255,0.08);'
+        class: 'ai-panel',
+        style: 'position:fixed; bottom:90px; right:22px; z-index:450; width:360px; max-width:calc(100vw - 44px); height:min(62vh, 520px); display:none; flex-direction:column; overflow:hidden;'
     }, [header, messages, suggestions, form]);
 
     document.body.appendChild(panel);

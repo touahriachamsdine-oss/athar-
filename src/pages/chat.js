@@ -21,10 +21,8 @@ function bubble(role, text) {
     const wrap = document.createElement('div');
     wrap.style.cssText = 'display:flex;' + (role === 'user' ? 'justify-content:flex-end;' : 'justify-content:flex-start;');
     const b = document.createElement('div');
-    b.style.cssText = 'max-width:78%; padding:12px 16px; border-radius:16px; font-size:14px; line-height:1.7; white-space:pre-wrap; word-break:break-word;' +
-        (role === 'user'
-            ? 'background:linear-gradient(135deg, rgba(255,42,109,0.18), rgba(5,217,244,0.14)); border:1px solid rgba(255,42,109,0.25);'
-            : 'background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);');
+    b.className = role === 'user' ? 'ai-bubble-user' : 'ai-bubble-assistant';
+    b.style.cssText = 'padding:12px 16px; border-radius:16px; font-size:14px; line-height:1.7; white-space:pre-wrap; word-break:break-word;';
     b.textContent = text;
     wrap.appendChild(b);
     return wrap;
@@ -42,8 +40,7 @@ function showTyping() {
     wrap.style.cssText = 'display:flex; justify-content:flex-start;';
     wrap.dataset.typing = '1';
     const b = document.createElement('div');
-    b.style.cssText = 'max-width:78%; padding:14px 18px; border-radius:16px; font-size:14px;' +
-        'background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);';
+    b.style.cssText = 'max-width:78%; padding:14px 18px; border-radius:16px; font-size:14px; background:rgba(255,255,255,0.05);';
     b.innerHTML = '<div class="typing-dots" aria-label="typing"><span></span><span></span><span></span></div>';
     wrap.appendChild(b);
     box.appendChild(wrap);
@@ -74,8 +71,9 @@ function setStaticUI() {
     chips.forEach(key => {
         const chip = document.createElement('button');
         chip.type = 'button';
+        chip.className = 'ai-chip';
+        chip.style.cssText = 'padding:7px 14px; font-size:12px;';
         chip.textContent = t(key);
-        chip.style.cssText = 'border:1px solid rgba(5,217,232,0.25); background:rgba(5,217,232,0.06); color:var(--text-primary); border-radius:999px; padding:7px 14px; font-size:12px; cursor:pointer; transition:all 0.2s ease;';
         chip.onmouseenter = () => { chip.style.background = 'rgba(5,217,232,0.14)'; };
         chip.onmouseleave = () => { chip.style.background = 'rgba(5,217,232,0.06)'; };
         chip.onclick = () => sendChip(key);
