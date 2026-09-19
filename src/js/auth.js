@@ -1,6 +1,6 @@
 // Neon Auth & Demo Mode Implementation
 import { NEON_AUTH_URL, NEON_ANON_KEY } from './config.js';
-import { neon, seedMockDB } from './neon.js';
+import { neon, seedMockDB, mockEnabled } from './neon.js';
 
 function withAuthHeaders() {
     return { apikey: NEON_ANON_KEY, 'Content-Type': 'application/json' };
@@ -28,7 +28,7 @@ function persistSession(session) {
 }
 
 export async function signUp(email, password, fullName, phone, wilaya, neighborhood) {
-    if (localStorage.getItem('athar_mock_mode') === 'true' || email.endsWith('@athar.dz')) {
+    if (mockEnabled() || email.endsWith('@athar.dz')) {
         localStorage.setItem('athar_mock_mode', 'true');
         seedMockDB();
         
@@ -99,7 +99,7 @@ export async function signUp(email, password, fullName, phone, wilaya, neighborh
 }
 
 export async function signIn(email, password) {
-    if (localStorage.getItem('athar_mock_mode') === 'true' || email.endsWith('@athar.dz')) {
+    if (mockEnabled() || email.endsWith('@athar.dz')) {
         localStorage.setItem('athar_mock_mode', 'true');
         seedMockDB();
         

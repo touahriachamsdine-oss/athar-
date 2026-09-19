@@ -3,6 +3,11 @@ export const NEON_AUTH_URL = 'YOUR_NEON_AUTH_URL';
 export const NEON_API_URL = 'YOUR_NEON_API_URL';
 export const NEON_ANON_KEY = 'YOUR_NEON_ANON_KEY';
 
+// build.js turns this ON (true) when no real anon key was injected, so the
+// deployed site always shows mockups. Stays false in source so the Node test
+// suite exercises the real-fetch paths.
+export const DEMO_FALLBACK = false;
+
 export const VOLUNTEER_POINTS_PER_HOUR = 10;
 export const VOLUNTEER_MAX_SESSION_POINTS = 50;
 

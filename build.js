@@ -42,8 +42,8 @@ async function build() {
     const configPath = path.join(outputDir, 'src/js/config.js');
     if (fs.existsSync(configPath)) {
         let config = fs.readFileSync(configPath, 'utf8');
-        const neonAuthUrl = process.env.NEON_AUTH_URL || 'https://ep-silent-bread-aqt1uezw.neonauth.c-8.us-east-1.aws.neon.tech/neondb/auth';
-        const neonApiUrl = process.env.NEON_API_URL || 'https://ep-silent-bread-aqt1uezw.apirest.c-8.us-east-1.aws.neon.tech/neondb/rest/v1';
+        const neonAuthUrl = process.env.NEON_AUTH_URL || 'https://ep-curly-mode-b43yz8xj.c-6.us-east-2.aws.neon.tech/neondb/auth';
+        const neonApiUrl = process.env.NEON_API_URL || 'https://ep-curly-mode-b43yz8xj.c-6.us-east-2.aws.neon.tech/neondb/rest/v1';
         config = config.replace(/YOUR_NEON_AUTH_URL/g, neonAuthUrl);
         config = config.replace(/YOUR_NEON_API_URL/g, neonApiUrl);
 
@@ -52,6 +52,14 @@ async function build() {
         // server-only secrets MUST never be injected into the public build.
         const neonAnonKey = process.env.NEON_ANON_KEY || 'YOUR_NEON_ANON_KEY';
         config = config.replace(/YOUR_NEON_ANON_KEY/g, neonAnonKey);
+
+        // When no real anon key was injected, flip DEMO_FALLBACK on so the
+        // deployed site always renders the seeded mockups (guest + demo login).
+        const isConfigured = !neonAnonKey.startsWith('YOUR_');
+        config = config.replace(
+            'export const DEMO_FALLBACK = false;',
+            `export const DEMO_FALLBACK = ${isConfigured ? 'false' : 'true'};`
+        );
 
         fs.writeFileSync(configPath, config);
         console.log('Build: Neon variables injected into output config.');

@@ -1,5 +1,13 @@
 // Highly Capable Neon Client (With High Fidelity Local Mock/Demo Fallback)
-import { NEON_API_URL, NEON_ANON_KEY } from './config.js';
+import { NEON_API_URL, NEON_ANON_KEY, DEMO_FALLBACK } from './config.js';
+
+// Demo/mock mode is active when the user toggled it explicitly OR when the
+// build enabled the demo fallback (no real Neon backend injected). An explicit
+// "false" always wins so tests and future real deployments can opt out.
+export function mockEnabled() {
+    const mock = localStorage.getItem('athar_mock_mode');
+    return mock === 'true' || (DEMO_FALLBACK && mock !== 'false');
+}
 
 function getMockTable(table) {
     const data = localStorage.getItem(`athar_mock_db_${table}`);
@@ -966,6 +974,7 @@ export function seedMockDB() {
     }
 
     if (!localStorage.getItem('athar_mock_db_volunteer_signups')) {
+        const now = Date.now();
         const initialSignups = [
             { id: 'vsg_demo', session_id: 'vs_demo', volunteer_id: 'member_user_2', status: 'registered', attended_at: null, hours: null, points_awarded: 0, created_at: new Date().toISOString() },
             { id: 'vsg_coast', session_id: 'vs_coast', volunteer_id: 'member_user_1', status: 'attended', attended_at: new Date(now - 2 * 86400000).toISOString(), hours: 4, points_awarded: 40, created_at: new Date().toISOString() },
@@ -1190,21 +1199,21 @@ class NeonClient {
     }
 
     async recoverPassword(email) {
-        if (localStorage.getItem('athar_mock_mode') === 'true') {
+        if (mockEnabled()) {
             return { data: { message: 'Recovery email sent (mock)' }, error: null };
         }
         return this.requestGateway({ action: 'recover', email });
     }
 
     async updatePassword(token, password) {
-        if (localStorage.getItem('athar_mock_mode') === 'true') {
+        if (mockEnabled()) {
             return { data: { message: 'Password updated successfully (mock)' }, error: null };
         }
         return this.requestGateway({ action: 'update_password', token, password });
     }
 
     async rpc(fn, payload) {
-        if (localStorage.getItem('athar_mock_mode') === 'true') {
+        if (mockEnabled()) {
             seedMockDB();
             return mockRpcDispatch(fn, payload || {});
         }
@@ -1212,7 +1221,7 @@ class NeonClient {
     }
 
     from(table) {
-        if (localStorage.getItem('athar_mock_mode') === 'true') {
+        if (mockEnabled()) {
             seedMockDB();
             return {
                 select: (query = '*') => {
