@@ -113,14 +113,12 @@ async function loadData() {
     document.getElementById('val-approval-ratio').innerText = `${approvalRatio}%`;
     document.getElementById('bar-approval-ratio').style.width = `${approvalRatio}%`;
 
-    // Render Wilaya Map Density
+    // Render Wilaya Map Density (keyed by wilaya name, e.g. 'Alger', 'Oran')
     const stats = {};
     initiativesCache.forEach(i => {
         if (i.wilaya) {
-            const wilayaNum = parseInt(i.wilaya);
-            if (!isNaN(wilayaNum)) {
-                stats[wilayaNum] = (stats[wilayaNum] || 0) + 1;
-            }
+            const w = i.wilaya.trim();
+            if (w) stats[w] = (stats[w] || 0) + 1;
         }
     });
     renderWilayaMap('wilaya-map', stats);
