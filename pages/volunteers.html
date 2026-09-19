@@ -55,6 +55,52 @@
         }
         fieldset textarea { resize: vertical; min-height: 70px; }
         fieldset label { font-size: 12px; font-weight: 700; opacity: 0.7; display: block; margin-bottom: 6px; }
+
+        .heat-svg { width: 100%; height: auto; display: block; }
+        .heat-label { font-size: 12px; font-weight: 800; }
+        .heat-swatch { width: 14px; height: 14px; border-radius: 50%; display: inline-block; }
+        .heat-cell { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; opacity: 0.8; }
+        .hot-pulse { animation: hotpulse 2.2s ease-out infinite; transform-origin: center; }
+        @keyframes hotpulse {
+            0% { opacity: 0.9; transform: scale(0.7); }
+            70% { opacity: 0; transform: scale(1.15); }
+            100% { opacity: 0; transform: scale(1.15); }
+        }
+
+        .story-card {
+            position: relative; border: none; cursor: pointer; border-radius: 22px; padding: 20px 16px;
+            min-height: 150px; display: flex; flex-direction: column; justify-content: space-between; gap: 8px;
+            color: #fff; font-weight: 800; box-shadow: 6px 6px 0 rgba(0,0,0,0.28); transition: var(--transition);
+        }
+        .story-card:hover { transform: translateY(-6px) translateX(-3px); box-shadow: 10px 10px 0 var(--accent-pink); }
+        .story-sticker { font-size: 40px; line-height: 1; text-shadow: 0 4px 12px rgba(0,0,0,0.35); }
+        .story-wilaya, .story-time, .story-likes { font-size: 11px; opacity: 0.95; background: rgba(0,0,0,0.32); padding: 3px 9px; border-radius: 100px; align-self: flex-start; }
+        .story-live-tag { font-size: 11px; font-weight: 800; color: var(--accent-pink); background: rgba(255,42,109,0.12); padding: 5px 12px; border-radius: 100px; letter-spacing: 0.5px; }
+
+        .story-view { max-width: 420px; width: 100%; border-radius: 24px; padding: 26px; color: #fff; display: flex; flex-direction: column; gap: 16px; box-shadow: 12px 12px 0 rgba(0,0,0,0.35); }
+        .story-view-head { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; flex-wrap: wrap; }
+        .story-view-art { font-size: 96px; text-align: center; text-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+        .story-view-cap { font-size: 17px; font-weight: 800; text-align: center; }
+        .story-view-actions { display: flex; gap: 12px; justify-content: center; }
+
+        .sticker-btn { font-size: 22px; background: rgba(255,255,255,0.08); border: 1px dashed rgba(255,255,255,0.18); border-radius: 14px; padding: 8px 12px; cursor: pointer; transition: var(--transition); }
+        .sticker-btn.on { background: rgba(255,42,109,0.25); border: 1px solid var(--accent-pink); transform: scale(1.08); }
+
+        .squad-chip {
+            background: var(--glass-bg); border: none; border-radius: 20px; padding: 18px 20px; cursor: pointer;
+            display: flex; flex-direction: column; gap: 6px; text-align: start; align-items: flex-start;
+            box-shadow: 6px 6px 0 rgba(0,0,0,0.22); transition: var(--transition); color: var(--text-primary); font-family: inherit;
+        }
+        .squad-chip:hover { transform: translateY(-5px); box-shadow: 10px 10px 0 var(--accent-cyan); }
+        .squad-chip span { font-size: 26px; }
+        .squad-chip small { opacity: 0.6; font-size: 11px; font-weight: 700; }
+
+        .lb-row { display: flex; align-items: center; gap: 14px; padding: 12px 16px; border-radius: 16px; background: rgba(255,255,255,0.04); }
+        .lb-row.lb-me { background: rgba(255,42,109,0.12); border: 1px solid rgba(255,42,109,0.3); }
+        .lb-medal { font-size: 26px; width: 38px; text-align: center; }
+        .lb-name { font-weight: 800; flex: 1; font-size: 15px; }
+        .lb-stats { font-size: 11px; opacity: 0.6; font-weight: 700; }
+        .lb-score { font-size: 15px; font-weight: 800; color: var(--accent-pink); }
     </style>
 </head>
 
@@ -67,10 +113,66 @@
                 <h1 class="gradient-text syne" style="font-size:36px; font-weight:800;" id="page-title">العمل التطوعي والأنشطة</h1>
                 <p style="opacity:0.65; margin-top:5px;" id="page-subtitle">انخرط في أنشطة تطوعية منظمة واكسب نقاط الأثر</p>
             </div>
-            <button id="btn-create" class="btn btn-primary" style="display:none; padding:12px 28px;" onclick="document.getElementById('create-wrap').style.display = document.getElementById('create-wrap').style.display === 'none' ? 'block' : 'none';">
+            <button id="btn-create" class="btn btn-primary" style="display:none; padding:12px 28px;">
                 ➕ <span data-i18n="vs_create_btn">إنشاء نشاط تطوعي</span>
             </button>
         </header>
+
+        <!-- GUEST MODE (examples visible, engagement gated) -->
+        <div id="guest-banner" class="glass" style="display:none; align-items:center; gap:16px; padding:18px 24px; border-radius:20px; margin-bottom:30px; border:1px solid rgba(5,217,232,0.25);">
+            <span style="font-size:26px;">👋</span>
+            <span id="guest-msg" style="flex:1; font-weight:700;"></span>
+            <button id="guest-btn" class="btn btn-primary" style="padding:10px 22px;"></button>
+        </div>
+
+        <!-- ALGERIA ACTIVITY HEATMAP -->
+        <section style="margin-bottom:40px;">
+            <h2 class="syne mb-10" style="font-size:22px; font-weight:800;" id="lbl-heat-title">خريطة النشاط في الجزائر</h2>
+            <p style="opacity:0.6; margin-bottom:20px; font-size:13px;" id="heat-sub"></p>
+            <div class="glass" style="padding:30px; border-radius:24px;">
+                <div id="heat-map" style="max-width:640px; margin:0 auto;">صفحة التحميل...</div>
+                <div id="heat-legend" class="heat-legend" style="display:flex; gap:18px; justify-content:center; flex-wrap:wrap; margin-top:18px;"></div>
+            </div>
+        </section>
+
+        <!-- IMPACT STORIES (StoryCam) -->
+        <section style="margin-bottom:40px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; margin-bottom:6px;">
+                <h2 class="syne mb-0" style="font-size:22px; font-weight:800;" id="lbl-stories-title">لقطات الأثر</h2>
+                <span class="story-live-tag">● LIVE 24h</span>
+            </div>
+            <p style="opacity:0.6; margin-bottom:20px; font-size:13px;" id="stories-sub"></p>
+            <button id="btn-post-story" class="btn btn-outline" style="margin-bottom:18px; padding:10px 22px;">📸 شارك لقطة</button>
+            <div id="story-composer" class="glass" style="display:none; padding:24px; border-radius:20px; margin-bottom:20px;">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+                    <div>
+                        <label style="font-size:12px; font-weight:700; opacity:0.7; display:block; margin-bottom:6px;">الولاية / Wilaya</label>
+                        <select id="story-wilaya" style="width:100%; background:rgba(16,14,37,0.85); border:none; color:var(--text-primary); padding:12px 16px; border-radius:14px; font-family:inherit; font-weight:700;"></select>
+                    </div>
+                    <div>
+                        <label style="font-size:12px; font-weight:700; opacity:0.7; display:block; margin-bottom:6px;">ملصق / Sticker</label>
+                        <div id="sticker-pick" style="display:flex; gap:10px; flex-wrap:wrap;"></div>
+                    </div>
+                </div>
+                <input id="story-caption" type="text" placeholder="ماذا تفعل الآن في الميدان؟" style="width:100%; box-sizing:border-box; background:rgba(16,14,37,0.85); border:none; color:var(--text-primary); padding:12px 16px; border-radius:14px; font-family:inherit; font-weight:700; margin-top:14px;">
+                <div style="display:flex; gap:12px; margin-top:16px;">
+                    <button id="story-submit" class="btn btn-primary" style="padding:10px 24px;">نشر</button>
+                    <button id="story-close" class="btn btn-outline" style="padding:10px 24px;">إغلاق</button>
+                </div>
+            </div>
+            <div id="stories-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:16px;"></div>
+        </section>
+
+        <!-- STORY VIEWER OVERLAY -->
+        <div id="story-viewer" style="display:none; position:fixed; inset:0; background:rgba(5,3,20,0.82); backdrop-filter:blur(10px); z-index:1000; align-items:center; justify-content:center; padding:20px;"></div>
+
+        <!-- RESPONSE SQUADS -->
+        <section style="margin-bottom:40px;">
+            <h2 class="syne mb-10" style="font-size:22px; font-weight:800;" id="lbl-squad-title">فرق الاستجابة</h2>
+            <p style="opacity:0.6; margin-bottom:20px; font-size:13px;" id="squad-sub"></p>
+            <div id="emergency-strip" class="glass" style="display:none; align-items:center; gap:20px; padding:18px 24px; border-radius:20px; margin-bottom:20px; border:1px solid rgba(255,42,109,0.5); background:linear-gradient(120deg,rgba(255,42,109,0.16),rgba(163,0,255,0.12));"></div>
+            <div id="squads-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:16px;"></div>
+        </section>
 
         <!-- CREATE SESSION (leaders / admins) -->
         <section id="create-wrap" class="glass spring-in" style="display:none; padding:30px; border-radius:22px; margin-bottom:40px;">
@@ -117,6 +219,13 @@
         <!-- AVAILABLE SESSIONS -->
         <h2 class="syne mb-20" style="font-size:22px; font-weight:800;" id="lbl-available-title">الأنشطة المتاحة</h2>
         <section id="sessions-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(340px, 1fr)); gap:24px;"></section>
+
+        <!-- IMPACT LEADERBOARD -->
+        <section style="margin-top:50px;">
+            <h2 class="syne mb-10" style="font-size:22px; font-weight:800;" id="lbl-lb-title">لوحة الأثر والتفاعل</h2>
+            <p style="opacity:0.6; margin-bottom:20px; font-size:13px;" id="lb-sub"></p>
+            <div id="lb-grid" class="glass" style="padding:24px; border-radius:24px; display:grid; gap:10px; max-width:720px;"></div>
+        </section>
     </main>
 
     <script type="module" src="../src/pages/volunteers.js"></script>

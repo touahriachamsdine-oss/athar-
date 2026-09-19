@@ -124,6 +124,37 @@ function mockRpcDispatch(fn, p) {
     const id = mockUserId();
     if (!id) return mockErr('unauthorized');
 
+    if (fn === 'post_volunteer_story') {
+        const rows = getMockTable('volunteer_stories');
+        const me = getMockTable('profiles').find(x => String(x.id) === String(id));
+        rows.push({
+            id: 'story-' + Math.random().toString(36).substring(2, 15),
+            user_id: id,
+            author: me ? me.full_name : id,
+            wilaya: p.p_wilaya || '',
+            sticker: p.p_sticker || '📸',
+            palette: p.p_palette || 0,
+            caption_ar: p.p_caption_ar || '',
+            caption_fr: p.p_caption_fr || '',
+            caption_en: p.p_caption_en || '',
+            likes: [],
+            created_at: new Date().toISOString()
+        });
+        saveMockTable('volunteer_stories', rows);
+        return mockOk({ status: 'posted' });
+    }
+
+    if (fn === 'like_volunteer_story') {
+        const rows = getMockTable('volunteer_stories');
+        const story = rows.find(x => String(x.id) === String(p.p_story_id));
+        if (!story) return mockErr('not_found');
+        story.likes = story.likes || [];
+        const i = story.likes.indexOf(String(id));
+        if (i >= 0) story.likes.splice(i, 1); else story.likes.push(String(id));
+        saveMockTable('volunteer_stories', rows);
+        return mockOk({ likes: story.likes.length, liked: i < 0 });
+    }
+
     if (fn === 'create_volunteer_session') {
         const pl = p.p_payload || {};
         if (!mockIsInitiativeLeader(pl.initiative_id)) return mockErr('forbidden');
@@ -708,6 +739,112 @@ export function seedMockDB() {
                 reject_reason: null,
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString()
+            },
+            {
+                id: 'vs_coast',
+                initiative_id: 'init_1',
+                title_ar: 'تنظيف شاطئ أناب وكسبات',
+                title_fr: 'Nettoyage des Plages d\'Annaba',
+                title_en: 'Annaba Beach Cleanup',
+                description_ar: 'جرد وتنظيف شريط ساحلي مع ورشة توعوية حول البيئة البحرية.',
+                description_fr: 'Nettoyage du littoral avec un atelier de sensibilisation marine.',
+                description_en: 'Coastal cleanup with a marine awareness workshop.',
+                location: 'Sidi Salem, Annaba',
+                start_at: new Date(now + 604800000).toISOString(),
+                end_at: new Date(now + 604800000 + 5 * 3600000).toISOString(),
+                capacity: 15,
+                status: 'approved',
+                created_by: 'admin_user_id',
+                reviewed_by: 'admin_user_id',
+                reviewed_at: new Date().toISOString(),
+                reject_reason: null,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            },
+            {
+                id: 'vs_forest',
+                initiative_id: 'init_3',
+                title_ar: 'غرس مليون شجرة',
+                title_fr: 'Un Million d\'Arbres Plantés',
+                title_en: 'Million Tree Planting',
+                description_ar: 'حملة وطنية لغرس الأشجار في الأحراش المحيطة بالمدينة.',
+                description_fr: 'Campagne nationale de plantation d\'arbres autour de la ville.',
+                description_en: 'National tree-planting drive in city woodlands.',
+                location: 'Chréa, Blida',
+                start_at: new Date(now + 86400000).toISOString(),
+                end_at: new Date(now + 86400000 + 4 * 3600000).toISOString(),
+                capacity: 20,
+                status: 'approved',
+                created_by: 'admin_user_id',
+                reviewed_by: 'admin_user_id',
+                reviewed_at: new Date().toISOString(),
+                reject_reason: null,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            },
+            {
+                id: 'vs_mentor',
+                initiative_id: 'init_1',
+                title_ar: 'دعم دروس لمتحصلي البكالوريا',
+                title_fr: 'Soutien Scolaire aux Bacheliers',
+                title_en: 'Bac Exam Mentoring',
+                description_ar: 'جلسات مراجعة في الرياضيات والفيزياء يقدمها طلبة جامعيون.',
+                description_fr: 'Séances de révision en maths et physique par des étudiants.',
+                description_en: 'Revision sessions in math and physics led by university students.',
+                location: 'El Hidhab, Sétif',
+                start_at: new Date(now + 432000000).toISOString(),
+                end_at: new Date(now + 432000000 + 2 * 3600000).toISOString(),
+                capacity: 25,
+                status: 'approved',
+                created_by: 'admin_user_id',
+                reviewed_by: 'admin_user_id',
+                reviewed_at: new Date().toISOString(),
+                reject_reason: null,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            },
+            {
+                id: 'vs_flash',
+                initiative_id: 'init_2',
+                title_ar: 'استجابة عاجلة — إغاثة مناطق الفيضان',
+                title_fr: 'Urgence — Aide aux Zones Inondées',
+                title_en: 'Flash Squad — Flood Relief',
+                description_ar: 'تعبئة عاجلة لتوزيع المساعدات ومساعدة العائلات المتضررة من الفيضان.',
+                description_fr: 'Mobilisation urgente pour distribuer l\'aide aux familles sinistrées.',
+                description_en: 'Emergency mobilization to distribute relief to flood-hit families.',
+                location: 'Oued Fodda, Chlef',
+                start_at: new Date(now).toISOString(),
+                end_at: new Date(now + 30 * 3600000).toISOString(),
+                capacity: 30,
+                status: 'approved',
+                is_emergency: true,
+                created_by: 'admin_user_id',
+                reviewed_by: 'admin_user_id',
+                reviewed_at: new Date().toISOString(),
+                reject_reason: null,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            },
+            {
+                id: 'vs_dance_past',
+                initiative_id: 'init_1',
+                title_ar: 'مسابقة رسم الجداريات',
+                title_fr: 'Concours de Fresques Murales',
+                title_en: 'Murals for the Neighborhood',
+                description_ar: 'رسم جداريات ملونة لحيّ الشباب بمساعدة الفنانين المحليين.',
+                description_fr: 'Réalisation de fresques murales avec des artistes locaux.',
+                description_en: 'Painting colorful murals with local artists.',
+                location: 'Sidi M\'Cid, Constantine',
+                start_at: new Date(now - 4 * 86400000).toISOString(),
+                end_at: new Date(now - 4 * 86400000 + 6 * 3600000).toISOString(),
+                capacity: 18,
+                status: 'completed',
+                created_by: 'admin_user_id',
+                reviewed_by: 'admin_user_id',
+                reviewed_at: new Date(now - 4 * 86400000).toISOString(),
+                reject_reason: null,
+                created_at: new Date(now - 6 * 86400000).toISOString(),
+                updated_at: new Date().toISOString()
             }
         ];
         localStorage.setItem('athar_mock_db_volunteer_sessions', JSON.stringify(initialSessions));
@@ -715,9 +852,140 @@ export function seedMockDB() {
 
     if (!localStorage.getItem('athar_mock_db_volunteer_signups')) {
         const initialSignups = [
-            { id: 'vsg_demo', session_id: 'vs_demo', volunteer_id: 'member_user_2', status: 'registered', attended_at: null, hours: null, points_awarded: 0, created_at: new Date().toISOString() }
+            { id: 'vsg_demo', session_id: 'vs_demo', volunteer_id: 'member_user_2', status: 'registered', attended_at: null, hours: null, points_awarded: 0, created_at: new Date().toISOString() },
+            { id: 'vsg_coast', session_id: 'vs_coast', volunteer_id: 'member_user_1', status: 'attended', attended_at: new Date(now - 2 * 86400000).toISOString(), hours: 4, points_awarded: 40, created_at: new Date().toISOString() },
+            { id: 'vsg_mentor1', session_id: 'vs_mentor', volunteer_id: 'member_user_2', status: 'registered', attended_at: null, hours: null, points_awarded: 0, created_at: new Date().toISOString() },
+            { id: 'vsg_forest', session_id: 'vs_forest', volunteer_id: 'member_user_3', status: 'registered', attended_at: null, hours: null, points_awarded: 0, created_at: new Date().toISOString() },
+            { id: 'vsg_past1', session_id: 'vs_dance_past', volunteer_id: 'member_user_2', status: 'attended', attended_at: new Date(now - 4 * 86400000).toISOString(), hours: 6, points_awarded: 50, created_at: new Date().toISOString() },
+            { id: 'vsg_past2', session_id: 'vs_dance_past', volunteer_id: 'member_user_1', status: 'attended', attended_at: new Date(now - 4 * 86400000).toISOString(), hours: 6, points_awarded: 50, created_at: new Date().toISOString() }
         ];
         localStorage.setItem('athar_mock_db_volunteer_signups', JSON.stringify(initialSignups));
+    }
+
+    if (!localStorage.getItem('athar_mock_db_volunteer_stories')) {
+        const now = Date.now();
+        const initialStories = [
+            {
+                id: 'story_1', user_id: 'member_user_2', author: 'كريم قسنطيني / Karim Constantini',
+                wilaya: 'Alger', sticker: '🧤', palette: 0,
+                caption_ar: 'سلال رمضان جاهزة للتوزيع في الحي', caption_fr: 'Les colis du Ramadan prêts à être distribués', caption_en: 'Ramadan packages ready in the neighborhood',
+                likes: ['member_user_1', 'member_user_3'], created_at: new Date(now - 1000 * 60 * 60 * 5).toISOString()
+            },
+            {
+                id: 'story_2', user_id: 'member_user_1', author: 'ياسمين بلعيدي / Yasmine Belaidi',
+                wilaya: 'Oran', sticker: '🌱', palette: 1,
+                caption_ar: 'الفرز البيئي عند التحبين في أكيد لطفي', caption_fr: 'Tri des déchets à Akid Lotfi', caption_en: 'Waste sorting at Akid Lotfi Oran',
+                likes: ['admin_user_id'], created_at: new Date(now - 1000 * 60 * 60 * 9).toISOString()
+            },
+            {
+                id: 'story_3', user_id: 'admin_user_id', author: 'أمين المشرف / Amin Admin',
+                wilaya: 'Blida', sticker: '🚰', palette: 2,
+                caption_ar: 'كلاب الماء وصل إلى شريعة', caption_fr: 'Les points d\'eau arrivent à Chréa', caption_en: 'Water points delivered to Chréa',
+                likes: ['member_user_2'], created_at: new Date(now - 1000 * 60 * 60 * 3).toISOString()
+            },
+            {
+                id: 'story_4', user_id: 'member_user_3', author: 'فاطمة الزهراء / Fatima Zohra',
+                wilaya: 'Annaba', sticker: '🌊', palette: 3,
+                caption_ar: 'الفرز قبل التنظيف على الشاطئ', caption_fr: 'Séparer avant de nettoyer la plage', caption_en: 'Sorting before the beach cleanup',
+                likes: [], created_at: new Date(now - 1000 * 60 * 25).toISOString()
+            },
+            {
+                id: 'story_5', user_id: 'member_user_2', author: 'كريم قسنطيني / Karim Constantini',
+                wilaya: 'Constantine', sticker: '🎨', palette: 4,
+                caption_ar: 'جدارية سيدي مْسيد قبل الطلاء', caption_fr: 'La fresque de Sidi M\'Cid avant peinture', caption_en: 'Sidi M\'Cid mural before paint',
+                likes: [], created_at: new Date(now - 1000 * 60 * 60 * 40).toISOString()
+            }
+        ];
+        localStorage.setItem('athar_mock_db_volunteer_stories', JSON.stringify(initialStories));
+    }
+
+    const seedV = localStorage.getItem('athar_mock_db_seed_v');
+    if (seedV !== 'v3') {
+        const nowV = Date.now();
+        const extraSessions = [
+            {
+                id: 'vs_coast', initiative_id: 'init_1',
+                title_ar: 'تنظيف شاطئ أناب وكسبات', title_fr: 'Nettoyage des Plages d\'Annaba', title_en: 'Annaba Beach Cleanup',
+                description_ar: 'جرد وتنظيف شريط ساحلي مع ورشة توعوية حول البيئة البحرية.',
+                description_fr: 'Nettoyage du littoral avec un atelier de sensibilisation marine.',
+                description_en: 'Coastal cleanup with a marine awareness workshop.',
+                location: 'Sidi Salem, Annaba',
+                start_at: new Date(nowV + 604800000).toISOString(), end_at: new Date(nowV + 604800000 + 5 * 3600000).toISOString(),
+                capacity: 15, status: 'approved', created_by: 'admin_user_id', reviewed_by: 'admin_user_id', reviewed_at: new Date().toISOString(),
+                reject_reason: null, created_at: new Date().toISOString(), updated_at: new Date().toISOString()
+            },
+            {
+                id: 'vs_forest', initiative_id: 'init_3',
+                title_ar: 'غرس مليون شجرة', title_fr: 'Un Million d\'Arbres Plantés', title_en: 'Million Tree Planting',
+                description_ar: 'حملة وطنية لغرس الأشجار في الأحراش المحيطة بالمدينة.',
+                description_fr: 'Campagne nationale de plantation d\'arbres autour de la ville.',
+                description_en: 'National tree-planting drive in city woodlands.',
+                location: 'Chréa, Blida',
+                start_at: new Date(nowV + 86400000).toISOString(), end_at: new Date(nowV + 86400000 + 4 * 3600000).toISOString(),
+                capacity: 20, status: 'approved', created_by: 'admin_user_id', reviewed_by: 'admin_user_id', reviewed_at: new Date().toISOString(),
+                reject_reason: null, created_at: new Date().toISOString(), updated_at: new Date().toISOString()
+            },
+            {
+                id: 'vs_mentor', initiative_id: 'init_1',
+                title_ar: 'دعم دروس لمتحصلي البكالوريا', title_fr: 'Soutien Scolaire aux Bacheliers', title_en: 'Bac Exam Mentoring',
+                description_ar: 'جلسات مراجعة في الرياضيات والفيزياء يقدمها طلبة جامعيون.',
+                description_fr: 'Séances de révision en maths et physique par des étudiants.',
+                description_en: 'Revision sessions in math and physics led by university students.',
+                location: 'El Hidhab, Sétif',
+                start_at: new Date(nowV + 432000000).toISOString(), end_at: new Date(nowV + 432000000 + 2 * 3600000).toISOString(),
+                capacity: 25, status: 'approved', created_by: 'admin_user_id', reviewed_by: 'admin_user_id', reviewed_at: new Date().toISOString(),
+                reject_reason: null, created_at: new Date().toISOString(), updated_at: new Date().toISOString()
+            },
+            {
+                id: 'vs_flash', initiative_id: 'init_2',
+                title_ar: 'استجابة عاجلة — إغاثة مناطق الفيضان', title_fr: 'Urgence — Aide aux Zones Inondées', title_en: 'Flash Squad — Flood Relief',
+                description_ar: 'تعبئة عاجلة لتوزيع المساعدات ومساعدة العائلات المتضررة من الفيضان.',
+                description_fr: 'Mobilisation urgente pour distribuer l\'aide aux familles sinistrées.',
+                description_en: 'Emergency mobilization to distribute relief to flood-hit families.',
+                location: 'Oued Fodda, Chlef',
+                start_at: new Date(nowV).toISOString(), end_at: new Date(nowV + 30 * 3600000).toISOString(),
+                capacity: 30, status: 'approved', is_emergency: true, created_by: 'admin_user_id', reviewed_by: 'admin_user_id', reviewed_at: new Date().toISOString(),
+                reject_reason: null, created_at: new Date().toISOString(), updated_at: new Date().toISOString()
+            },
+            {
+                id: 'vs_dance_past', initiative_id: 'init_1',
+                title_ar: 'مسابقة رسم الجداريات', title_fr: 'Concours de Fresques Murales', title_en: 'Murals for the Neighborhood',
+                description_ar: 'رسم جداريات ملونة لحيّ الشباب بمساعدة الفنانين المحليين.',
+                description_fr: 'Réalisation de fresques murales avec des artistes locaux.',
+                description_en: 'Painting colorful murals with local artists.',
+                location: 'Sidi M\'Cid, Constantine',
+                start_at: new Date(nowV - 4 * 86400000).toISOString(), end_at: new Date(nowV - 4 * 86400000 + 6 * 3600000).toISOString(),
+                capacity: 18, status: 'completed', created_by: 'admin_user_id', reviewed_by: 'admin_user_id', reviewed_at: new Date(nowV - 4 * 86400000).toISOString(),
+                reject_reason: null, created_at: new Date(nowV - 6 * 86400000).toISOString(), updated_at: new Date().toISOString()
+            }
+        ];
+        const sessRows = getMockTable('volunteer_sessions');
+        extraSessions.forEach(row => { if (!sessRows.find(x => x.id === row.id)) sessRows.push(row); });
+        saveMockTable('volunteer_sessions', sessRows);
+
+        const extraSignups = [
+            { id: 'vsg_coast', session_id: 'vs_coast', volunteer_id: 'member_user_1', status: 'attended', attended_at: new Date(nowV - 2 * 86400000).toISOString(), hours: 4, points_awarded: 40, created_at: new Date().toISOString() },
+            { id: 'vsg_mentor1', session_id: 'vs_mentor', volunteer_id: 'member_user_2', status: 'registered', attended_at: null, hours: null, points_awarded: 0, created_at: new Date().toISOString() },
+            { id: 'vsg_forest', session_id: 'vs_forest', volunteer_id: 'member_user_3', status: 'registered', attended_at: null, hours: null, points_awarded: 0, created_at: new Date().toISOString() },
+            { id: 'vsg_past1', session_id: 'vs_dance_past', volunteer_id: 'member_user_2', status: 'attended', attended_at: new Date(nowV - 4 * 86400000).toISOString(), hours: 6, points_awarded: 50, created_at: new Date().toISOString() },
+            { id: 'vsg_past2', session_id: 'vs_dance_past', volunteer_id: 'member_user_1', status: 'attended', attended_at: new Date(nowV - 4 * 86400000).toISOString(), hours: 6, points_awarded: 50, created_at: new Date().toISOString() }
+        ];
+        const sgRows = getMockTable('volunteer_signups');
+        extraSignups.forEach(row => { if (!sgRows.find(x => x.id === row.id)) sgRows.push(row); });
+        saveMockTable('volunteer_signups', sgRows);
+
+        const extraStories = [
+            { id: 'story_1', user_id: 'member_user_2', author: 'كريم قسنطيني / Karim Constantini', wilaya: 'Alger', sticker: '🧤', palette: 0, caption_ar: 'سلال رمضان جاهزة للتوزيع في الحي', caption_fr: 'Les colis du Ramadan prêts à être distribués', caption_en: 'Ramadan packages ready in the neighborhood', likes: ['member_user_1', 'member_user_3'], created_at: new Date(nowV - 1000 * 60 * 60 * 5).toISOString() },
+            { id: 'story_2', user_id: 'member_user_1', author: 'ياسمين بلعيدي / Yasmine Belaidi', wilaya: 'Oran', sticker: '🌱', palette: 1, caption_ar: 'الفرز البيئي عند التحبين في أكيد لطفي', caption_fr: 'Tri des déchets à Akid Lotfi', caption_en: 'Waste sorting at Akid Lotfi Oran', likes: ['admin_user_id'], created_at: new Date(nowV - 1000 * 60 * 60 * 9).toISOString() },
+            { id: 'story_3', user_id: 'admin_user_id', author: 'أمين المشرف / Amin Admin', wilaya: 'Blida', sticker: '🚰', palette: 2, caption_ar: 'كلاب الماء وصل إلى شريعة', caption_fr: 'Les points d\'eau arrivent à Chréa', caption_en: 'Water points delivered to Chréa', likes: ['member_user_2'], created_at: new Date(nowV - 1000 * 60 * 60 * 3).toISOString() },
+            { id: 'story_4', user_id: 'member_user_3', author: 'فاطمة الزهراء / Fatima Zohra', wilaya: 'Annaba', sticker: '🌊', palette: 3, caption_ar: 'الفرز قبل التنظيف على الشاطئ', caption_fr: 'Séparer avant de nettoyer la plage', caption_en: 'Sorting before the beach cleanup', likes: [], created_at: new Date(nowV - 1000 * 60 * 25).toISOString() },
+            { id: 'story_5', user_id: 'member_user_2', author: 'كريم قسنطيني / Karim Constantini', wilaya: 'Constantine', sticker: '🎨', palette: 4, caption_ar: 'جدارية سيدي مْسيد قبل الطلاء', caption_fr: 'La fresque de Sidi M\'Cid avant peinture', caption_en: 'Sidi M\'Cid mural before paint', likes: [], created_at: new Date(nowV - 1000 * 60 * 60 * 40).toISOString() }
+        ];
+        const stRows = getMockTable('volunteer_stories');
+        extraStories.forEach(row => { if (!stRows.find(x => x.id === row.id)) stRows.push(row); });
+        saveMockTable('volunteer_stories', stRows);
+
+        localStorage.setItem('athar_mock_db_seed_v', 'v3');
     }
 
     if (!localStorage.getItem('athar_mock_db_notifications')) {
