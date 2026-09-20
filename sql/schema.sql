@@ -2,9 +2,21 @@
 -- Run in SQL Editor
 
 create extension if not exists "pgcrypto";
-create extension if not exists "pg_cron";
+-- pg_cron is Neon-managed and only creatable in the `postgres` DB context.
+-- Nothing below hard-depends on it, so we enable it best-effort (cron-based
+-- housekeeping jobs stay available when the operator targets `postgres`, and
+-- the schema still applies cleanly against neondb/branches either way).
+do $$ begin
+  if not exists (select 1 from pg_extension where extname = 'pg_cron') then
+    begin
+      create extension if not exists "pg_cron";
+    exception when others then
+      raise notice 'pg_cron skipped (expected outside the `postgres` DB context): %', sqlerrm;
+    end;
+  end if;
+end $$;
 
-create table public.profiles (
+create table if not exists public.profiles (
   id uuid references auth.users on delete cascade primary key,
   full_name text not null,
   phone text unique,
@@ -19,7 +31,7 @@ create table public.profiles (
   updated_at timestamptz not null default now()
 );
 
-create table public.initiatives (
+create table if not exists public.initiatives (
   id uuid primary key default gen_random_uuid(),
   title_ar text not null, title_fr text not null, title_en text not null,
   description_ar text, description_fr text, description_en text,
@@ -34,7 +46,7 @@ create table public.initiatives (
   updated_at timestamptz not null default now()
 );
 
-create table public.initiative_members (
+create table if not exists public.initiative_members (
   id uuid primary key default gen_random_uuid(),
   initiative_id uuid references public.initiatives(id) on delete cascade not null,
   user_id uuid references public.profiles(id) on delete cascade not null,
@@ -43,7 +55,7 @@ create table public.initiative_members (
   unique(initiative_id, user_id)
 );
 
-create table public.tasks (
+create table if not exists public.tasks (
   id uuid primary key default gen_random_uuid(),
   initiative_id uuid references public.initiatives(id) on delete cascade not null,
   step_number integer not null,
@@ -52,7 +64,7 @@ create table public.tasks (
   created_at timestamptz not null default now()
 );
 
-create table public.notifications (
+create table if not exists public.notifications (
   id uuid primary key default gen_random_uuid(),
   user_id uuid references public.profiles(id) on delete cascade not null,
   type text not null,
@@ -67,8 +79,11 @@ create table public.notifications (
 alter table public.profiles enable row level security;
 alter table public.initiatives enable row level security;
 
+drop policy if exists "Public profiles are viewable by everyone" on profiles;
 create policy "Public profiles are viewable by everyone" on profiles for select using (true);
+drop policy if exists "Users can update own profile" on profiles;
 create policy "Users can update own profile" on profiles for update using (auth.uid() = id);
+drop policy if exists "Approved initiatives viewable by all" on initiatives;
 create policy "Approved initiatives viewable by all" on initiatives for select using (is_approved = true);
 
 -- Functions
@@ -80,10 +95,11 @@ begin
   return new;
 end; $$;
 
+drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created after insert on auth.users for each row execute function public.handle_new_user();
 
 -- New Tables for Clubs, Training, and Consultations
-create table public.clubs (
+create table if not exists public.clubs (
   id uuid primary key default gen_random_uuid(),
   name_ar text not null,
   name_fr text not null,
@@ -96,7 +112,7 @@ create table public.clubs (
   created_at timestamptz not null default now()
 );
 
-create table public.club_members (
+create table if not exists public.club_members (
   id uuid primary key default gen_random_uuid(),
   club_id uuid references public.clubs(id) on delete cascade not null,
   user_id uuid references public.profiles(id) on delete cascade not null,
@@ -104,7 +120,7 @@ create table public.club_members (
   unique(club_id, user_id)
 );
 
-create table public.training_courses (
+create table if not exists public.training_courses (
   id uuid primary key default gen_random_uuid(),
   title_ar text not null,
   title_fr text not null,
@@ -117,7 +133,7 @@ create table public.training_courses (
   created_at timestamptz not null default now()
 );
 
-create table public.training_enrollments (
+create table if not exists public.training_enrollments (
   id uuid primary key default gen_random_uuid(),
   course_id uuid references public.training_courses(id) on delete cascade not null,
   user_id uuid references public.profiles(id) on delete cascade not null,
@@ -128,7 +144,7 @@ create table public.training_enrollments (
   unique(course_id, user_id)
 );
 
-create table public.consultations (
+create table if not exists public.consultations (
   id uuid primary key default gen_random_uuid(),
   user_id uuid references public.profiles(id) on delete cascade,
   is_anonymous boolean not null default false,
@@ -141,7 +157,7 @@ create table public.consultations (
   answered_at timestamptz
 );
 
-create table public.awareness_content (
+create table if not exists public.awareness_content (
   id uuid primary key default gen_random_uuid(),
   title_ar text not null,
   title_fr text not null,
@@ -154,7 +170,7 @@ create table public.awareness_content (
   created_at timestamptz not null default now()
 );
 
-create table public.school_visits (
+create table if not exists public.school_visits (
   id uuid primary key default gen_random_uuid(),
   school_name text not null,
   school_type text not null default 'middle' check (school_type in ('middle', 'high', 'primary')),
@@ -166,7 +182,7 @@ create table public.school_visits (
   created_at timestamptz not null default now()
 );
 
-create table public.invites (
+create table if not exists public.invites (
   id uuid primary key default gen_random_uuid(),
   initiative_id uuid references public.initiatives(id) on delete cascade not null,
   invited_by uuid references public.profiles(id) on delete set null,
@@ -183,12 +199,19 @@ alter table public.awareness_content enable row level security;
 alter table public.school_visits enable row level security;
 alter table public.invites enable row level security;
 
+drop policy if exists "Awareness content viewable by all" on awareness_content;
 create policy "Awareness content viewable by all" on awareness_content for select using (true);
+drop policy if exists "Authenticated users can insert awareness content" on awareness_content;
 create policy "Authenticated users can insert awareness content" on awareness_content for insert with check (true);
+drop policy if exists "School visits readable by all" on school_visits;
 create policy "School visits readable by all" on school_visits for select using (true);
+drop policy if exists "Authenticated users can add school visits" on school_visits;
 create policy "Authenticated users can add school visits" on school_visits for insert with check (true);
+drop policy if exists "Invites readable by all" on invites;
 create policy "Invites readable by all" on invites for select using (true);
+drop policy if exists "Authenticated users can create invites" on invites;
 create policy "Authenticated users can create invites" on invites for insert with check (true);
+drop policy if exists "Invites can be updated by authenticated users" on invites;
 create policy "Invites can be updated by authenticated users" on invites for update using (true);
 
 -- ============================================================================
@@ -222,9 +245,12 @@ returns boolean language sql stable security definer set search_path = public as
   );
 $$;
 
+-- Dependency note: initiative_of_session() must be declared AFTER the
+-- volunteer_sessions table (it references it), so it lives here next to the
+-- policies that consume it rather than in the auth-helper block above.
 create or replace function public.initiative_of_session(p_session_id uuid)
 returns uuid language sql stable security definer set search_path = public as $$
-  select initiative_id from public.volunteer_sessions where id = p_session_id;
+  select initative_id from public.volunteer_sessions where id = p_session_id;
 $$;
 
 -- ---------- RLS for previously unprotected tables ----------
@@ -238,99 +264,139 @@ alter table public.training_enrollments enable row level security;
 alter table public.consultations enable row level security;
 
 -- initiatives: creators/admins may insert/update/delete (was select-only)
+drop policy if exists "Authenticated users can create initiatives" on initiatives;
 create policy "Authenticated users can create initiatives" on initiatives
   for insert with check (auth.uid() is not null and created_by = auth.uid());
+drop policy if exists "Creators or admins can update initiatives" on initiatives;
 create policy "Creators or admins can update initiatives" on initiatives
   for update using (created_by = auth.uid() or public.is_platform_admin());
+drop policy if exists "Creators or admins can delete initiatives" on initiatives;
 create policy "Creators or admins can delete initiatives" on initiatives
   for delete using (created_by = auth.uid() or public.is_platform_admin());
 
+drop policy if exists "Initiative members see membership" on initiative_members;
 create policy "Initiative members see membership" on initiative_members for select
   using (public.is_initiative_member(initiative_id) or public.is_initiative_leader(initiative_id));
+drop policy if exists "Join own or lead" on initiative_members;
 create policy "Join own or lead" on initiative_members for insert
   with check (user_id = auth.uid() or public.is_initiative_leader(initiative_id));
+drop policy if exists "Leaders can update membership" on initiative_members;
 create policy "Leaders can update membership" on initiative_members for update
   using (public.is_initiative_leader(initiative_id));
+drop policy if exists "Self or leaders can remove" on initiative_members;
 create policy "Self or leaders can remove" on initiative_members for delete
   using (user_id = auth.uid() or public.is_initiative_leader(initiative_id));
 
+drop policy if exists "Initiative members see tasks" on tasks;
 create policy "Initiative members see tasks" on tasks for select
   using (public.is_initiative_member(initiative_id) or public.is_initiative_leader(initiative_id));
+drop policy if exists "Leaders can create tasks" on tasks;
 create policy "Leaders can create tasks" on tasks for insert
   with check (public.is_initiative_leader(initiative_id));
+drop policy if exists "Leaders can update tasks" on tasks;
 create policy "Leaders can update tasks" on tasks for update
   using (public.is_initiative_leader(initiative_id));
+drop policy if exists "Leaders can delete tasks" on tasks;
 create policy "Leaders can delete tasks" on tasks for delete
   using (public.is_initiative_leader(initiative_id));
 
+drop policy if exists "Users see own notifications" on notifications;
 create policy "Users see own notifications" on notifications for select
   using (user_id = auth.uid());
+drop policy if exists "Users can create own notifications" on notifications;
 create policy "Users can create own notifications" on notifications for insert
   with check (user_id = auth.uid());
+drop policy if exists "Users can mark own notifications read" on notifications;
 create policy "Users can mark own notifications read" on notifications for update
   using (user_id = auth.uid());
+drop policy if exists "Users can delete own notifications" on notifications;
 create policy "Users can delete own notifications" on notifications for delete
   using (user_id = auth.uid());
 
+drop policy if exists "Clubs are public" on clubs;
 create policy "Clubs are public" on clubs for select using (true);
+drop policy if exists "Admins create clubs" on clubs;
 create policy "Admins create clubs" on clubs for insert
   with check (public.is_platform_admin());
+drop policy if exists "Admins update clubs" on clubs;
 create policy "Admins update clubs" on clubs for update
   using (public.is_platform_admin());
+drop policy if exists "Admins delete clubs" on clubs;
 create policy "Admins delete clubs" on clubs for delete
   using (public.is_platform_admin());
 
+drop policy if exists "Members see own club membership" on club_members;
 create policy "Members see own club membership" on club_members for select
   using (user_id = auth.uid() or public.is_platform_admin());
+drop policy if exists "Users join clubs themselves" on club_members;
 create policy "Users join clubs themselves" on club_members for insert
   with check (user_id = auth.uid());
+drop policy if exists "Users leave clubs" on club_members;
 create policy "Users leave clubs" on club_members for delete
   using (user_id = auth.uid() or public.is_platform_admin());
 
+drop policy if exists "Training courses are public" on training_courses;
 create policy "Training courses are public" on training_courses for select using (true);
+drop policy if exists "Admins create training courses" on training_courses;
 create policy "Admins create training courses" on training_courses for insert
   with check (public.is_platform_admin());
+drop policy if exists "Admins update training courses" on training_courses;
 create policy "Admins update training courses" on training_courses for update
   using (public.is_platform_admin());
+drop policy if exists "Admins delete training courses" on training_courses;
 create policy "Admins delete training courses" on training_courses for delete
   using (public.is_platform_admin());
 
+drop policy if exists "Users see own enrollments" on training_enrollments;
 create policy "Users see own enrollments" on training_enrollments for select
   using (user_id = auth.uid());
+drop policy if exists "Users enroll themselves" on training_enrollments;
 create policy "Users enroll themselves" on training_enrollments for insert
   with check (user_id = auth.uid());
+drop policy if exists "Users update own enrollments" on training_enrollments;
 create policy "Users update own enrollments" on training_enrollments for update
   using (user_id = auth.uid());
+drop policy if exists "Users delete own enrollments" on training_enrollments;
 create policy "Users delete own enrollments" on training_enrollments for delete
   using (user_id = auth.uid());
 
+drop policy if exists "Users see own or answered public consultations" on consultations;
 create policy "Users see own or answered public consultations" on consultations for select
   using (user_id = auth.uid() or (is_public = true and status = 'answered'));
+drop policy if exists "Authenticated users can consult" on consultations;
 create policy "Authenticated users can consult" on consultations for insert
   with check (auth.uid() is not null and (user_id = auth.uid() or is_anonymous or user_id is null));
+drop policy if exists "Owners or admins update consultations" on consultations;
 create policy "Owners or admins update consultations" on consultations for update
   using (user_id = auth.uid() or public.is_platform_admin());
+drop policy if exists "Owners or admins delete consultations" on consultations;
 create policy "Owners or admins delete consultations" on consultations for delete
   using (user_id = auth.uid() or public.is_platform_admin());
 
+drop policy if exists "School visit creators or admins update" on school_visits;
 create policy "School visit creators or admins update" on school_visits for update
   using (user_id = auth.uid() or public.is_platform_admin());
+drop policy if exists "School visit creators or admins delete" on school_visits;
 create policy "School visit creators or admins delete" on school_visits for delete
   using (user_id = auth.uid() or public.is_platform_admin());
 
+drop policy if exists "Admins manage awareness content" on awareness_content;
 create policy "Admins manage awareness content" on awareness_content for update
   using (public.is_platform_admin());
+drop policy if exists "Admins remove awareness content" on awareness_content;
 create policy "Admins remove awareness content" on awareness_content for delete
   using (public.is_platform_admin());
 
 drop policy if exists "Invites can be updated by authenticated users" on invites;
+drop policy if exists "Initiative leaders or admins update invites" on invites;
 create policy "Initiative leaders or admins update invites" on invites for update
   using (public.is_initiative_leader(initiative_id));
+drop policy if exists "Initiative leaders or admins delete invites" on invites;
 create policy "Initiative leaders or admins delete invites" on invites for delete
   using (public.is_initiative_leader(initiative_id));
 
 -- ---------- Volunteer module ----------
-create table public.volunteer_sessions (
+create table if not exists public.volunteer_sessions (
   id uuid primary key default gen_random_uuid(),
   initiative_id uuid references public.initiatives(id) on delete cascade not null,
   title_ar text not null, title_fr text not null, title_en text not null,
@@ -350,7 +416,7 @@ create table public.volunteer_sessions (
   check (end_at > start_at)
 );
 
-create table public.volunteer_signups (
+create table if not exists public.volunteer_signups (
   id uuid primary key default gen_random_uuid(),
   session_id uuid references public.volunteer_sessions(id) on delete cascade not null,
   volunteer_id uuid references public.profiles(id) on delete cascade not null,
@@ -363,14 +429,16 @@ create table public.volunteer_signups (
   unique (session_id, volunteer_id)
 );
 
-create index volunteer_signups_session_idx on public.volunteer_signups (session_id);
-create index volunteer_sessions_status_idx on public.volunteer_sessions (status, start_at);
+create index if not exists volunteer_signups_session_idx on public.volunteer_signups (session_id);
+create index if not exists volunteer_sessions_status_idx on public.volunteer_sessions (status, start_at);
 
 alter table public.volunteer_sessions enable row level security;
 alter table public.volunteer_signups enable row level security;
 
+drop policy if exists "Approved or own or admin sessions visible" on volunteer_sessions;
 create policy "Approved or own or admin sessions visible" on volunteer_sessions for select
   using (status = 'approved' or created_by = auth.uid() or public.is_platform_admin());
+drop policy if exists "Volunteers see own signups or their session roster" on volunteer_signups;
 create policy "Volunteers see own signups or their session roster" on volunteer_signups for select
   using (volunteer_id = auth.uid()
          or exists (select 1 from public.volunteer_sessions vs
@@ -379,7 +447,7 @@ create policy "Volunteers see own signups or their session roster" on volunteer_
          or public.is_platform_admin());
 
 -- ---------- Audit log ----------
-create table public.audit_logs (
+create table if not exists public.audit_logs (
   id bigint generated always as identity primary key,
   actor_user_id uuid,
   action text not null,
@@ -390,9 +458,10 @@ create table public.audit_logs (
   meta jsonb,
   created_at timestamptz not null default now()
 );
-create index audit_logs_actor_idx on public.audit_logs (actor_user_id, created_at desc);
+create index if not exists audit_logs_actor_idx on public.audit_logs (actor_user_id, created_at desc);
 
 alter table public.audit_logs enable row level security;
+drop policy if exists "Admins read the audit log" on audit_logs;
 create policy "Admins read the audit log" on audit_logs for select
   using (public.is_platform_admin());
 
@@ -611,7 +680,7 @@ alter table public.club_members add column status text not null default 'active'
 alter table public.training_enrollments alter column completed_at drop not null;
 alter table public.training_enrollments alter column completed_at set default now();
 
-create table public.points_ledger (
+create table if not exists public.points_ledger (
   id uuid primary key default gen_random_uuid(),
   user_id uuid references public.profiles(id) on delete cascade not null,
   amount int not null check (amount <> 0),
@@ -620,13 +689,15 @@ create table public.points_ledger (
   ref_id uuid,
   created_at timestamptz not null default now()
 );
-create index points_ledger_user_idx on public.points_ledger (user_id, created_at desc);
+create index if not exists points_ledger_user_idx on public.points_ledger (user_id, created_at desc);
 alter table public.points_ledger enable row level security;
+drop policy if exists "Users read own ledger" on points_ledger;
 create policy "Users read own ledger" on points_ledger for select
   using (user_id = auth.uid() or public.is_platform_admin());
+drop policy if exists "Ledger writes are function-only" on points_ledger;
 create policy "Ledger writes are function-only" on points_ledger for insert with check (false);
 
-create table public.awareness_quiz_attempts (
+create table if not exists public.awareness_quiz_attempts (
   id uuid primary key default gen_random_uuid(),
   user_id uuid references public.profiles(id) on delete cascade not null,
   content_id uuid references public.awareness_content(id) on delete cascade not null,
@@ -636,8 +707,10 @@ create table public.awareness_quiz_attempts (
   unique (user_id, content_id)
 );
 alter table public.awareness_quiz_attempts enable row level security;
+drop policy if exists "Users read own quiz attempts" on awareness_quiz_attempts;
 create policy "Users read own quiz attempts" on awareness_quiz_attempts for select
   using (user_id = auth.uid() or public.is_platform_admin());
+drop policy if exists "Quiz writes are function-only" on awareness_quiz_attempts;
 create policy "Quiz writes are function-only" on awareness_quiz_attempts for insert with check (false);
 
 create or replace function public.try_award_points(p_user_id uuid, p_amount int, p_reason text, p_ref_type text, p_ref_id uuid)
@@ -655,6 +728,7 @@ begin
   perform public.try_award_points(new.user_id, 100, 'club_join', 'club_members', new.club_id);
   return new;
 end; $$;
+drop trigger if exists trg_club_join_points on public.club_members;
 create trigger trg_club_join_points after insert on public.club_members
   for each row execute function public.trg_club_join_points();
 
@@ -667,6 +741,7 @@ begin
   end if;
   return new;
 end; $$;
+drop trigger if exists trg_training_complete_points on public.training_enrollments;
 create trigger trg_training_complete_points after update of status on public.training_enrollments
   for each row execute function public.trg_training_complete_points();
 
@@ -678,6 +753,7 @@ begin
   end if;
   return new;
 end; $$;
+drop trigger if exists trg_school_visit_points on public.school_visits;
 create trigger trg_school_visit_points after update of status on public.school_visits
   for each row execute function public.trg_school_visit_points();
 
